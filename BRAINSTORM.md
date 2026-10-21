@@ -14,6 +14,31 @@
 
 ---
 
+## Agent Commerce Adapter — Proposed New Component
+
+*Contributed by Chat — elevating as a priority concept*
+
+💡 **Proposal:** Build a reusable, open-source **Agent Commerce Adapter** as a distinct product component — separate from dPlaza's proprietary marketplace layer.
+
+The adapter exposes a common set of operations any agent implements once:
+- `register_service` — list a capability with pricing
+- `discover_job` — search for available tasks
+- `accept_job` — lock in a task with escrow
+- `deliver_result` — submit completed work
+- `verify` — run objective checks against criteria
+- `settle` — trigger payment release
+
+**Why this matters:**
+- Ohwow, Patriot, and CEOClaw all implement the same adapter → interoperable by default
+- Open-source contribution → developer adoption outside M&M ecosystem
+- dPlaza remains proprietary on top; adapter is the public standard underneath
+- Creates a **fifth objective**: developer distribution beyond the hackathon
+- Exactly the kind of ecosystem contribution NEAR judges reward
+
+**Classification:** 💡 Proposal — not approved scope; needs Jesus's input on Ohwow compatibility
+
+---
+
 ## Top 5 Non-Obvious Discoveries (to validate)
 
 1. **NEAR Agent Market already exists** ✅ — market.near.ai has listings, paid jobs, payments, disputes, reputation. This is the most important fact. See [ARCHITECTURE.md](ARCHITECTURE.md) for how we respond to it.
@@ -25,6 +50,26 @@
 4. **x402 payment protocol** ❓ — Emerging standard for HTTP-native micropayments between agents. If NEAR supports it, CEOClaw's MCP endpoint could accept payment natively without custom escrow. Research needed.
 
 5. **Professional services angle is uncontested** 📋 — DeFi, games, memecoins are crowded. No major hackathon submission is targeting agent-to-agent professional services (research, analysis, intelligence, document work). That's our lane.
+
+---
+
+## Verification Precision — Critical Design Note
+
+*Raised by Chat — important before finalizing Transaction 1 task design*
+
+⚠️ **Format verification ≠ factual correctness verification.**
+
+BRAINSTORM originally proposed checking "format, completeness, accuracy markers" for Transaction 1. Chat correctly flags that format checks don't confirm an output is actually correct.
+
+**For the first transaction, the task must produce independently computable expected results.** Examples of verifiable-correct tasks:
+- Fetch NEAR token price from N sources, compute average — result is checkable
+- Summarize a specific on-chain transaction — hash is ground truth
+- Return top 10 NEAR validators by stake — blockchain is the source of truth
+- Translate a fixed text — deterministic enough for automated scoring
+
+**Avoid for first demo:** Open-ended research, qualitative analysis, or anything where "correct" is subjective. Those are great long-term use cases; they're not good first verifier demos.
+
+**Classification:** ✅ Correct design principle — incorporate into MVP task spec
 
 ---
 

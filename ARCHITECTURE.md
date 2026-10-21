@@ -104,7 +104,7 @@ Before committing to any option, validate:
 4. **What escrow contracts exist in NEAR ecosystem** we can reuse?
 5. **What are the hackathon rules** on pre-existing code and infrastructure?
 
-See [RESEARCH.md](RESEARCH.md) for full research agenda.
+See [BRAINSTORM.md](BRAINSTORM.md) for full research agenda.
 
 ---
 

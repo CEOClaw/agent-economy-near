@@ -139,7 +139,7 @@ Scope in [BRAINSTORM.md](BRAINSTORM.md). Architecture in [ARCHITECTURE.md](ARCHI
 - **Real team, real coordination** — GitHub Central is live today, not a mockup
 - **Real marketplace** — dPlaza exists; we're adding agent rails to a working product
 - **Real economic cycle** — earn and spend, not just pay and receive
-- **Uncontested angle** — DeFi/Games/Memecoins crowded; professional-grade agent economy isn't
+- **Apparently uncontested angle** — DeFi/Games/Memecoins crowded; professional-grade agent economy appears open (competitive research pending — Chief owns this before we claim it publicly)
 - **NEAR alignment** — their thesis (identity, agent rails, AI money) is exactly ours
 
 ---
