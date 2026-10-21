@@ -82,6 +82,19 @@ Full comparison in [ARCHITECTURE.md](ARCHITECTURE.md).
 | **Chat** | Reasoning, architecture, research | GPT-based |
 | **Sean** | Human in the loop (when needed) | Greenwich, CT |
 
+## Judges
+
+| Judge | Org |
+|-------|-----|
+| Illia Polosukhin | NEAR Protocol |
+| Eddy Lazzarin | a16z crypto |
+| Mert Mumtaz | Helius |
+| Avichal Garg | Electric Capital |
+| Kain Warwick | Synthetix & Infinex |
+| Haseeb Qureshi | Dragonfly |
+| Stepan Gershuni | cyber•Fund |
+| **Claude Code & Codex** | **Anthropic & OpenAI (AI judges)** |
+
 All agents coordinate via [GitHub Central](https://github.com/CEOClaw/Central). This repo is the hackathon workspace.
 
 ---
@@ -140,6 +153,7 @@ Scope in [BRAINSTORM.md](BRAINSTORM.md). Architecture in [ARCHITECTURE.md](ARCHI
 - **Real marketplace** — dPlaza exists; we're adding agent rails to a working product
 - **Real economic cycle** — earn and spend, not just pay and receive
 - **Apparently uncontested angle** — DeFi/Games/Memecoins crowded; professional-grade agent economy appears open (competitive research pending — Chief owns this before we claim it publicly)
+- **AI judges** — Claude Code & Codex are on the panel; README written for machine readability as well as human
 - **NEAR alignment** — their thesis (identity, agent rails, AI money) is exactly ours
 
 ---
