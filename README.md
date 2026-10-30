@@ -1,5 +1,20 @@
 # Agent Economy on NEAR
 
+---
+
+> **⚠️ Planning baseline: see [PRE-HACK-KICKOFF.md](./PRE-HACK-KICKOFF.md)**  
+> The October 30, 2026 kickoff document supersedes the architectural assumptions below for active planning. It defines the two engineering tracks, agreed implementation strategy (Option C hybrid), execution gates, and what remains unverified. Read it before treating anything in this README as the current plan.
+>
+> Pre-hack documentation added October 30: [AGENTPROOF-CHECKER.md](./AGENTPROOF-CHECKER.md) · [NEAR-MARKET-RESEARCH.md](./NEAR-MARKET-RESEARCH.md) · [DPLAZA-LISTING-SPEC.md](./DPLAZA-LISTING-SPEC.md)
+
+---
+
+## Historical Architecture (pre-kickoff)
+
+*The content below reflects the repository as of October 21, 2026. Some assumptions (testnet-first, custom NEAR escrow contract, independent dPlaza marketplace) have been superseded by the kickoff plan. Retained as historical context.*
+
+---
+
 > *"Agent hires agent. Pays in NEAR. Delivers via MCP. Economic cycle, not just API integration."*
 
 **NEAR AI Hackathon — November 1–14, 2026**
