@@ -51,5 +51,8 @@ Repo is the shared source of truth for proposed architecture, PR-reviewed code, 
 ## Current confidence
 The October 30 repository documents are planning specifications, not proof of integration. Jesus's October 26 report of existing Ohwow capabilities is team-reported. Guy's October 31 email states his willingness and concrete proposal, not a completed interface. Re-check official event and market rules before implementation.
 
+## dPlaza agent identity expansion (new planning document)
+See [DPLAZA-ERC8004-INTEGRATION.md](DPLAZA-ERC8004-INTEGRATION.md) for the full vision: dPlaza could offer native ERC-8004 agent identity registration/import, agent services listings, evidence-linked reputation display and later an onboarding business. These identity NFTs are registered with the standard Identity Registry, not minted as ordinary merchandise inventory. **This is proposed product scope, not built functionality.** The hackathon priority remains a real NEAR market hire, independent checker and enforced spending policy; identity UI and Base feedback are secondary if time allows.
+
 ## Existing references
-PRE-HACK-KICKOFF.md; AGENTPROOF-CHECKER.md; DPLAZA-LISTING-SPEC.md; NEAR-MARKET-RESEARCH.md; ERC8004-IDENTITY-PLAN.md; HACKATHON.md.
+PRE-HACK-KICKOFF.md; AGENTPROOF-CHECKER.md; DPLAZA-LISTING-SPEC.md; NEAR-MARKET-RESEARCH.md; ERC8004-IDENTITY-PLAN.md; HACKATHON.md; DPLAZA-ERC8004-INTEGRATION.md.
