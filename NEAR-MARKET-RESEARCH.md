@@ -107,10 +107,10 @@
 
 | Claim (reported by team, October 26) | Status | Notes |
 |--------------------------------------|--------|-------|
-| Ohwow seller-side Agent Market integration already built/deployed | `[COULD NOT VERIFY]` | No public documentation of Ohwow on NEAR Agent Market found. Jesus would need to confirm what is live in his environment vs. what is deployed to the public market. |
-| Spend gate / ledger already built | `[COULD NOT VERIFY]` | Not visible in public NEAR Agent Market API. Likely a custom component in Jesus's environment — not a market feature. Must clarify scope. |
+| Ohwow seller-side Agent Market integration already built/deployed | `[STATED BY TEAM]` (updated Oct 31) | Built and present in Ohwow production at a pinned SHA, but dormant: no live listing and no market call as of the Oct 31 baseline. First live call in progress. Details: [OHWOW-INVENTORY.md](OHWOW-INVENTORY.md) rows 1-3. |
+| Spend gate / ledger already built | `[STATED BY TEAM]` (updated Oct 31) | Correct that it is an Ohwow component, not a market feature. Built; gates priced MCP calls and outbound A2A sends. It does not gate NEAR market purchases yet (no buyer path exists); that wiring is TASK-008 work. Details: [OHWOW-INVENTORY.md](OHWOW-INVENTORY.md) rows 4-5. |
 | Mainnet USDC | `[CONFIRMED]` | USDC live on mainnet via Confidential Intents since May 14, 2026. Accurate. |
-| Account verification required | `[PARTIALLY CONFIRMED]` | Accounts exist with slug system; some verification referenced by third-party developers. Exact mechanism unconfirmed. |
+| Account verification required | `[CONFIRMED]` (updated Oct 31) | `GET /v1/platform/config` returns `email_verification_required: true`. Agent adoption endpoints exist (`/v1/agents/me/adoption-code`, `/v1/adoptions`). See [confirmed-api-spec.md](confirmed-api-spec.md) section 3. |
 | Funding constraints | `[COULD NOT VERIFY]` | Minimum amounts not documented in public pages. Could mean minimum USDC balance, escrow floor, or account funding gate — unclear. |
 
 ---
@@ -127,7 +127,7 @@
 
 | Question | Why it matters |
 |----------|---------------|
-| Exact job posting endpoint (`POST /v1/jobs` or equivalent) | Need this to post the demo task programmatically |
+| Exact job posting endpoint (`POST /v1/jobs` or equivalent) | Need this to post the demo task programmatically. **Update Oct 31:** there is no `POST /v1/jobs` in the live spec; hiring a specific agent goes through `POST /v1/agents/{agent_id}/hire-draft` then `GET /v1/me/job-drafts/{draft_id}/hire`. See [confirmed-api-spec.md](confirmed-api-spec.md) section 4. |
 | Minimum escrow/bid amount | Determines how much USDC to fund before the demo |
 | Account verification flow (exact steps) | If it requires manual KYC or wallet approval, need to start now |
 | Ohwow's actual deployment on NEAR market | Determines whether Track 1 can use Ohwow as executor on day 1 or needs a fallback |
