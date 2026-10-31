@@ -1,8 +1,8 @@
-# Ohwow Inventory: Pre-Existing Infrastructure vs. Hackathon Work
+# Ohwow Inventory: Background Infrastructure vs. Hackathon Work
 
 > **Status:** Pre-hack inventory, October 31, 2026 (before the November 1 00:00 UTC build window)
 > **Author:** Jesus Onoro (jesusonoro)
-> **Purpose:** Answer, with evidence, what the repo labels `[COULD NOT VERIFY]` about Ohwow, and draw an explicit line between what existed before November 1 and what will be built November 1-14.
+> **Purpose:** Answer, with evidence, what the repo labels `[COULD NOT VERIFY]` about Ohwow, and draw an explicit line between Ohwow background infrastructure (private, not submitted for judging) and the hackathon work that will live in this repo.
 > **Label key (same as NEAR-MARKET-RESEARCH.md):** `[CONFIRMED]` = directly observed in live docs/API, checkable by anyone today · `[STATED BY TEAM]` = reported by Jesus; for Ohwow code this means pinned to a commit SHA in a private repository (see Verification below) · `[COULD NOT VERIFY]` = could not confirm
 
 ---
@@ -14,7 +14,9 @@
 | Ohwow cloud (ohwow.fun) | jesusonoro/ohwow.fun | Private | `c5344e6cf` | Vercel production. The production deployment on October 31, 2026 00:19 UTC is this SHA. |
 | Ohwow runtime (local agent daemon) | ohwow-fun/ohwow | Private | `ef950eb2` | Operator's own machine, as the local daemon |
 
-Every commit cited below is an ancestor of these baselines. Nothing in this document was written for the hackathon: all of it was built in October 2026 for Ohwow's own product.
+Every commit cited below is an ancestor of these baselines. All of it was built in October 2026 for Ohwow's own product.
+
+**Window note (updated Oct 31 from the live rules).** The official HACKATHON.md (Q-001) counts work from the October 19 announcement, not from November 1; earlier commits are baseline. Several rows below are dated October 21, so by date they fall inside the window. They are still treated here as **background: private, not submitted for judging**, because only NEAR work in the submitted public repository is judged (Q-002, Q-003) and the Ohwow repositories stay private. The Ohwow piece that will be judged is a small public adapter built in this repo (section 4).
 
 **Background IP.** Ohwow code is Jesus Onoro's background IP. No license (Apache, MIT or other) is granted by this document or by its use in the hackathon. Hackathon-created code in this repository is licensed as the team decides separately.
 
@@ -45,7 +47,9 @@ What anyone can check today, without access: every NEAR Agent Market endpoint th
 
 ## 4. The line: pre-existing vs. November 1-14
 
-**Pre-existing (rows 1-6, background IP, not counted as hackathon work):** market client, sell backend, spend gate, ledger, inbound priced A2A.
+**Background (rows 1-6): private, not submitted for judging.** Market client, sell backend, spend gate, ledger, inbound priced A2A.
+
+**Judged Ohwow surface: a small public adapter in this repo.** It talks to Ohwow's NEAR market and spend-gate behaviour through a documented interface, the same model as the Peregrines executor seat (public interface, private internals). Its exact shape is decided with the team on Nov 1.
 
 **To be built November 1-14 (hackathon work, in this repo or clearly marked):**
 
@@ -62,7 +66,7 @@ What anyone can check today, without access: every NEAR Agent Market endpoint th
 ## 5. Answers to PRE-HACK-KICKOFF questions
 
 **Q1. What precisely is deployed, where, and what can be demonstrated or reused under hackathon rules?**
-Deployed to Vercel production at baseline `c5344e6cf`: the NEAR market client and sell backend (dormant, no live listing), the cloud ledger and settlement records, and inbound priced A2A. Shipped in the runtime at `ef950eb2`: the external spend gate. Demonstrable today: the gate and ledger on priced MCP and A2A calls, and the sell backend against fixtures. Demonstrable once P0 completes: a live Ohwow listing taking a paid market job. Reuse: as declared background infrastructure only. Whether pre-existing code may be used at all is still open (issue #1, TASK-000); this inventory exists so the team can answer that honestly.
+Deployed to Vercel production at baseline `c5344e6cf`: the NEAR market client and sell backend (dormant, no live listing), the cloud ledger and settlement records, and inbound priced A2A. Shipped in the runtime at `ef950eb2`: the external spend gate. Demonstrable today: the gate and ledger on priced MCP and A2A calls, and the sell backend against fixtures. Demonstrable once P0 completes: a live Ohwow listing taking a paid market job. Reuse: as declared background infrastructure only. The live rules allow building on an existing project if the new work is separated (Q-003, Q-004) and own earlier libraries are listed as baseline (Q-005). Because the Ohwow code stays private, the judged Ohwow work is the public adapter in this repo.
 
 **Q7. Can Ohwow implement the same external executor contract independently of HERO?**
 Yes, as new hackathon work. Ohwow already accepts priced tasks from outside agents with an approval step and a per-task settlement record (rows 5-6). It does not yet speak the AgentProof request/response schema; that adapter is November work, and it would not depend on HERO.
