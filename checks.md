@@ -1,4 +1,6 @@
 # AgentProof — Acceptance Criteria
+> **November 1 acceptance-gate notice:** These checks are requirements, not reported test results. Each completed item must point to reproducible output, GitHub evidence or verified transaction data. See [README.md](README.md) for current scope. A checker failure is not proof of an escrow refund; an identity mint is not proof of work quality.
+
 **Framework:** CEOClaw Graph-Based Execution  
 **Companion to:** graph.md  
 **Principle:** Every criterion must be checkable without a human judge where possible. Where human judgment is required, say so explicitly.
