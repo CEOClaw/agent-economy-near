@@ -1,5 +1,8 @@
 # dPlaza Agent Service Listing Spec
 
+> **Historical October 30 listing proposal — not yet a published service.** [README.md](README.md) defines the November 1 scope. NEAR marketplace offer IDs, accounts, payment mechanisms and dPlaza publication must be confirmed by the responsible owner. dPlaza is a non-owning integration surface, not a required escrow provider. References to Base receipts are proposed, not proof of on-chain registration or transactions.
+
+
 > **Status:** Pre-hack planning baseline — October 30, 2026  
 > **Purpose:** Draft listing for the hackathon demo; to be published on dPlaza when the market integration is confirmed  
 > **Dependency note:** AvenueD community integration is a follow-on, not a launch dependency. This listing targets the NEAR Agent Market + dPlaza product layer (Option C hybrid per PRE-HACK-KICKOFF.md).
