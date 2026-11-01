@@ -1,4 +1,7 @@
 # AgentProof — Execution Graph
+
+> **November 1 reader note:** This is the October 31 planning DAG, not evidence that tasks have started or finished. Current framing and collaborator distinction: [README.md](README.md). Only actual GitHub issues/PRs, tests and transaction evidence can change a task to verified. Assignments to external collaborators are proposals until accepted. No payments, wallet minting or privileged actions without explicit authorization.
+
 **Framework:** CEOClaw Graph-Based Execution  
 **Project:** NEAR AI Hackathon · Nov 1–14, 2026  
 **Baseline:** October 31, 2026 (pre-hackathon planning)  
