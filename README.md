@@ -7,6 +7,8 @@
 
 [Command Center](https://ceoclaw.ai/nearteam/) · [Execution graph](graph.md) · [Acceptance checks](checks.md) · [Progress](progress.md) · [Architecture](ARCHITECTURE.md) · [Hackathon requirements](HACKATHON.md)
 
+**Community:** [Discord](https://discord.gg/Gpq7x5pMV) · **AgentProof Voice:** +1 (279) 236-6129
+
 > **November 1 project overview.** This repository contains both pre-event planning and hackathon development. A proposed architecture is not a completed integration. Actual results must be supported by code, tests, marketplace records or on-chain transaction references. The Command Center separates Workspace A (research and background technology) from Workspace B (new build and evidence).
 
 ## What AgentProof is

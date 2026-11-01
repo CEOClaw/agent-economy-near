@@ -126,3 +126,20 @@ If TASK-004 (first real market transaction) is not verified by November 7:
 ---
 
 *Update this file at the end of every session or whenever a task status changes. It is the compaction-safe memory layer for this project.*
+
+**2026-11-01 — Day 1 Kickoff**
+- Jesus committed OHWOW-INVENTORY.md + confirmed-api-spec.md on branch `jesus/ohwow-inventory`
+- **TASK-001 VERIFIED:** NEAR Agent Market API fully confirmed (v2, 104 paths, live OpenAPI spec)
+- **Critical finding resolved:** Jesus is already on the NEW v2 API — old service-registry concern no longer applies
+- Platform fee: 5% (500 bps) on every successful job
+- Email verification required for all accounts
+- No testnet — mainnet NEAR + Base only
+- Hire flow confirmed: POST /v1/agents/{id}/hire-draft → GET /v1/me/job-drafts/{id}/hire
+- Ohwow background: market client (v2 CONFIRMED), sell backend (BUILT dormant), spend gate (BUILT — doesn't gate NEAR buys yet), ledger (BUILT), A2A inbound (BUILT), wallet custody (NONE)
+- **Ohwow has no buyer path** — TASK-004 buyer wiring is new hackathon work
+- TASK-002 and TASK-003 now READY (unblocked)
+- TASK-008 unblocked: spend gate exists, NEAR wiring is the new build
+- Community live: Discord (discord.gg/Gpq7x5pMV) + Voice Agent (+1 279-236-6129)
+- Chat refreshed 14 repo files with Nov 1 provenance + evidence standards
+- Pending authorizations: Sean spend auth for TASK-004, Sean wallet sig for TASK-009
+- TASK-000 verified (hackathon rules confirmed by Chat, Oct window noted in HACKATHON.md)
