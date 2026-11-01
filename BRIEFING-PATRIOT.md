@@ -32,7 +32,7 @@ The stack is live, not vaporware. Three platforms, all in production, all with w
 | Architecture | Base-oriented (EVM), NEAR wallet integration = net-new |
 | Intended role | Agent storefronts, service discovery, agent-to-agent commerce |
 | NFT mint | Proven in production |
-| Repo | dCommunity-dev/dPlaza (Jesus controls) |
+| Repo | Private (dPlaza team) |
 | Status | Live platform, pre-agent-commerce feature set |
 
 **What dPlaza is designed to become:**
@@ -55,9 +55,8 @@ Sean owns it. Jesus builds it. We can direct specific features (NEAR wallet, age
 | Fact | Detail |
 |------|--------|
 | MCP Tools | 81 (most comprehensive in the stack) |
-| Auth | Two-tier: superadmin + community-scoped keys |
-| Token | $AVED on Base, Aerodrome Finance LP |
-| Backend | Supabase, Thirdweb Engine server wallets |
+| Token | $AVED on Base |
+| Architecture | Details kept in team-private notes. |
 | Role | Community membership, treasury, reward distribution |
 
 **Relevance to hackathon:**
@@ -109,22 +108,9 @@ All three owned and directable by Sean.
 
 ---
 
-## What the NEAR Hackathon Does for dPlaza Specifically
+## What the NEAR Hackathon Does for dPlaza
 
-This is the key frame for strategy: the hackathon is a product sprint, not a side project.
-
-**Features dPlaza needs that the hackathon builds:**
-
-| Feature | Hackathon builds it? | Post-hackathon status |
-|---------|---------------------|----------------------|
-| Agent wallet integration | ✅ Yes — NEAR wallet | Extend to Base/multi-wallet |
-| Agent service listings | ✅ Yes — agent store MVP | Full feature post-Nov 14 |
-| Escrow + conditional settlement | ✅ Yes — NEAR escrow contract | Generalize to other payment rails |
-| Objective verification module | ✅ Yes — verifier for task completion | Becomes dPlaza standard |
-| Agent transaction history | ✅ Yes — logs committed to repo | Evolves into reputation system |
-| Agent discovery | Partial — demo scope | Full search/filter post-hackathon |
-
-Every line item that goes into the hackathon submission is a line item on dPlaza's real product roadmap. The judges see a demo. The team ships a product.
+The hackathon exercises agent wallet integration, service listings, objective verification and auditable transaction logs. Post-hackathon product plans: details kept in team-private notes.
 
 ---
 
@@ -154,7 +140,7 @@ You are the **task originator and demand signal** in this economy.
 - Payment releases on verified completion
 
 **What you bring that nobody else does:**
-You already score NEAR at 83-85/100 — the highest in your portfolio. You have a legitimate, non-manufactured reason to hire an Ohwow agent for NEAR ecosystem intelligence. That's not a contrived demo task. That's a real workflow.
+A legitimate, non-manufactured reason to hire an Ohwow agent for NEAR ecosystem intelligence. That's not a contrived demo task. That's a real workflow.
 
 **The specific task we're considering for Transaction 1:**
 Something independently computable and blockchain-verifiable — e.g., "return the current top 10 NEAR validators by stake, formatted as JSON." The blockchain is the ground truth. The verifier can check in milliseconds. No subjective judgment required.
@@ -178,18 +164,9 @@ To be explicit about scope:
 
 ---
 
-## The Bigger Opportunity
+## Beyond the Hackathon
 
-If the hackathon works, dPlaza becomes the first operational multi-agent marketplace with:
-- NEAR-native settlement
-- Base credential infrastructure (Student Center ERC-721)
-- AvenueD community identity
-- Live agent transactions with verifiable history
-
-That's a genuinely differentiated position in the agentic economy. Not a demo. A product.
-
-**The question for the brainstorm:**
-What should dPlaza be in 12 months, and how does the NEAR hackathon get us there faster?
+Longer-term strategy: details kept in team-private notes.
 
 ---
 

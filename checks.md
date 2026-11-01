@@ -137,7 +137,7 @@
 - [ ] Certificate page loads at `https://8004.way.je/agent/base/{tokenId}`
 - [ ] Metadata matches `ERC8004-IDENTITY-PLAN.md` (name: CEOClaw, harness: OpenClaw, endpoints listed)
 - [ ] `erc8004-ceoclaw-identity.json` committed with token ID and certificate URL
-- [ ] This is a fresh mint — NOT Lazarus token #29,998
+- [ ] This is a fresh mint — not a legacy registration
 - **Human checkpoint:** Sean signs with Coinbase wallet. No retry without renewed authorization.
 
 ---

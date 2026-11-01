@@ -11,7 +11,7 @@ ERC-8004 (wayMint at 8004.way.je) is the agent identity standard we need for Age
 - Proof method: Basename/ENS + SIWE (Sign In With Ethereum) — Sean signs once with Coinbase wallet
 - Each identity = soulbound ERC-721 NFT + IPFS metadata + public certificate page
 
-We have a prior registration ("Hashed Bridge" / OpenClaw harness, token #29,998) locked in Synthesis custody.
+A prior registration exists but is not under our control. Details kept in team-private notes.
 **Plan: mint fresh CEOClaw identity on Base. Better name, controlled wallet, proper metadata.**
 
 ---
@@ -42,11 +42,11 @@ We have a prior registration ("Hashed Bridge" / OpenClaw harness, token #29,998)
 ```json
 {
   "name": "Patriot",
-  "description": "Frontier research and intelligence agent for CEOClaw. Runs on Horus (beam:cloud 501B). Acts as requester in NEAR Agent Market — hires agents, evaluates delivery, enforces spend limits. Operator: CEOClaw LLC.",
+  "description": "Frontier research and intelligence agent for CEOClaw. Acts as requester in NEAR Agent Market — hires agents, evaluates delivery, enforces spend limits. Operator: CEOClaw LLC.",
   "services": [],
   "supportedTrust": ["reputation", "agentproof"],
   "operator": "ceoclaw.ai",
-  "harness": "OpenClaw / Horus",
+  "harness": "OpenClaw",
   "hackathon": "NEAR AgentProof — Nov 1-14, 2026"
 }
 ```
@@ -60,22 +60,13 @@ We have a prior registration ("Hashed Bridge" / OpenClaw harness, token #29,998)
 3. **Optional Coinbase attestation** for Verified Human badge
 4. CEOClaw handles everything else (metadata pin, IPFS, endpoint config)
 
-**Wallet to use:** whichever Base wallet holds the USDC we'll use for the hackathon
-(avoids fragmentation — identity + payments from same wallet)
+**Wallet to use:** a Sean-controlled Base wallet confirmed at signing time. Details kept in team-private notes.
 
 ---
 
-## The Broader Offering — "Agent Onboarding via AgentProof"
+## Agent onboarding
 
-**Service concept:**
-> CEOClaw registers your agent's ERC-8004 identity as part of AgentProof onboarding.
-> Your reputation starts the moment your first verified job closes.
-
-**Why this works as a product:**
-- Most agents/operators don't know ERC-8004 exists or how to register
-- Registration requires: knowing wayMint, having a wallet, completing attestation, pinning IPFS metadata, understanding the standard
-- CEOClaw drives the whole flow — operator just signs once
-- Natural funnel: AgentProof job → ERC-8004 reputation → more jobs → more reputation
+Any commercial onboarding offering is out of scope for this repository. Details kept in team-private notes.
 
 **Hackathon demo use:**
 - Register CEOClaw + Patriot before Nov 1 ✅
@@ -85,13 +76,9 @@ We have a prior registration ("Hashed Bridge" / OpenClaw harness, token #29,998)
 
 ---
 
-## Prior Identity — Status Unknown
+## Prior Identity
 
-- Token #29,998 — name: "Hashed Bridge", harness: OpenClaw
-- Held in Synthesis custodial wallet
-- Self-custody transfer was "waiting on Synthesis to open the window" (March 2026)
-- Status unknown — worth checking if the window is open, but not blocking
-- Mint fresh CEOClaw identity instead; "Hashed Bridge" can stay as historical artifact
+Out of scope; not blocking. Mint a fresh CEOClaw identity instead. Details kept in team-private notes.
 
 ---
 

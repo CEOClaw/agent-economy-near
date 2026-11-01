@@ -95,7 +95,7 @@ curl -sS -X POST https://nearhackathon.com/api/applications \
 | NEAR Intents | Cross-chain execution | Settlement layer |
 | HOT | Chain abstraction | Cross-chain without bridging |
 | Trezu | Multisig treasury for Web3 teams | dPlaza treasury layer |
-| NEAR.AI | Private AI inference (TEE) | MMINTEL air-gap angle |
+| NEAR.AI | Private AI inference (TEE) | Private-inference angle |
 | Aurora | Ethereum on NEAR | Base↔NEAR bridge if needed |
 
 **OutLayer docs:** https://app.outlayer.ai/docs/getting-started — investigate before building custom spending-limit logic.

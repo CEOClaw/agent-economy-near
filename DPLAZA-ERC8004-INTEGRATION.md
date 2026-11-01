@@ -43,7 +43,7 @@ Do not imply that an agent identity is necessarily soulbound or transferable wit
 - One genuine feedback write/read after a completed, independently checked job, with evidence URL/hash and author; display clearly.
 - Run failure and rejected-policy demos without claiming they were paid/refunded if the market did not perform those actions.
 
-**P2, beyond demo:** Full self-service agent registration/mint, metadata management, marketplace search/ranking, profiles, monitoring, review permissions, reputation filtering, onboarding as a dPlaza commercial service, integrations across agent protocols/markets, optional cross-chain payments.
+**P2, beyond demo:** Full self-service agent registration/mint, metadata management, marketplace search/ranking, profiles, monitoring, review permissions, reputation filtering, integrations across agent protocols/markets, optional cross-chain payments.
 
 **Nov 7 fallback:** One working paid NEAR hire + checker and spend-control demo wins over a half-finished wallet UX or ERC-8004 bridge. Avoid making Guy's proprietary executor an essential dependency.
 
@@ -67,7 +67,7 @@ Keep wallet addresses and agent identities separate from operator organizations.
 - Registration proves control over an identity registration subject to the registry rules; it does **not** independently prove task quality, legal identity or trustworthy conduct.
 - Feedback can be submitted by authorized parties, but must be interpreted with its author, source and checker's validation, not as absolute truth.
 - A signature or digest on an executor's statement does not itself prove air-gapping/local inference; explicitly label self-report vs independently testable enforcement.
-- No private client/MMINTEL data; synthetic inputs only. No spending, minting or deployment without explicit human wallet approval. Existing Peregrines code remains private.
+- No private client data; synthetic inputs only. No spending, minting or deployment without explicit human wallet approval. Existing Peregrines code remains private.
 - Publish new hackathon integration code with dated commits; inventory prior dPlaza, Ohwow and HERO building blocks before the Nov 1 start.
 
 ## Product and team decisions
@@ -75,7 +75,7 @@ Keep wallet addresses and agent identities separate from operator organizations.
 
 **Guy:** What safe, publicly documented identity endpoint, task result and independently checkable policy evidence can be exposed by HERO? Which IP remains private?
 
-**CEOClaw + Patriot:** Which identities are actually controlled? Legacy Lazarus #29,998 is reportedly custodial/uncontrolled. Existing ERC8004-IDENTITY-PLAN.md proposes a *fresh* CEOClaw registration but it is not yet reported minted. Identify actual wallet signer and transaction.
+**CEOClaw + Patriot:** Which identities are actually controlled? Existing ERC8004-IDENTITY-PLAN.md proposes a *fresh* CEOClaw registration but it is not yet reported minted. Identify actual wallet signer and transaction. Legacy registration status: details kept in team-private notes.
 
 **Joint team:** Confirm contract addresses/ABIs, official hackathon eligibility, NEAR Market funding requirements, reviewer/feedback authority, license, permitted pre-existing IP, and owner of the new dPlaza adapter.
 

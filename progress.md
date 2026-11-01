@@ -116,7 +116,7 @@ If TASK-004 (first real market transaction) is not verified by November 7:
 - Three planning files committed: graph.md, checks.md, progress.md
 - Architecture: Option C hybrid (NEAR Agent Market rails + dPlaza product layer)
 - Critical finding: old service-registry API dead since Sept 2026; Jesus's code may need migration — verify first on Nov 1
-- ERC-8004: fresh mint planned (Base, wayMint); NOT Lazarus recovery
+- ERC-8004: fresh mint planned (Base, wayMint); no legacy identity recovery
 - Checker spec: structured-field-extraction-v1 (AGENTPROOF-CHECKER.md)
 - No hackathon implementation before Nov 1
 

@@ -156,7 +156,7 @@ TASK-009: Mint fresh CEOClaw ERC-8004 identity on Base
   outputs:  erc8004-ceoclaw-identity.json (token ID, certificate URL)
   criteria: checks.md#TASK-009
   note:     Independent of NEAR work — may be executed any time Sean approves.
-            Fresh mint on Base; not recovering Lazarus token #29,998.
+            Fresh mint on Base; legacy identity recovery out of scope.
   depends:  none (parallel, independent)
   auth:     YES — NFT mint requires Sean's wallet signature. No retry without renewed auth.
   parallel: yes

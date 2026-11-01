@@ -26,7 +26,7 @@ These are **internal engineering tracks**, not necessarily separate official hac
 
 **Fallback by November 7:** If the second hire is not working, ship one completed market transaction plus verification failure and overspend-block demos. Avoid turning the fallback into a mock transaction.
 
-**ERC-8004 scope:** Use standard identity/reputation interfaces, not a bespoke universal score. Record the job reference, evidence/checker reference, feedback author and chain context. A feedback entry alone does not prove the job was independently validated. **Lazarus token #29,998** is reportedly in a custodial wallet outside our control; recovering it versus minting a fresh CEOClaw identity is unresolved and must not block delivery.
+**ERC-8004 scope:** Use standard identity/reputation interfaces, not a bespoke universal score. Record the job reference, evidence/checker reference, feedback author and chain context. A feedback entry alone does not prove the job was independently validated. The status of a legacy identity registration is unresolved and must not block delivery; plan on a fresh controlled CEOClaw identity. Details kept in team-private notes.
 
 ### Track 2 — External Agent Execution (optional extension)
 
@@ -41,7 +41,7 @@ These are **internal engineering tracks**, not necessarily separate official hac
 - **Verification:** independently check deliverable and available policy evidence; record pass/fail and evidence digest. A signed self-report proves who signed a claim, **not** that private inference or a network boundary was cryptographically enforced.
 - **Demonstration:** successful authorized call, rejected policy-violating request or failed output, and optionally a reputation-informed second hiring decision.
 
-**Peregrines AI option:** Guy Savage may contribute governed dispatch and in-boundary inference via HERO. Participation, external-call interface, and independently verifiable attestation capabilities are **unconfirmed**. Keep patent-related implementation proprietary unless explicitly approved. A public adapter interface may be sufficient.
+**Peregrines AI option:** Guy Savage may contribute governed dispatch and in-boundary inference via HERO. Participation, external-call interface, and independently verifiable attestation capabilities are **unconfirmed**. Peregrines' implementation stays proprietary unless explicitly approved. A public adapter interface may be sufficient.
 
 **Ohwow option:** Jesus to confirm external task endpoint/API/MCP, authentication, asynchronous execution, and result/evidence format. Use Ohwow as a valid alternative or first integration if faster.
 
@@ -52,7 +52,7 @@ These are **internal engineering tracks**, not necessarily separate official hac
 - **Jesus's October 26 technical response (team-reported, not repository-verified):** proposed a two-hire demo; said Ohwow seller-side Agent Market integration and spend gate/ledger were already built/deployed in his own environment. He flagged mainnet USDC, account verification, and funding constraints. **Validate these claims against live NEAR Agent Market documentation/interfaces before implementing or funding.**
 - **Current repository README (October 21) is historical:** its NEAR-native escrow, testnet-first and custom-contract assumptions are **not** the approved implementation plan. This kickoff document supersedes those assumptions for planning; existing README and architecture still need a coordinated update.
 - **ERC-8004 reputation and AgentProof:** proposed architecture; no completed on-chain write or checker integration is claimed here.
-- **Guy's provisional filings (team-reported):** Governed Dispatch (Oct 29) and Boundary Lockdown (Oct 30). No patent filing status, runtime behavior, or attestation has been independently verified.
+- **Peregrines IP status (team-reported):** not independently verified; no runtime behavior or attestation has been verified. Details kept in team-private notes.
 
 ## Workstream ownership (proposed, not assigned)
 
@@ -66,7 +66,7 @@ These are **internal engineering tracks**, not necessarily separate official hac
 | External execution / governed dispatch | Guy if he joins; Ohwow as alternate |
 | Demo, documentation and submission | Joint team |
 
-**Separation:** Main & Meta/dPlaza, CEOClaw/Patriot, and Peregrines remain distinct organizations/systems. Do not expose confidential client or MMINTEL details.
+**Separation:** Main & Meta/dPlaza, CEOClaw/Patriot, and Peregrines remain distinct organizations/systems. Do not expose confidential client details.
 
 ## Execution gates
 
@@ -84,7 +84,7 @@ These are **internal engineering tracks**, not necessarily separate official hac
 2. **NEAR:** Confirm actual Agent Market funding asset/network, account verification, job API, escrow/refund mechanics, and minimum safe transaction.
 3. **Checker:** Which deterministic task can be verified without trusting the executing agent's self-report?
 4. **Spending:** Who controls the paying wallet, authorizes caps, and approves any real funds? **No transfers without explicit human sign-off.**
-5. **ERC-8004:** Who owns implementation, what Base registry addresses/network will be used, and do we mint a fresh controlled identity or recover Lazarus?
+5. **ERC-8004:** Who owns implementation, what Base registry addresses/network will be used, and confirm the fresh controlled identity (legacy registration out of scope).
 6. **Guy:** Will he join? Can HERO accept authenticated external jobs? What policy evidence can it return? What can be open-sourced safely?
 7. **Ohwow:** Can it implement the same external executor contract independently of HERO?
 8. **Scope:** Which official hackathon track(s) and public artifacts are permitted? Check official rules before publication or submission.
@@ -99,4 +99,4 @@ These are **internal engineering tracks**, not necessarily separate official hac
 
 ---
 
-*Planning note: This document records the proposed pre-hack kickoff, not confirmation that integrations, patents, on-chain identity, or external execution are operational. Review with CEOClaw, Jesus, and Guy before treating proposed ownership or technical assumptions as commitments.*
+*Planning note: This document records the proposed pre-hack kickoff, not confirmation that integrations, on-chain identity, or external execution are operational. Review with CEOClaw, Jesus, and Guy before treating proposed ownership or technical assumptions as commitments.*

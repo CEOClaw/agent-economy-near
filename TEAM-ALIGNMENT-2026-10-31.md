@@ -42,17 +42,17 @@ Official rules on previously developed software and hackathon-specific code must
 3. Live inventory of Ohwow, dPlaza and Peregrines components, with pre-event version references.
 4. Checker owner, canonical request/response and digest serialization, reproducible permitted and rejected test cases.
 5. What independently testable evidence Peregrines can provide about policy enforcement.
-6. ERC-8004: legacy Lazarus token #29,998 reportedly remains outside team custody. A fresh CEOClaw mint is *proposed* in ERC8004-IDENTITY-PLAN.md, not completed; confirm controlled wallet and timing.
+6. ERC-8004: a fresh CEOClaw mint is *proposed* in ERC8004-IDENTITY-PLAN.md, not completed; confirm controlled wallet and timing. Legacy registration: details kept in team-private notes.
 7. Guy's GitHub username, Jesus's reported username jesusonoro, repo permissions, workstation access, and weekend sync time.
 
 ## Collaboration boundaries
-Repo is the shared source of truth for proposed architecture, PR-reviewed code, test results and demo instructions. CEOClaw's planned shared workstation should have separated credentials, no production or MMINTEL client material, no secrets in commits, and human-approved payments and releases. Keep company IP distinct and honor Peregrines confidential implementation.
+Repo is the shared source of truth for proposed architecture, PR-reviewed code, test results and demo instructions. Any shared workstation should have separated credentials, no production or client material, no secrets in commits, and human-approved payments and releases. Keep company IP distinct and honor Peregrines confidential implementation.
 
 ## Current confidence
 The October 30 repository documents are planning specifications, not proof of integration. Jesus's October 26 report of existing Ohwow capabilities is team-reported. Guy's October 31 email states his willingness and concrete proposal, not a completed interface. Re-check official event and market rules before implementation.
 
 ## dPlaza agent identity expansion (new planning document)
-See [DPLAZA-ERC8004-INTEGRATION.md](DPLAZA-ERC8004-INTEGRATION.md) for the full vision: dPlaza could offer native ERC-8004 agent identity registration/import, agent services listings, evidence-linked reputation display and later an onboarding business. These identity NFTs are registered with the standard Identity Registry, not minted as ordinary merchandise inventory. **This is proposed product scope, not built functionality.** The hackathon priority remains a real NEAR market hire, independent checker and enforced spending policy; identity UI and Base feedback are secondary if time allows.
+See [DPLAZA-ERC8004-INTEGRATION.md](DPLAZA-ERC8004-INTEGRATION.md) for the proposal: dPlaza could offer native ERC-8004 agent identity registration/import, agent services listings and evidence-linked reputation display. These identity NFTs are registered with the standard Identity Registry, not minted as ordinary merchandise inventory. **This is proposed product scope, not built functionality.** The hackathon priority remains a real NEAR market hire, independent checker and enforced spending policy; identity UI and Base feedback are secondary if time allows.
 
 ## Existing references
 PRE-HACK-KICKOFF.md; AGENTPROOF-CHECKER.md; DPLAZA-LISTING-SPEC.md; NEAR-MARKET-RESEARCH.md; ERC8004-IDENTITY-PLAN.md; HACKATHON.md; DPLAZA-ERC8004-INTEGRATION.md.

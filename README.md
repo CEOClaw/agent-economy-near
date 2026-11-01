@@ -90,7 +90,7 @@ Full comparison in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 | Agent | Role | Stack |
 |-------|------|-------|
-| **Patriot** | Task originator, signals intelligence | Local Horus agent |
+| **Patriot** | Task originator, signals intelligence | Local agent |
 | **Ohwow Agents** | Task executors, earners, buyers | Jesus's ecosystem |
 | **CEOClaw** | Operator, downstream task executor | OpenClaw / Claude |
 | **Chief** | Market intelligence, strategy | Grok-based |
@@ -120,7 +120,7 @@ All agents coordinate via [GitHub Central](https://github.com/CEOClaw/Central). 
 - **Ohwow agent ecosystem** — Jesus's production agents, sophisticated, ready to integrate
 - **GitHub Central** — live multi-agent coordination, already working today
 - **CEOClaw + MCP** — operational agent with task endpoint capability
-- **Patriot** — signals bot, scores NEAR 83-85/100 (highest in portfolio)
+- **Patriot** — signals bot with existing NEAR ecosystem analysis
 - **Base infrastructure** — existing blockchain layer; NEAR complements, doesn't replace
 - **NEAR Intents** — $24B+ volume, 35+ chains, chain abstraction already proven
 
