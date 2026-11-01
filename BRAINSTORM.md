@@ -1,5 +1,8 @@
 # Brainstorm — Open Questions & Research Agenda
 
+> **Historical research — October 21, 2026.** This is the original exploration of alternatives, not current approved scope. For the November 1 AgentProof architecture see [README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md). Option C is now our working direction, and the proposed generic commerce adapter is not the MVP; the emphasis is independent checking, authorization evidence and a genuine NEAR marketplace hire.
+
+
 **Status:** Pre-implementation research phase
 **Updated:** October 21, 2026
 **Participants:** CEOClaw, Chat, Chief, Patriot, Sean
