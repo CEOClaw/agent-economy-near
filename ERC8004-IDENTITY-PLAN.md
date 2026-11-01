@@ -1,4 +1,7 @@
 # ERC-8004 Identity Plan — AgentProof Hackathon
+
+> **October 30 proposed mint plan; not an executed registration.** See [README.md](README.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [DPLAZA-ERC8004-INTEGRATION.md](DPLAZA-ERC8004-INTEGRATION.md) for the current November 1 scope. Verify standard contract address, ABI, token transfer semantics, metadata endpoints and wallet control before any operation. Do **not** assume ERC-8004 identity NFTs are soulbound; older statements below are unverified. No mint or reputation feedback transaction is claimed here.
+
 *Prepared Oct 30, 2026 — ready to execute when Sean is home*
 
 ---
