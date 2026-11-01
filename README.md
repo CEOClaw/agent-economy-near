@@ -1,195 +1,88 @@
-# Agent Economy on NEAR
+# AgentProof
 
----
+**Verified Work. Governed Execution. Portable Reputation.**  
+*Rent the rails, own the trust.*
 
-> **⚠️ Planning baseline: see [PRE-HACK-KICKOFF.md](./PRE-HACK-KICKOFF.md)**  
-> The October 30, 2026 kickoff document supersedes the architectural assumptions below for active planning. It defines the two engineering tracks, agreed implementation strategy (Option C hybrid), execution gates, and what remains unverified. Read it before treating anything in this README as the current plan.
->
-> Pre-hack documentation added October 30: [AGENTPROOF-CHECKER.md](./AGENTPROOF-CHECKER.md) · [NEAR-MARKET-RESEARCH.md](./NEAR-MARKET-RESEARCH.md) · [DPLAZA-LISTING-SPEC.md](./DPLAZA-LISTING-SPEC.md)
+**NEAR AI Hackathon | November 1–14, 2026 | Agent Economy (proposed primary track)**
 
----
+[Command Center](https://ceoclaw.ai/nearteam/) · [Execution graph](graph.md) · [Acceptance checks](checks.md) · [Progress](progress.md) · [Architecture](ARCHITECTURE.md) · [Hackathon requirements](HACKATHON.md)
 
-## Historical Architecture (pre-kickoff)
+> **November 1 project overview.** This repository contains both pre-event planning and hackathon development. A proposed architecture is not a completed integration. Actual results must be supported by code, tests, marketplace records or on-chain transaction references. The Command Center separates Workspace A (research and background technology) from Workspace B (new build and evidence).
 
-*The content below reflects the repository as of October 21, 2026. Some assumptions (testnet-first, custom NEAR escrow contract, independent dPlaza marketplace) have been superseded by the kickoff plan. Retained as historical context.*
+## What AgentProof is
 
----
+AgentProof is a proposed interoperability and evidence layer for agent-to-agent work. Its goal is to let an independent buyer or agent check **what was authorized, what was delivered, whether it passed agreed acceptance tests, and what evidence another system can inspect**. It is *not* another blockchain, a replacement for NEAR Agent Market, or proof that an agent is trustworthy merely because it has an identity NFT.
 
-> *"Agent hires agent. Pays in NEAR. Delivers via MCP. Economic cycle, not just API integration."*
+**The demonstration we are building:** a requester such as Patriot initiates a narrowly defined job using supported NEAR Agent Market rails. An independent executor, such as Ohwow or CEOClaw, delivers a result. A deterministic checker evaluates the actual output against precommitted criteria. The workflow records authorization, job and output references, pass/fail results, and a blocked-overspend scenario. Optional extensions include downstream paid delegation, Peregrines governed execution, dPlaza service discovery, and ERC-8004 identity/feedback on Base.
 
-**NEAR AI Hackathon — November 1–14, 2026**
-**Tracks:** Agent Economy (primary) · AI Swarms (secondary)
+## Four functional layers
 
----
+| Layer | Component | Responsibility | Status |
+|---|---|---|---|
+| 1. Discovery and commerce | NEAR Agent Market; dPlaza integration surface | Real job marketplace and supported payment/settlement; optional dPlaza agent-service listing | Existing third-party platforms; new adapter/listing proposed |
+| 2. Independent execution | Patriot, Ohwow, CEOClaw, optional Peregrines HERO/Nero | Request, deliver, possibly subcontract bounded work | Agents exist or are team-reported; specific hackathon flows not yet verified here |
+| 3. AgentProof trust services | Deterministic checker, spend authorization, evidence receipts | Evaluate correctness, distinguish policy decisions from output validation, create reproducible receipts | Defined in specifications; implementation evidence tracked separately |
+| 4. Portable identity | ERC-8004 registries on Base | Identify agents and link appropriately authorized reputation/validation evidence | Existing standard; specific AgentProof integration proposed |
 
-## What Is This?
+**Trust boundaries:** A signed executor statement or hash does not alone prove local-only execution or task correctness. A deterministic checker can prove the specified synthetic result matches its committed reference, not general truth. ERC-8004 registration or feedback is not a substitute for such evaluation.
 
-A live, working multi-agent economy where AI agents autonomously hire, pay, and deliver work to each other — using NEAR as the payment and trust layer, and **dPlaza** as the marketplace.
+## The team
 
-This isn't a demo built for a hackathon. We have a real multi-agent team operating today. We're adding NEAR as the economic rails.
+Three human collaborators in the joint hackathon effort:
 
-This project has **four simultaneous objectives** — the hackathon is one of them.
+- **Sean P. Larkin** — project coordination, CEOClaw and integration strategy.
+- **Dr. Guy Savage** — Peregrines AI; proposed external governed-executor integration and policy evidence.
+- **Jesús David Oñoro Delgado** — Ohwow and proposed agent-commerce/dPlaza integration work.
 
----
+Supporting agents: **CEOClaw** (operations and engineering), **Chief** (separate Grok-based strategy agent), **Patriot** (research and requesting-agent candidate), and **Chat** (documentation and architecture support). Roles are working assignments and remain subject to contributor review.
 
-## Four Objectives
+**Ownership boundary:** dPlaza is an existing, non-owning integration/product platform for this collaboration; participation does not give dPlaza or Main & Meta an AgentProof ownership interest. Existing platform IP remains with its respective owner. Prize-sharing and any later commercialization are separate from this technical README and are handled privately.
 
-| # | Objective | What success looks like |
-|---|-----------|------------------------|
-| 1 | **Ohwow Agent Economy** | Jesus's existing agents can buy, sell, and earn via dPlaza |
-| 2 | **NEAR Hackathon** | Technically credible submission, competitive, relationships built |
-| 3 | **dPlaza Product Expansion** | Agent storefronts, discovery, escrow, reputation — real product |
-| 4 | **Marketing & Thought Leadership** | M&M demonstrably building the agentic economy, publicly |
+## What judges should be able to do
 
----
+**Primary success criterion (planned, not claimed complete):**
+1. Open an actual job reference from the supported marketplace and see the authorized amount and task specification.
+2. Retrieve a deliverable and run the published checker against committed synthetic ground truth.
+3. Inspect a pass, a deliberate wrong-output failure, and a blocked authorization attempt with clear reason and evidence.
+4. Reproduce the result from documented inputs, versioned checker code, and receipts.
 
-## The Economic Cycle
+**Optional, only if implemented:** See a real second agent hire, inspect a Peregrines authorized/rejected policy decision with accurately described evidence assurance, view a dPlaza service listing, and verify an ERC-8004 Base transaction referring to job evidence.
 
-The goal is a **repeatable economic cycle**, not a one-way API call:
+Do not treat mock jobs as paid hires, format validation as correctness, a feedback transaction as truth, or a failed checker as automatic escrow refund. Exact NEAR Market account/payment mechanics require confirmation and authorized funding.
 
-```
-Patriot (signals agent)
-  → discovers task opportunity
-  → posts to dPlaza agent store
-  → locks NEAR escrow
+## Build window and status
 
-Ohwow Agent (Jesus's ecosystem)
-  → accepts task
-  → executes and delivers
-  → receives NEAR payment
+- **October 21–31:** background research, planning, architecture, source inventory, project graph, Command Center preparation. Preserve as provenance; do not pass off existing platform code as newly developed.
+- **November 1–3 (target):** confirm rules and market/API requirements; implement initial checker, evidence schema and integration harness.
+- **November 4–7 (target):** genuine authorized market transaction, independent verification, and spend-limit evidence. **November 7 is a scope gate.**
+- **November 8–11 (conditional):** dPlaza listing, Peregrines adapter, downstream hire, ERC-8004 feedback as feasible.
+- **November 12–14:** independent replay, security review, demo, submission documentation and human-approved submission.
 
-Ohwow uses earned NEAR
-  → hires CEOClaw for a follow-on task
-  → CEOClaw delivers
-  → escrow releases
+Dates above are **plans**, not completed milestones. Check [progress.md](progress.md), GitHub issues/PRs and evidence links for the latest recorded state. Actual work should have timestamps, contributors, commits, acceptance tests and reproducible artifacts.
 
-Loop. Agents earning and spending autonomously.
-```
+## Repo navigation
 
-No human in the loop for execution. The cycle runs itself.
+| Document | Purpose |
+|---|---|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Current Option C architecture and trust boundaries |
+| [TEAM-ALIGNMENT-2026-10-31.md](TEAM-ALIGNMENT-2026-10-31.md) | Working collaboration proposal, drafted before build |
+| [AGENTPROOF-CHECKER.md](AGENTPROOF-CHECKER.md) | Deterministic acceptance and evidence specification |
+| [graph.md](graph.md), [checks.md](checks.md), [progress.md](progress.md) | Task DAG, gates and progress snapshots |
+| [NEAR-MARKET-RESEARCH.md](NEAR-MARKET-RESEARCH.md) | October 30 research; confirm against current API |
+| [DPLAZA-LISTING-SPEC.md](DPLAZA-LISTING-SPEC.md) | Proposed service demo listing |
+| [DPLAZA-ERC8004-INTEGRATION.md](DPLAZA-ERC8004-INTEGRATION.md) | Longer-term dPlaza agent-service and identity product vision |
+| [ERC8004-IDENTITY-PLAN.md](ERC8004-IDENTITY-PLAN.md) | Proposed Base identity; do not assume mint or custody |
+| [PRE-HACK-KICKOFF.md](PRE-HACK-KICKOFF.md) | October 30 planning baseline |
+| [BRAINSTORM.md](BRAINSTORM.md) | Historical October 21 options and questions |
+| [HACKATHON.md](HACKATHON.md) | Captured contest requirements; reverify official site before submission |
 
----
+## Governance and submission
 
-## Key Open Question: Build vs. Integrate
+- GitHub is authoritative for code and review. Command Center provides navigation and project visibility.
+- No production credentials, wallet secrets, confidential partner material or private customer data in this public repo.
+- Publishing, mainnet spending, wallet minting, risky merges, production changes, and final submission require explicit human authorization.
+- Contributors maintain their underlying IP. Public submission licensing and use of third-party background code require contributor approval.
+- Official rules and submission requirements: [nearhackathon.com](https://nearhackathon.com/). A public repo is not evidence of eligibility by itself; identify which work is qualifying and which existed before the event.
+- **Do not submit early:** the application is treated as a one-shot submission in our captured rules; confirm the latest instructions.
 
-NEAR AI already operates **[Agent Market](https://market.near.ai/)** — with agent listings, paid jobs, payments, disputes, and reputation.
-
-**We are not blindly building a duplicate.** Three architecture alternatives are under evaluation:
-
-| Option | Description |
-|--------|-------------|
-| **A — Independent** | dPlaza as its own NEAR-native marketplace |
-| **B — Integrated** | dPlaza as a storefront layer ON TOP of NEAR Agent Market |
-| **C — Hybrid** | Use NEAR Agent Market rails where useful; own the product layer |
-
-Full comparison in [ARCHITECTURE.md](ARCHITECTURE.md).
-
----
-
-## The Team
-
-| Agent | Role | Stack |
-|-------|------|-------|
-| **Patriot** | Task originator, signals intelligence | Local agent |
-| **Ohwow Agents** | Task executors, earners, buyers | Jesus's ecosystem |
-| **CEOClaw** | Operator, downstream task executor | OpenClaw / Claude |
-| **Chief** | Market intelligence, strategy | Grok-based |
-| **Chat** | Reasoning, architecture, research | GPT-based |
-| **Sean** | Human in the loop (when needed) | Greenwich, CT |
-
-## Judges
-
-| Judge | Org |
-|-------|-----|
-| Illia Polosukhin | NEAR Protocol |
-| Eddy Lazzarin | a16z crypto |
-| Mert Mumtaz | Helius |
-| Avichal Garg | Electric Capital |
-| Kain Warwick | Synthetix & Infinex |
-| Haseeb Qureshi | Dragonfly |
-| Stepan Gershuni | cyber•Fund |
-| **Claude Code & Codex** | **Anthropic & OpenAI (AI judges)** |
-
-All agents coordinate via [GitHub Central](https://github.com/CEOClaw/Central). This repo is the hackathon workspace.
-
----
-
-## Existing Assets
-
-- **dPlaza** — M&M product, Base-oriented, being expanded for agent commerce
-- **Ohwow agent ecosystem** — Jesus's production agents, sophisticated, ready to integrate
-- **GitHub Central** — live multi-agent coordination, already working today
-- **CEOClaw + MCP** — operational agent with task endpoint capability
-- **Patriot** — signals bot with existing NEAR ecosystem analysis
-- **Base infrastructure** — existing blockchain layer; NEAR complements, doesn't replace
-- **NEAR Intents** — $24B+ volume, 35+ chains, chain abstraction already proven
-
----
-
-## Proposed MVP (Nov 1–14)
-
-**Transaction 1:** Patriot hires an Ohwow agent for a narrowly defined, objectively verifiable task. Verifier confirms. NEAR escrow releases.
-
-**Transaction 2:** Ohwow uses earned NEAR to hire CEOClaw. CEOClaw delivers. Loop closes.
-
-Testnet first. Auditable logs. Explicit spending policies. No mainnet funds without sign-off.
-
----
-
-## What We're Building
-
-- **dPlaza Agent Store** — agent listings, capability discovery, NEAR wallet integration
-- **CEOClaw MCP Task Endpoint** — listens, executes, triggers escrow release
-- **Ohwow Agent Interface** — minimum integration for existing agents to buy/sell
-- **NEAR Escrow Contract** — lock on task post, release on objective verification
-- **Verifier Module** — automated, objective pass/fail on task completion
-
-Scope in [BRAINSTORM.md](BRAINSTORM.md). Architecture in [ARCHITECTURE.md](ARCHITECTURE.md).
-
----
-
-## Timeline
-
-| Date | Milestone |
-|------|-----------|
-| Oct 21 | Repo live, team aligned |
-| Oct 25–31 | Research: NEAR ecosystem, Agent Market, Ohwow integration surface, hackathon rules |
-| Nov 1 | Hackathon opens — escrow contract drafted, architecture locked |
-| Nov 7 | dPlaza agent store live (testnet), MCP endpoint live |
-| Nov 10 | Transaction 1 complete: Patriot → Ohwow |
-| Nov 12 | Transaction 2 complete: Ohwow → CEOClaw. Full cycle demo recorded. |
-| Nov 14 | Submission |
-
----
-
-## Why We Win
-
-- **Real team, real coordination** — GitHub Central is live today, not a mockup
-- **Real marketplace** — dPlaza exists; we're adding agent rails to a working product
-- **Real economic cycle** — earn and spend, not just pay and receive
-- **Apparently uncontested angle** — DeFi/Games/Memecoins crowded; professional-grade agent economy appears open (competitive research pending — Chief owns this before we claim it publicly)
-- **AI judges** — Claude Code & Codex are on the panel; README written for machine readability as well as human
-- **NEAR alignment** — their thesis (identity, agent rails, AI money) is exactly ours
-
----
-
-## Security & Wallet Policy
-
-- Testnet first, always
-- Explicit spending caps per agent per session
-- Auditable transaction logs committed to this repo
-- No mainnet funds without explicit human sign-off
-- No secrets or confidential infrastructure in public files
-
----
-
-## Links
-
-- [dPlaza](https://dplaza.io) — the marketplace
-- [NEAR Agent Market](https://market.near.ai/) — existing NEAR infrastructure (evaluate, don't duplicate)
-- [GitHub Central](https://github.com/CEOClaw/Central) — agent coordination hub
-- [CEOClaw](https://ceoclaw.ai) — operator agent
-
----
-
-*Built by a multi-agent team. Paid in NEAR. Designed to last beyond the hackathon.*
+*This README is the public landing page as of November 1, 2026. Earlier concepts remain traceable in Git history and dated planning notes, not as current implementation claims.*
