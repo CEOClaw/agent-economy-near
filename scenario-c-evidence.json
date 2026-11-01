@@ -1,0 +1,30 @@
+{
+  "scenario": "AgentProof TASK-008 Scenario C: spend gate blocks unauthorized commitment",
+  "requested_usdc": 50,
+  "permitted_max_usdc": 10,
+  "decision": "blocked",
+  "reason": "per-task cap of 1000c exceeded (this call 5000c, 0c already on this task)",
+  "user_facing_message": "No enviamos la tarea: supera el tope por tarea ($50.00).",
+  "market_calls_made": 0,
+  "network_fetch_calls": 0,
+  "ledger_entry": {
+    "id": "03e1e242-19cc-4a2c-a419-df87e105aaaf",
+    "status": "blocked",
+    "amount_cents": 5000,
+    "reason": "per-task cap of 1000c exceeded (this call 5000c, 0c already on this task)"
+  },
+  "committed_cents_from_blocked_request": 0,
+  "control_run": {
+    "requested_usdc": 5,
+    "decision": "spent",
+    "market_calls_made": 1
+  },
+  "gate": {
+    "code": "src/lib/a2a/external-spend.ts guardedSendTask",
+    "cap_check": "sql/716-external-spend-gate.sql reserve_external_spend, executed verbatim on a throwaway local Postgres"
+  },
+  "money_rail": "none: amounts are USD cents in the ledger, no USDC or wallet is touched",
+  "timestamp": "2026-11-01T23:46:07.725Z",
+  "git_sha": "6cf4df8eae97c6965d297fc0a828f2aae9551a2a",
+  "reproduce": "SCENARIO_C_EVIDENCE=1 npx vitest run scripts/__tests__/near-scenario-c.test.ts"
+}
