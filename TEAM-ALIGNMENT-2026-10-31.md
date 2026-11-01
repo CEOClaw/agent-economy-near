@@ -1,5 +1,8 @@
 # AgentProof — Joint Team Alignment (October 31, 2026)
 
+> **October 31 team proposal, retained for provenance.** Read [README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md) for the November 1 project framing. Jesus and Guy have repository write access (verified November 1); earlier invitation questions below are historical. The three human collaborators are Sean P. Larkin, Dr. Guy Savage, and Jesús David Oñoro Delgado. CEOClaw is the separate operational agent and Command Center builder; Chief is the separate Grok-based strategy agent. dPlaza is a non-owning integration platform. No agreement or code deployment is implied by this update.
+
+
 **Status:** Proposed joint plan for review, not an implementation claim. **Build window:** November 1–14, 2026, subject to official rules. **Option C:** dPlaza discovery + NEAR Agent Market rails + AgentProof verification and spending evidence.
 
 ## Goal
