@@ -1,5 +1,8 @@
 # AgentProof — Checker Task Spec & Evidence Schema
 
+> **October 30 design specification — implementation not implied.** The November 1 execution plan is [graph.md](graph.md); real checker code, test logs and market receipts must be linked in [progress.md](progress.md) before they can be called operational. The checker validates committed synthetic expected values, not every kind of factual truth; payment/escrow decisions are separate from check results.
+
+
 > **Status:** Pre-hack planning baseline — October 30, 2026  
 > **Supersedes:** nothing (new file)  
 > **Feeds:** Track 1 verified delivery; ERC-8004 on Base
