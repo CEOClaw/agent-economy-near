@@ -1,5 +1,8 @@
 # Pre-Hack Kickoff — AgentProof / NEAR Agent Economy
 
+> **October 30 planning snapshot, retained for provenance.** For the current November 1 public overview see [README.md](README.md), [ARCHITECTURE.md](ARCHITECTURE.md), and [graph.md](graph.md). Contributor roles, optional executor capabilities and payment mechanics remain subject to verification. dPlaza is a non-owning integration platform, not an AgentProof equity participant.
+
+
 **Planning baseline:** October 30, 2026  
 **Hackathon window:** November 1–14, 2026  
 **Status:** Proposed execution plan; not evidence of implemented features  
