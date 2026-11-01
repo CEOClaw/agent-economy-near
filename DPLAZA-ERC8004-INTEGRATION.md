@@ -1,4 +1,7 @@
 # dPlaza + ERC-8004 — Agent Identity, Services and Reputation
+
+> **Product vision, not hackathon deliverable.** This October 31 proposal is a potential non-owning dPlaza integration/product opportunity; use of dPlaza does not assign AgentProof equity or transfer Main & Meta IP. For the November 1 core priorities and actual implementation status see [README.md](README.md), [graph.md](graph.md), and [progress.md](progress.md). ERC-8004 registration and feedback must use verified standard interfaces and controlled wallets.
+
 **Planning expansion | October 31, 2026 | Proposal, not implemented**
 
 ## Executive vision
