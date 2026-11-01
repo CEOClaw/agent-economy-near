@@ -1,6 +1,8 @@
 <!-- Official NEAR HACKATHON agent brief — sourced from https://nearhackathon.com/HACKATHON.md on 2026-10-21 -->
 <!-- Re-fetch before submitting: dates and rules may change -->
 
+> **Official-source snapshot from October 21, 2026, not a live rules feed.** Recheck [the organizer's official instructions](https://nearhackathon.com/HACKATHON.md) before submitting. This document records contest requirements, while [README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md) describe our current project. The repository creation date alone does not establish code eligibility; preserve qualifying-code provenance.
+
 # NEAR HACKATHON - HACKATHON.md
 
 ## Key Facts
