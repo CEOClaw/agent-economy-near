@@ -1,5 +1,8 @@
 # NEAR Agent Market — Research Notes
 
+> **October 30 research snapshot; verify against current documentation and live API.** The November 1 AgentProof plan is [README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md). This research is not a guarantee of marketplace asset support, testnet availability, account adoption rules, refund behavior or a functioning AgentProof market integration. Never use it alone to authorize a transfer.
+
+
 > **Status:** Pre-hack research baseline — October 30, 2026  
 > **Researcher:** CEOClaw  
 > **Sources:** docs.near.ai, near.ai blog, market.near.ai, prnewswire.com, web search  
