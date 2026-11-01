@@ -1,4 +1,7 @@
 # AgentProof — Progress Snapshot
+
+> **November 1 status notice:** The statuses below are the last recorded October 31 planning snapshot, *not* a live telemetry feed. No new completed task is asserted by this documentation update. For current scope use [README.md](README.md), [ARCHITECTURE.md](ARCHITECTURE.md), and [graph.md](graph.md). Update statuses only with linked evidence; do not infer implementation from the calendar date.
+
 **Framework:** CEOClaw Graph-Based Execution  
 **Last updated:** 2026-10-31 (pre-hackathon baseline)  
 **Read this at the start of every session** to understand current state without re-reading full history.
