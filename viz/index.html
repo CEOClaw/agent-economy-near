@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AgentProof Evidence</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column (max 1120px) of four chapters: the dollar's path, the two gates, the live checker, the seals. Single dark look by choice. */
+:root{
+  color-scheme:dark;
+  --bg:#000; --panel:#0b0c0f; --raise:#121419; --line:#1f232b; --line2:#2c313b;
+  --fg:#f5f6f8; --mute:#8b919c; --faint:#4a505b;
+  --usdc:#2775ca; --usdc-hi:#6aa5ff;
+  --pass:#3ddc97; --fail:#ff6b6b; --block:#f5b942;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 80px}
+main{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:96px}
+a{color:var(--usdc-hi);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--usdc-hi);outline-offset:2px}
+h1,h2{font-family:var(--display);font-weight:800;letter-spacing:-.025em;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,5.6vw,64px);line-height:1.02}
+h2{font-size:clamp(26px,3.4vw,38px);line-height:1.08}
+p{margin:0;max-width:64ch}
+.lede{color:var(--mute);font-size:18px}
+.kicker{font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.mono{font-family:var(--mono)}
+.tnum{font-variant-numeric:tabular-nums}
+.pass{color:var(--pass)} .fail{color:var(--fail)} .block{color:var(--block)} .mute{color:var(--mute)}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:4px 10px;border:1px solid var(--line2);border-radius:999px;font:500 12px var(--mono);color:var(--mute);max-width:100%}
+.chip i{width:7px;height:7px;border-radius:50%;background:var(--block);display:block}
+section{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;min-width:0}
+.head{display:grid;gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+button{font:500 13px var(--body);color:var(--fg);background:var(--raise);border:1px solid var(--line2);border-radius:999px;padding:7px 14px;cursor:pointer}
+button:hover{border-color:var(--mute)}
+button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+/* top bar */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-block:22px;max-width:1120px;margin:0 auto}
+.mark{font:800 18px var(--display);letter-spacing:-.02em}
+.mark span{color:var(--usdc-hi)}
+
+/* 1. the dollar's path */
+.path{padding:28px 24px 20px;display:grid;gap:8px;min-width:780px}
+.stations,.lane{display:grid;grid-template-columns:200px repeat(6,1fr);align-items:center}
+.stations span{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);text-align:center}
+.lane{padding-block:18px;border-top:1px solid var(--line)}
+.who{display:grid;gap:2px;padding-right:16px}
+.who b{font:600 15px var(--body)}
+.who small{font:12px/1.4 var(--body);color:var(--mute)}
+.track{grid-column:2/8;position:relative;display:grid;grid-template-columns:repeat(6,1fr);min-height:96px}
+.rail{position:absolute;top:22px;height:2px;left:calc(100%/12);right:calc(100%/12);background:repeating-linear-gradient(90deg,var(--line2) 0 6px,transparent 6px 12px)}
+.rail b{position:absolute;inset:0 auto 0 0;background:var(--usdc);width:var(--done,0%);transition:width 1.6s cubic-bezier(.6,0,.2,1)}
+.stop{position:relative;display:grid;justify-items:center;gap:8px;text-align:center;padding-inline:4px}
+.dot{width:12px;height:12px;border-radius:50%;margin-top:17px;background:var(--bg);border:2px solid var(--line2);z-index:1;transition:border-color .3s,background .3s}
+.stop.reached .dot{border-color:var(--usdc)}
+.stop.ok .dot{background:var(--usdc)}
+.stop.no .dot{border-color:currentColor;background:currentColor}
+.stop .t{font:500 12px/1.35 var(--mono);color:var(--fg)}
+.stop .t.dim{color:var(--faint)}
+.stop .tag{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--block)}
+.coin{position:absolute;top:8px;left:var(--at,8.33%);transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:var(--usdc);color:#fff;
+  display:grid;place-items:center;font:800 14px var(--display);box-shadow:0 0 0 4px var(--bg),0 0 24px rgba(39,117,202,.55);z-index:2;transition:left 1.6s cubic-bezier(.6,0,.2,1)}
+.rest{position:absolute;top:-22px;left:var(--at,8.33%);transform:translateX(-50%);font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;justify-content:space-between;padding:14px 24px;border-top:1px solid var(--line);color:var(--mute);font-size:13px}
+.legend .k{display:inline-flex;align-items:center;gap:8px}
+.legend .sw{width:22px;height:2px;background:var(--usdc)} .legend .sw.d{background:repeating-linear-gradient(90deg,var(--line2) 0 4px,transparent 4px 8px)}
+@media (max-width:720px){.path{min-width:560px;padding-inline:16px}.stations,.lane{grid-template-columns:repeat(6,1fr)}.stations span:first-child{display:none}.lane .who{grid-column:1/-1;padding:0 0 26px}.track{grid-column:1/-1}}
+.takeaway{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.takeaway div{background:var(--bg);padding:18px 20px;display:grid;gap:4px}
+.takeaway b{font:800 22px var(--display)}
+.takeaway span{color:var(--mute);font-size:14px}
+@media (max-width:720px){.takeaway{grid-template-columns:1fr}}
+
+/* 2. the gates */
+.gates{padding:8px 24px 24px;min-width:640px}
+.ghead{display:grid;grid-template-columns:240px 1fr;padding-top:22px}
+.ghead h3{grid-column:1/3;margin:0 0 4px;font:600 13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.grow{display:grid;grid-template-columns:240px 1fr 120px;align-items:center;gap:0 16px;padding-block:14px;border-top:1px solid var(--line)}
+.grow .lbl{display:grid;gap:2px}
+.grow .lbl b{font-weight:600;font-size:14px}
+.grow .lbl small{color:var(--mute);font-size:12px}
+.ruler{position:relative;height:34px}
+.ruler .ok{position:absolute;top:13px;height:8px;left:0;background:rgba(61,220,151,.16);border-radius:4px 0 0 4px}
+.ruler .over{position:absolute;top:13px;height:8px;right:0;border-radius:0 4px 4px 0;background:repeating-linear-gradient(135deg,rgba(245,185,66,.32) 0 3px,transparent 3px 7px)}
+.ruler .wall{position:absolute;top:2px;bottom:2px;width:2px;background:var(--fg);transform:translateX(-1px)}
+.ruler .wall::after{content:attr(data-cap);position:absolute;top:-16px;left:50%;transform:translateX(-50%);font:500 10px var(--mono);color:var(--mute);white-space:nowrap}
+.ruler .ask{position:absolute;top:9px;width:16px;height:16px;border-radius:50%;transform:translateX(-50%);border:2px solid var(--bg);box-shadow:0 0 0 1px currentColor;background:currentColor}
+.verdict{font:600 12px var(--mono);text-align:right;display:grid;gap:2px}
+.verdict small{font-weight:400;color:var(--mute)}
+.axis{display:grid;grid-template-columns:240px 1fr 120px;gap:0 16px;border-top:1px solid var(--line);padding-top:8px}
+.axis .ticks{position:relative;height:18px}
+.axis .ticks span{position:absolute;transform:translateX(-50%);font:500 11px var(--mono);color:var(--mute)}
+
+/* 3. checker */
+.lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,.95fr);gap:16px;align-items:start}
+@media (max-width:980px){.lab{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.lab .steps{grid-column:1/-1}}
+@media (max-width:640px){.lab{grid-template-columns:minmax(0,1fr)}}
+.col{padding:18px;display:grid;gap:12px;min-width:0}
+.col h3{margin:0;font:600 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.input-text{font:13px/1.75 var(--mono);white-space:pre-wrap;word-break:break-word;margin:0;color:var(--fg)}
+.input-text .k{color:var(--mute)}
+.input-text .hl{background:rgba(255,107,107,.16);border-radius:3px}
+.fields{display:grid;gap:6px}
+.field{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:center}
+.field label{grid-column:2;font:500 10px var(--mono);letter-spacing:.08em;color:var(--mute)}
+.field .st{grid-row:2;font:700 13px var(--mono);text-align:center}
+.field input{grid-column:2;width:100%;min-width:0;font:13px var(--mono);color:var(--fg);background:var(--raise);border:1px solid var(--line2);border-radius:6px;padding:7px 9px}
+.field.bad input{border-color:var(--fail);background:rgba(255,107,107,.07)}
+.field.who input{border-style:dashed}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.steps ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:s -1}
+.steps li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.steps li::before{counter-increment:s;content:counter(s);font:500 11px var(--mono);color:var(--faint)}
+.steps li .s{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.steps li.skip{color:var(--faint)}
+.steps li .note{grid-column:2/4;font:12px var(--mono);color:var(--fail);word-break:break-word}
+.result{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:center;padding-top:6px}
+.result svg{width:96px;height:96px}
+.result .big{font:800 30px/1 var(--display);text-transform:uppercase;letter-spacing:-.01em}
+.result p{font-size:13px;color:var(--mute)}
+
+/* 4. seals */
+.seals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.seals{grid-template-columns:minmax(0,1fr)}}
+.seal{padding:22px;display:grid;gap:14px;justify-items:start}
+.seal svg{width:148px;height:148px}
+.seal b{font-weight:600}
+.seal .hex{font:12px/1.5 var(--mono);color:var(--mute);word-break:break-all}
+.seal .ver{font:600 12px var(--mono)}
+
+/* sources */
+.src{display:grid;gap:0}
+.src div{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 90px;gap:12px;padding:10px 0;border-top:1px solid var(--line);font:13px var(--mono);align-items:baseline}
+.src div span{word-break:break-all}
+@media (max-width:640px){.src div{grid-template-columns:minmax(0,1fr)}}
+pre.cmd{margin:0;padding:16px 18px;font:13px/1.7 var(--mono);color:var(--fg);overflow-x:auto}
+pre.cmd .c{color:var(--mute)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="mark">Agent<span>Proof</span></div>
+  <span class="chip" id="status"><i></i>Market leg: dry run. Live $1 hire by Patriot pending</span>
+</header>
+
+<main>
+  <!-- 1. the dollar's path -->
+  <section aria-labelledby="h-path">
+    <div class="head">
+      <div class="kicker">NEAR AI Hackathon · CEOClaw · ohwow · Peregrines AI</div>
+      <h1 id="h-path">One agent hires another for $1.<br>Follow the dollar.</h1>
+      <p class="lede">Three real runs of the same job. Where the coin stops is the whole story: paid for checked work, held when the work is wrong, or never sent because the price broke a cap.</p>
+    </div>
+    <div class="panel">
+      <div class="scroll"><div class="path" id="path">
+        <div class="stations"><span></span><span>Request</span><span>Spend gate</span><span>Escrow</span><span>Work</span><span>Checker</span><span>Settle</span></div>
+      </div></div>
+      <div class="legend">
+        <span class="k"><span class="sw"></span>money moved</span>
+        <span class="k"><span class="sw d"></span>never reached</span>
+        <span class="k"><span class="tag mono block" style="font-size:10px">DRY RUN</span>market call simulated until the live hire</span>
+        <button type="button" id="replay">Replay</button>
+      </div>
+    </div>
+    <div class="takeaway" id="takeaway"></div>
+  </section>
+
+  <!-- 2. the gates -->
+  <section aria-labelledby="h-gate">
+    <div class="head">
+      <div class="kicker">Before any money moves</div>
+      <h2 id="h-gate">Two gates, set by two different people.</h2>
+      <p class="lede">The buyer writes a cap into the job. The seller's owner sets a cap on what their agent may commit. Either one stops a hire, and a stopped hire makes zero market calls.</p>
+    </div>
+    <div class="panel scroll"><div class="gates" id="gates"></div></div>
+  </section>
+
+  <!-- 3. checker -->
+  <section aria-labelledby="h-check">
+    <div class="head">
+      <div class="kicker">The independent check · runs in your browser</div>
+      <h2 id="h-check">Try to cheat the checker.</h2>
+      <p class="lede">This is CEOClaw's checker.py, ported line for line and proven identical on 33 cases. Edit what the agent delivered and watch which step catches it. Change who did the work and the work still passes, but the seal changes: the proof belongs to the worker.</p>
+    </div>
+    <div class="presets" role="group" aria-label="Load a delivery">
+      <button type="button" data-preset="ohwow" aria-pressed="true">ohwow's real delivery</button>
+      <button type="button" data-preset="wrong" aria-pressed="false">CEOClaw's wrong delivery</button>
+      <button type="button" data-preset="typo" aria-pressed="false">Change one letter</button>
+      <button type="button" data-preset="imposter" aria-pressed="false">Claim someone else did it</button>
+    </div>
+    <div class="lab">
+      <div class="panel col">
+        <h3>The job · input text</h3>
+        <pre class="input-text" id="input"></pre>
+        <p class="mono mute" style="font-size:12px" id="jobmeta"></p>
+      </div>
+      <div class="panel col">
+        <h3>What the agent delivered</h3>
+        <div class="fields" id="fields"></div>
+      </div>
+      <div class="panel col steps">
+        <h3>Checker steps</h3>
+        <ol id="steps"></ol>
+        <div class="result" id="result"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. seals -->
+  <section aria-labelledby="h-seal">
+    <div class="head">
+      <div class="kicker">Receipts anyone can recompute</div>
+      <h2 id="h-seal">Every passed job leaves a seal.</h2>
+      <p class="lede">The seal is the evidence digest: sha256 of the task, the worker, the input and the canonical answer, drawn as 256 dots. Your browser just recomputed each one from the committed files and compared it to what checker.py wrote.</p>
+    </div>
+    <div class="seals" id="seals"></div>
+  </section>
+
+  <!-- sources -->
+  <section aria-labelledby="h-src">
+    <div class="head">
+      <div class="kicker">Nothing on this page is typed in</div>
+      <h2 id="h-src">Sources</h2>
+      <p class="lede">Every number above is read from these committed files by <span class="mono">viz/build.py</span>. Reproduce it yourself:</p>
+    </div>
+    <div class="panel"><pre class="cmd"><span class="c"># checker.py on ohwow's delivery (prints the seal digest)</span>
+python3 task-002/checker.py task-002/test-inputs/envelope-01.json \
+  task-004/checker-run-2026-11-02/sample-01/ohwow-delivery.json
+<span class="c"># prove the in-browser checker equals checker.py</span>
+python3 viz/build.py &amp;&amp; node viz/verify.mjs</pre></div>
+    <div class="src" id="sources"></div>
+  </section>
+</main>
+
+<script src="data.js"></script>
+<script src="checker.js"></script>
+<script>
+(async () => {
+const { data: D, sources: S } = window.AGENTPROOF;
+const C = window.AgentProofChecker;
+const $ = (s, r = document) => r.querySelector(s);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const usd = (n) => "$" + Number(n).toFixed(2);
+const REPO = "https://github.com/CEOClaw/agent-economy-near";
+
+// ---------- run the real checker on the real files ----------
+const runA = await C.check(D.envelope01, D.ohwowDelivery01);
+const runB = await C.check(D.envelope01, D.failFixture);
+const runC = await C.check(D.envelope02, D.blockedDelivery02);
+const failStep = (run) => run.steps.find((s) => s.state === "fail");
+const wrongField = (run) => (run.fieldResults || []).find((f) => !f.ok)?.f;
+const hire = D.marketRef01.hire;
+
+// ---------- 1. the dollar's path ----------
+const lanes = [
+  {
+    who: "ohwow-agent", note: "ohwow's live agent did the work",
+    rest: 5, restLabel: "paid", restCls: "pass",
+    stops: [
+      { t: `cap ${usd(D.envelope01.max_spend_usdc)}<br>${D.envelope01.required_fields.length} fields`, s: "ok" },
+      { t: `${usd(hire.amount)} ≤ ${usd(D.envelope01.max_spend_usdc)}`, s: "ok" },
+      { t: `${usd(hire.amount)} locked`, s: "ok", tag: "dry run" },
+      { t: `${Object.keys(D.ohwowDelivery01.extracted).length} fields`, s: "ok" },
+      { t: `${runA.result.outcome}<br>7 of 7 steps`, s: "ok", cls: "pass" },
+      { t: "released", s: "ok", tag: "dry run" },
+    ],
+  },
+  {
+    who: "A wrong delivery", note: "CEOClaw's test fixture: one field is wrong on purpose",
+    rest: 4, restLabel: "held", restCls: "fail",
+    stops: [
+      { t: `cap ${usd(D.envelope01.max_spend_usdc)}<br>${D.envelope01.required_fields.length} fields`, s: "ok" },
+      { t: "not in fixture", dim: true },
+      { t: "not in fixture", dim: true },
+      { t: `${Object.keys(D.failFixture.extracted).length} fields<br>1 wrong`, s: "ok" },
+      { t: `${runB.result.outcome} at step ${failStep(runB).n}<br>${esc(wrongField(runB))}`, s: "no", cls: "fail" },
+      { t: "not released", dim: true },
+    ],
+  },
+  {
+    who: "Over the buyer's cap", note: `ohwow's price ${usd(D.blockedDelivery02.requested_spend_usdc)} against a ${usd(D.envelope02.max_spend_usdc)} cap`,
+    rest: 1, restLabel: "never sent", restCls: "block",
+    stops: [
+      { t: `cap ${usd(D.envelope02.max_spend_usdc)}<br>${D.envelope02.required_fields.length} fields`, s: "ok" },
+      { t: `${usd(D.blockedDelivery02.requested_spend_usdc)} &gt; ${usd(D.envelope02.max_spend_usdc)}<br>${runC.result.outcome}`, s: "no", cls: "block" },
+      { t: "0 calls", dim: true }, { t: "no work", dim: true }, { t: "nothing to check", dim: true }, { t: "$0.00", dim: true },
+    ],
+  },
+];
+const pct = (i) => ((i + 0.5) / 6) * 100;
+const path = $("#path");
+const laneEls = lanes.map((L) => {
+  const row = el("div", "lane");
+  row.append(el("div", "who", `<b>${esc(L.who)}</b><small>${esc(L.note)}</small>`));
+  const track = el("div", "track");
+  const rail = el("div", "rail"); rail.append(el("b")); track.append(rail);
+  L.stops.forEach((s, i) => {
+    const st = el("div", "stop " + (s.cls || ""));
+    st.dataset.i = i;
+    st.append(el("span", "dot"));
+    st.append(el("span", "t" + (s.dim ? " dim" : ""), s.t));
+    if (s.tag) st.append(el("span", "tag", s.tag));
+    track.append(st);
+  });
+  const coin = el("div", "coin", "$"); coin.setAttribute("aria-hidden", "true");
+  const rest = el("div", "rest " + L.restCls, L.restLabel);
+  track.append(coin, rest);
+  row.append(track); path.append(row);
+  return { L, track, rail, coin, rest };
+});
+function place(final) {
+  for (const { L, track, rail, coin, rest } of laneEls) {
+    const r = final ? L.rest : 0;
+    const span = (r / 5) * 100;
+    rail.style.setProperty("--done", span + "%");
+    coin.style.setProperty("--at", pct(r) + "%");
+    rest.style.setProperty("--at", pct(r) + "%");
+    rest.style.opacity = final ? 1 : 0;
+    track.querySelectorAll(".stop").forEach((st) => {
+      const i = +st.dataset.i, s = L.stops[i];
+      st.classList.toggle("reached", final && i <= r);
+      st.classList.toggle("ok", final && i <= r && s.s === "ok");
+      st.classList.toggle("no", final && s.s === "no");
+    });
+  }
+}
+place(true);
+$("#replay").addEventListener("click", () => {
+  place(false);
+  requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => place(true), 250)));
+});
+const sc = D.scenarioC;
+$("#takeaway").innerHTML = `
+  <div><b class="pass">paid</b><span>only after an independent checker passed every field</span></div>
+  <div><b class="fail">held</b><span>one wrong field out of ${D.envelope01.required_fields.length} is enough to stop payment</span></div>
+  <div><b class="block">${sc.market_calls_made} market calls</b><span>when a price breaks a cap, nothing leaves the wallet</span></div>`;
+
+// ---------- 2. the gates (log scale $0.10 .. $100) ----------
+const lo = Math.log10(0.1), hi = Math.log10(100);
+const x = (v) => ((Math.log10(v) - lo) / (hi - lo)) * 100;
+const gateRows = [
+  { group: "The buyer's cap · written into the job envelope" },
+  { lbl: "The $1 job", sub: "envelope-01 · ohwow's price", ask: hire.amount, cap: D.envelope01.max_spend_usdc, ok: true, v: "allowed", vs: "work delivered" },
+  { lbl: "A $0.25 budget", sub: "envelope-02 · same price", ask: D.blockedDelivery02.requested_spend_usdc, cap: D.envelope02.max_spend_usdc, ok: false, v: "blocked", vs: "before any work" },
+  { group: "The seller owner's cap · ohwow spend policy" },
+  { lbl: "A $5 order", sub: "TASK-008 control run", ask: sc.control_run.requested_usdc, cap: sc.control_run.governance_record.permitted_max_usdc, ok: true, v: "allowed", vs: `${sc.control_run.market_calls_made} market call` },
+  { lbl: "A $50 order", sub: "TASK-008 scenario C", ask: sc.requested_usdc, cap: sc.permitted_max_usdc, ok: false, v: "rejected", vs: `${sc.market_calls_made} calls · ${sc.committed_cents_from_blocked_request}¢ held` },
+];
+const gates = $("#gates");
+for (const g of gateRows) {
+  if (g.group) { gates.append(el("div", "ghead", `<h3>${esc(g.group)}</h3>`)); continue; }
+  const c = g.ok ? "pass" : "block";
+  const row = el("div", "grow");
+  row.innerHTML = `<div class="lbl"><b>${esc(g.lbl)}</b><small>${esc(g.sub)}</small></div>
+    <div class="ruler" role="img" aria-label="${esc(g.lbl)}: asks ${usd(g.ask)}, cap ${usd(g.cap)}, ${g.v}">
+      <span class="ok" style="width:${x(g.cap)}%"></span><span class="over" style="width:${100 - x(g.cap)}%"></span>
+      <span class="wall" style="left:${x(g.cap)}%" data-cap="cap ${usd(g.cap)}"></span>
+      <span class="ask ${c}" style="left:${x(g.ask)}%"></span></div>
+    <div class="verdict ${c}">${esc(g.v)}<small>asks ${usd(g.ask)} · ${esc(g.vs)}</small></div>`;
+  gates.append(row);
+}
+const axis = el("div", "axis", `<span></span><div class="ticks">${[0.1, 1, 10, 100].map((v) => `<span style="left:${x(v)}%">${v < 1 ? "$0.10" : "$" + v}</span>`).join("")}</div><span class="mono mute" style="font-size:11px;text-align:right">log scale</span>`);
+gates.append(axis);
+
+// ---------- 3. try to cheat the checker ----------
+const env = D.envelope01;
+const expected = C.parseFields(env.input_text);
+const recorded = D.ohwowResult01.evidence_digest;
+const presets = {
+  ohwow: () => structuredClone(D.ohwowDelivery01),
+  wrong: () => structuredClone(D.failFixture),
+  typo: () => { const d = structuredClone(D.ohwowDelivery01); d.extracted.AGENT_VERSION = "2.4.l"; return d; },
+  imposter: () => { const d = structuredClone(D.ohwowDelivery01); d.executor_agent_id = "someone-else"; return d; },
+};
+let delivery = presets.ohwow();
+const fieldsEl = $("#fields");
+$("#jobmeta").textContent = `${env.task_id.slice(0, 17)}… · cap ${usd(env.max_spend_usdc)} · deadline ${env.deadline_iso.slice(0, 16).replace("T", " ")} UTC`;
+function renderInput(bad) {
+  $("#input").innerHTML = env.input_text.split("\n").map((line) => {
+    const i = line.indexOf(": "); const k = line.slice(0, i), v = line.slice(i + 2);
+    return `<span class="${k === bad ? "hl" : ""}"><span class="k">${esc(k)}:</span> ${esc(v)}</span>`;
+  }).join("\n");
+}
+function buildFields() {
+  fieldsEl.innerHTML = "";
+  const rows = env.required_fields.map((f) => ({ key: f, label: f, val: delivery.extracted?.[f] ?? "" }));
+  rows.push({ key: "__exec", label: "WHO DID THE WORK · executor_agent_id", val: delivery.executor_agent_id ?? "", who: true });
+  for (const r of rows) {
+    const id = "f-" + r.key.replace(/_/g, "-").toLowerCase();
+    const w = el("div", "field" + (r.who ? " who" : ""));
+    w.dataset.key = r.key;
+    w.innerHTML = `<label for="${id}">${esc(r.label)}</label><span class="st" aria-hidden="true"></span><input id="${id}" spellcheck="false" autocomplete="off" value="${esc(r.val)}">`;
+    $("input", w).addEventListener("input", (e) => {
+      if (r.who) delivery.executor_agent_id = e.target.value; else delivery.extracted[r.key] = e.target.value;
+      setPressed(null); evaluate();
+    });
+    fieldsEl.append(w);
+  }
+}
+const STEP_NAMES = ["Not blocked by a spend cap", "Answer uses the agreed schema", "Answer is for this task", "Answer has an extracted object", "Read the truth from the input text", "Every required field matches", "No invented extra fields", "Seal the evidence"];
+async function evaluate() {
+  const run = await C.check(env, delivery);
+  const bad = wrongField(run);
+  renderInput(bad);
+  fieldsEl.querySelectorAll(".field").forEach((w) => {
+    const k = w.dataset.key, st = $(".st", w);
+    if (k === "__exec") { st.textContent = ""; return; }
+    const fr = (run.fieldResults || []).find((f) => f.f === k);
+    w.classList.toggle("bad", !!fr && !fr.ok);
+    st.textContent = fr ? (fr.ok ? "✓" : "✗") : "·";
+    st.className = "st " + (fr ? (fr.ok ? "pass" : "fail") : "mute");
+  });
+  $("#steps").innerHTML = run.steps.map((s) => {
+    const label = { ok: "ok", fail: "caught", blocked: "blocked", skip: "not reached" }[s.state];
+    const cls = { ok: "pass", fail: "fail", blocked: "block", skip: "" }[s.state];
+    return `<li class="${s.state === "skip" ? "skip" : ""}"><span>${STEP_NAMES[s.n]}</span><span class="s ${cls}">${label}</span>${s.note ? `<span class="note">${esc(s.note)}</span>` : ""}</li>`;
+  }).join("");
+  const r = run.result, out = r.outcome;
+  let msg;
+  if (out === "pass" && r.evidence_digest === recorded) msg = "Same seal checker.py recorded for ohwow's delivery. Escrow releases.";
+  else if (out === "pass") msg = delivery.executor_agent_id !== D.ohwowDelivery01.executor_agent_id
+    ? `Correct work, but the seal now names "${esc(delivery.executor_agent_id)}". It no longer matches ohwow's receipt.`
+    : "Passes, with a new seal. It does not match ohwow's recorded receipt.";
+  else msg = "No seal. The checker stops at the first problem and payment stays in escrow.";
+  $("#result").innerHTML = `${sealSVG(r.evidence_digest, out)}<div style="display:grid;gap:6px"><span class="big ${out === "pass" ? "pass" : out === "fail" ? "fail" : "block"}">${out}</span><p>${msg}</p></div>`;
+}
+function setPressed(name) { document.querySelectorAll("[data-preset]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.preset === name))); }
+document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => {
+  delivery = presets[b.dataset.preset](); setPressed(b.dataset.preset); buildFields(); evaluate();
+}));
+buildFields(); await evaluate();
+
+// ---------- seal: 256 bits as 8 rings x 32 dots ----------
+function sealSVG(hex, outcome, size) {
+  const c = outcome === "pass" ? "var(--pass)" : outcome === "fail" ? "var(--fail)" : "var(--block)";
+  if (!hex) return `<svg viewBox="0 0 120 120" role="img" aria-label="no seal"><circle cx="60" cy="60" r="54" fill="none" stroke="${c}" stroke-width="1.5" stroke-dasharray="3 5"/><text x="60" y="64" text-anchor="middle" fill="${c}" font-family="JetBrains Mono, monospace" font-size="11">no seal</text></svg>`;
+  const bits = hex.split("").flatMap((h) => parseInt(h, 16).toString(2).padStart(4, "0").split("").map(Number));
+  let dots = "";
+  for (let ring = 0; ring < 8; ring++) {
+    const r = 25 + ring * 4.4;
+    for (let k = 0; k < 32; k++) {
+      const on = bits[ring * 32 + k];
+      const a = (k / 32) * Math.PI * 2 - Math.PI / 2 + (ring % 2 ? Math.PI / 32 : 0);
+      const cx = (60 + r * Math.cos(a)).toFixed(2), cy = (60 + r * Math.sin(a)).toFixed(2);
+      dots += on ? `<circle cx="${cx}" cy="${cy}" r="1.6" fill="${c}"/>` : `<circle cx="${cx}" cy="${cy}" r=".7" fill="var(--faint)"/>`;
+    }
+  }
+  return `<svg viewBox="0 0 120 120" role="img" aria-label="seal ${hex.slice(0, 8)}"><circle cx="60" cy="60" r="58" fill="none" stroke="var(--line2)"/>${dots}<text x="60" y="63.5" text-anchor="middle" fill="var(--fg)" font-family="JetBrains Mono, monospace" font-size="8.5">${hex.slice(0, 6)}</text></svg>`;
+}
+
+// ---------- 4. seals recomputed live ----------
+const runA2 = await C.check(D.envelope02, D.ohwowDelivery02);
+const sealCards = [
+  { title: "ohwow · sample-01", sub: "the $1 job", run: runA, rec: D.ohwowResult01, src: "ohwowResult01" },
+  { title: "ohwow · sample-02", sub: "a second input, other agent's data", run: runA2, rec: D.ohwowResult02, src: "ohwowResult02" },
+  { title: "Blocked · sample-02", sub: "price over the buyer's cap", run: runC, rec: D.blockedResult02, src: "blockedResult02" },
+];
+$("#seals").innerHTML = sealCards.map((s) => {
+  const same = JSON.stringify(s.run.result) === JSON.stringify(s.rec);
+  const o = s.run.result.outcome;
+  return `<div class="panel seal">${sealSVG(s.run.result.evidence_digest, o)}
+    <div style="display:grid;gap:2px"><b>${esc(s.title)}</b><span class="mute" style="font-size:14px">${esc(s.sub)}</span></div>
+    <span class="hex">${esc(s.run.result.evidence_digest || s.run.result.blocked_reason || "")}</span>
+    <span class="ver ${same ? "pass" : "fail"}">${same ? "✓ recomputed here, identical to checker.py" : "✗ differs from the committed result"}</span>
+    <a class="mono" style="font-size:12px" href="${REPO}/blob/${S[s.src].commit}/${S[s.src].path}">committed result ↗</a></div>`;
+}).join("");
+
+// ---------- sources ----------
+$("#sources").innerHTML = Object.values(S).map((s) =>
+  `<div><a href="${REPO}/blob/${s.commit}/${s.path}">${esc(s.path)}</a><span class="mute">${esc(s.ref)}</span><span class="mute">${s.commit.slice(0, 7)}</span></div>`).join("");
+})();
+</script>
+</body>
+</html>
