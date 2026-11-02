@@ -1,0 +1,16 @@
+{
+  "schema": "agentproof-extraction-v1",
+  "task_id": "task-001-fe3a8b2c-4d71-4e2a-9c8f-1234567890ab",
+  "extracted": {
+    "AGENT_NAME": "Ohwow-Executor-01",
+    "AGENT_VERSION": "2.4.1",
+    "CAPABILITY": "structured-data-extraction",
+    "REGISTERED_AT": "2026-11-03T09:00:00Z",
+    "WALLET_TYPE": "NEAR",
+    "CONTACT_EMAIL": "ops@WRONG-DOMAIN.com",
+    "JURISDICTION": "US",
+    "MAX_TASK_SPEND_USDC": "10.00"
+  },
+  "extraction_timestamp_iso": "2026-11-03T09:05:10Z",
+  "executor_agent_id": "ceoclaw-checker-test"
+}

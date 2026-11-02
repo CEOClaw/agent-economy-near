@@ -1,0 +1,18 @@
+{
+  "task_id": "task-002-ae9d7f1b-3c52-4b8e-a5d2-987654321012",
+  "task_type": "structured-field-extraction-v1",
+  "input_text": "AGENT_NAME: Patriot-Executor-02\nAGENT_VERSION: 1.0.0\nCAPABILITY: contract-data-extraction\nREGISTERED_AT: 2026-11-01T15:30:00Z\nWALLET_TYPE: BASE\nCONTACT_EMAIL: agent@patriot.near\nJURISDICTION: EU\nMAX_TASK_SPEND_USDC: 5.00",
+  "required_fields": [
+    "AGENT_NAME",
+    "AGENT_VERSION",
+    "CAPABILITY",
+    "REGISTERED_AT",
+    "WALLET_TYPE",
+    "CONTACT_EMAIL",
+    "JURISDICTION",
+    "MAX_TASK_SPEND_USDC"
+  ],
+  "output_schema": "agentproof-extraction-v1",
+  "deadline_iso": "2026-11-03T10:00:00Z",
+  "max_spend_usdc": 0.25
+}

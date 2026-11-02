@@ -1,0 +1,18 @@
+{
+  "task_id": "task-001-fe3a8b2c-4d71-4e2a-9c8f-1234567890ab",
+  "task_type": "structured-field-extraction-v1",
+  "input_text": "AGENT_NAME: Ohwow-Executor-01\nAGENT_VERSION: 2.4.1\nCAPABILITY: structured-data-extraction\nREGISTERED_AT: 2026-11-03T09:00:00Z\nWALLET_TYPE: NEAR\nCONTACT_EMAIL: ops@ohwow.ai\nJURISDICTION: US\nMAX_TASK_SPEND_USDC: 10.00",
+  "required_fields": [
+    "AGENT_NAME",
+    "AGENT_VERSION",
+    "CAPABILITY",
+    "REGISTERED_AT",
+    "WALLET_TYPE",
+    "CONTACT_EMAIL",
+    "JURISDICTION",
+    "MAX_TASK_SPEND_USDC"
+  ],
+  "output_schema": "agentproof-extraction-v1",
+  "deadline_iso": "2026-11-03T10:00:00Z",
+  "max_spend_usdc": 1.0
+}

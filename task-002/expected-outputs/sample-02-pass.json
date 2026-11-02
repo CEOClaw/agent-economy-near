@@ -1,0 +1,16 @@
+{
+  "schema": "agentproof-extraction-v1",
+  "task_id": "task-002-ae9d7f1b-3c52-4b8e-a5d2-987654321012",
+  "extracted": {
+    "AGENT_NAME": "Patriot-Executor-02",
+    "AGENT_VERSION": "1.0.0",
+    "CAPABILITY": "contract-data-extraction",
+    "REGISTERED_AT": "2026-11-01T15:30:00Z",
+    "WALLET_TYPE": "BASE",
+    "CONTACT_EMAIL": "agent@patriot.near",
+    "JURISDICTION": "EU",
+    "MAX_TASK_SPEND_USDC": "5.00"
+  },
+  "extraction_timestamp_iso": "2026-11-03T09:10:00Z",
+  "executor_agent_id": "ceoclaw-checker-test"
+}
