@@ -40,11 +40,17 @@
     return taskId + "|" + executorId + "|" + inputText + "|" + canonicalJson(extracted);
   }
 
-  function pyStr(v) {
+  // Python str(): repr for containers (single-quoted strings, ', ' and ': ' separators).
+  function pyRepr(v) {
     if (v === null || v === undefined) return "None";
     if (typeof v === "boolean") return v ? "True" : "False";
-    if (typeof v === "object") return JSON.stringify(v);
+    if (typeof v === "string") return v.includes("'") && !v.includes('"') ? '"' + v + '"' : "'" + v.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + "'";
+    if (Array.isArray(v)) return "[" + v.map(pyRepr).join(", ") + "]";
+    if (typeof v === "object") return "{" + Object.keys(v).map((k) => pyRepr(k) + ": " + pyRepr(v[k])).join(", ") + "}";
     return String(v);
+  }
+  function pyStr(v) {
+    return typeof v === "string" ? v : pyRepr(v);
   }
 
   // Returns { result, steps } where result is byte-for-byte checker.py's output

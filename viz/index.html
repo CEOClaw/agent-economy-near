@@ -129,6 +129,10 @@ button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:va
 .result .big{font:800 30px/1 var(--display);text-transform:uppercase;letter-spacing:-.01em}
 .result p{font-size:13px;color:var(--mute)}
 
+.redteam{padding:18px 20px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 24px;align-items:center}
+.redteam .n{font:800 34px/1 var(--display);grid-row:span 2}
+.redteam p{font-size:14px;color:var(--mute)}
+@media (max-width:640px){.redteam{grid-template-columns:minmax(0,1fr)}.redteam .n{grid-row:auto}}
 /* 4. seals */
 .seals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 @media (max-width:860px){.seals{grid-template-columns:minmax(0,1fr)}}
@@ -215,6 +219,7 @@ pre.cmd .c{color:var(--mute)}
         <div class="result" id="result"></div>
       </div>
     </div>
+    <div class="panel redteam" id="redteam"></div>
   </section>
 
   <!-- 4. seals -->
@@ -441,6 +446,14 @@ document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("cl
   delivery = presets[b.dataset.preset](); setPressed(b.dataset.preset); buildFields(); evaluate();
 }));
 buildFields(); await evaluate();
+
+// ---------- red team summary (viz/redteam.mjs output) ----------
+fetch("redteam-results.json").then((r) => r.json()).then((rt) => {
+  const atk = rt.rows.filter((r) => r.expected !== "pass"), held = atk.filter((r) => r.outcome !== "pass").length;
+  const cats = [...new Set(atk.map((r) => r.category))].join(", ");
+  $("#redteam").innerHTML = `<span class="n ${held === atk.length ? "pass" : "fail"} tnum">${held}/${atk.length}</span>
+    <b>attacks refused by checker.py</b><p>Deliveries built to get paid for wrong work: ${esc(cats)}. Every one runs through the real checker.py and this port. <a href="${REPO}/blob/jesus/agentproof-viz/viz/REDTEAM.md">Attacks and findings</a></p>`;
+}).catch(() => { $("#redteam").hidden = true; });
 
 // ---------- seal: 256 bits as 8 rings x 32 dots ----------
 function sealSVG(hex, outcome, size) {
