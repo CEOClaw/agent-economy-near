@@ -1,0 +1,16 @@
+{
+  "task_id": "00000000-0000-4000-8000-000000000002",
+  "task_type": "structured-field-extraction-v1",
+  "input_text": "INVOICE_ID:   INV-0042   \r\nnote without a colon, ignored\r\nENDPOINT: https://api.example.com:8443/v1/jobs?id=7&mode=full\r\nMEMO: Ref: Q4 renewal: net 30 \r\nCLIENT: Ünïcödé Ltd 東京\r\nSTATUS: draft\r\nSTATUS: final  \r\nCURRENCY: USDC\r\n",
+  "required_fields": [
+    "CURRENCY",
+    "MEMO",
+    "INVOICE_ID",
+    "CLIENT",
+    "STATUS",
+    "ENDPOINT"
+  ],
+  "output_schema": "agentproof-extraction-v1",
+  "deadline_iso": "2026-11-03T12:00:00Z",
+  "max_spend_usdc": 1
+}
