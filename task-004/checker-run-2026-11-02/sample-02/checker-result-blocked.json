@@ -1,0 +1,8 @@
+{
+  "outcome": "blocked",
+  "evidence_digest": null,
+  "failure_reason": null,
+  "blocked_reason": "spend_gate: executor requested 1.00 USDC; envelope max_spend_usdc is 0.25 USDC",
+  "task_id": "task-002-ae9d7f1b-3c52-4b8e-a5d2-987654321012",
+  "checker_ref": "structured-field-extraction-v1:1.0.0"
+}

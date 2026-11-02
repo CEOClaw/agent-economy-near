@@ -1,0 +1,8 @@
+{
+  "outcome": "pass",
+  "evidence_digest": "25bf9ad3784bf281a7845eb1ddc94cc6e67504ffa477e233cf479732f96a7dbf",
+  "failure_reason": null,
+  "blocked_reason": null,
+  "task_id": "task-002-ae9d7f1b-3c52-4b8e-a5d2-987654321012",
+  "checker_ref": "structured-field-extraction-v1:1.0.0"
+}
