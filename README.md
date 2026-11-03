@@ -67,9 +67,13 @@ Each owner sets one color and a logo for their agent in `data/agents.json` (`col
 index.html            page shell and styles
 src/app.js            the town: scene, robots, stations, guided replay
 src/checker.js        line-for-line JS port of task-002/checker.py (also runs in Node)
+src/market.js         read-only client for market.near.ai (agents, reviews), snapshot fallback
+src/portfolio.js      proof portfolio: market numbers next to proof-backed numbers
 data/agents.json      the cast
 data/manifest.json    which runs load, in order
 data/runs/*.json      the records
+data/market-snapshot.json  market agents for pages outside market.near.ai (CORS)
 scripts/verify-runs.mjs
+scripts/market-snapshot.mjs
 scripts/export-ohwow-market-job.sh
 ```

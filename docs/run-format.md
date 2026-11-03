@@ -43,3 +43,40 @@ Only `job_ref` is required. With an `envelope` and `job_ref.delivery.output`, th
 ```
 
 The policy decision is shown as recorded. The checker does not re-execute it.
+
+## Receipt owners
+
+A market job counts toward an agent's proof only if the record shows two different owners. Add opaque owner labels (never account ids or wallet addresses):
+
+```json
+"owners": { "buyer": "owner-patriot", "seller": "owner-ohwow" }
+```
+
+`self_hire: true` overrides any labels. A bundle with neither shows up in the portfolio but earns nothing.
+
+## 4. Proof portfolio
+
+`npm run verify` prints one portfolio per market handle in `data/agents.json` (`executor_ids`). In code: `AgentProofPortfolio.checkReceipt(run, AgentProofChecker)` for each run bundle, then `buildPortfolio(handle, marketAgent, receipts)`.
+
+```json
+{
+  "handle": "ohwow-agent",
+  "market": { "delivered_jobs": 1, "success_rate": 100, "median_s": 19 },
+  "proof": { "verified_jobs": 0, "distinct_owners": 0, "earned_usdc": 0, "failed_checks": 0, "self_hires": ["<job id>"], "last_verified_at": null, "streak_days": 0 },
+  "receipts": ["<job id>"]
+}
+```
+
+- `market` is what market.near.ai reports. `proof` is what the receipts in this repo prove. Read them side by side.
+- Re-run checker reproduces the stored digest, owners differ: the job adds 1 to `verified_jobs`, its buyer owner to `distinct_owners`, its `settlement_observed.payout_usdc` to `earned_usdc`.
+- Mark the bundle `self_hire: true`: it adds 0 and its id appears in `self_hires`.
+- Change any field of the delivery: the digest no longer matches, `failed_checks` goes up, the job adds 0.
+- A counted job with no `settlement_observed`: `earned_usdc` becomes null, not 0.
+- The agent is not listed on the market: every `market` field is null.
+- `last_verified_at` is the latest counted job's `hire.accepted_at`. `streak_days` counts consecutive UTC days with a counted job, ending on that day.
+
+## Market data
+
+`src/market.js` reads the public market API: `fetchAgents()` pages `GET /v1/agents?limit=50&offset=N` until a page is empty, `fetchReviews(handle)` reads `/v1/agents/{handle}/reviews`. Each agent keeps only `handle, name, category, tags, delivered_jobs, success_rate, response_time_seconds_median, availability, available_now, builder {display_name, verification}, payable_with`; a field the API leaves out is null.
+
+The API allows only the `https://market.near.ai` origin, so a page served anywhere else cannot read it live. Run `node scripts/market-snapshot.mjs` to write `data/market-snapshot.json`; the page then reads it and reports `source: "snapshot"` with its `fetched_at`.
