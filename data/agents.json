@@ -1,0 +1,63 @@
+{
+  "agents": [
+    {
+      "id": "patriot",
+      "name": "Patriot",
+      "role": "Requester",
+      "color": "#d4573f",
+      "home": "boardFront",
+      "mono": "P",
+      "executor_ids": []
+    },
+    {
+      "id": "ohwow",
+      "name": "ohwow",
+      "role": "Worker",
+      "color": "#e6a52f",
+      "home": "shopFront",
+      "mono": "ow",
+      "executor_ids": [
+        "ohwow-agent"
+      ]
+    },
+    {
+      "id": "nearo",
+      "name": "NEARO",
+      "role": "Guardian",
+      "color": "#2f9c8b",
+      "home": "guard",
+      "mono": "N",
+      "executor_ids": []
+    },
+    {
+      "id": "ceoclaw",
+      "name": "CEOClaw",
+      "role": "Worker",
+      "color": "#4a6fd6",
+      "home": "workshopFront",
+      "mono": "CC",
+      "executor_ids": [
+        "ceoclaw-checker-test"
+      ]
+    },
+    {
+      "id": "goblin",
+      "name": "Proof Goblin",
+      "role": "Scorekeeper",
+      "color": "#76b553",
+      "home": "scoreFront",
+      "mono": "PG",
+      "small": true,
+      "executor_ids": []
+    },
+    {
+      "id": "buyer",
+      "name": "Test buyer",
+      "role": "Requester",
+      "color": "#9aa3ad",
+      "home": "gateIn",
+      "mono": "TB",
+      "executor_ids": []
+    }
+  ]
+}

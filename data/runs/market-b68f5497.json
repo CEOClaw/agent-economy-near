@@ -1,0 +1,223 @@
+{
+  "schema": "agentproof-run-bundle-v0",
+  "envelope": {
+    "task_id": "b68f5497-80e9-4652-9d24-2450e3ffa43d",
+    "task_type": "structured-field-extraction-v1",
+    "input_text": "AGENT_NAME: Ohwow-Executor-01\nAGENT_VERSION: 2.4.1\nCAPABILITY: structured-data-extraction\nREGISTERED_AT: 2026-11-03T09:00:00Z\nWALLET_TYPE: NEAR\nCONTACT_EMAIL: ops@example.com\nJURISDICTION: US\nMAX_TASK_SPEND_USDC: 10.00\n",
+    "required_fields": [
+      "AGENT_NAME",
+      "AGENT_VERSION",
+      "CAPABILITY",
+      "REGISTERED_AT",
+      "WALLET_TYPE",
+      "CONTACT_EMAIL",
+      "JURISDICTION",
+      "MAX_TASK_SPEND_USDC"
+    ],
+    "output_schema": "agentproof-extraction-v1",
+    "deadline_iso": "2026-11-04T17:00:00Z",
+    "max_spend_usdc": 1
+  },
+  "job_ref": {
+    "job": {
+      "id": "b68f5497-80e9-4652-9d24-2450e3ffa43d",
+      "kind": "instant",
+      "title": "P0 payment-path test (self-hire, B=A same owner)",
+      "source": "GET /v1/jobs/{id}",
+      "status": "completed",
+      "missing": null,
+      "read_ok": true,
+      "created_at": "2026-11-03T16:53:00.475481Z",
+      "updated_at": "2026-11-03T17:02:25.115962Z",
+      "budget_token": "USDC",
+      "budget_amount": "1"
+    },
+    "hire": {
+      "id": "26845b9a-cf90-496e-97f0-e6f0d7116e4e",
+      "state": "accepted",
+      "token": "USDC",
+      "amount": "1",
+      "job_id": "b68f5497-80e9-4652-9d24-2450e3ffa43d",
+      "rounds": 1,
+      "started_at": "2026-11-03T16:53:20.479+00:00",
+      "accepted_at": "2026-11-03T17:02:34.107+00:00",
+      "submitted_at": "2026-11-03T17:02:05.593+00:00",
+      "assignment_id": "26771355-d730-48d5-85fc-e5f5f154a922",
+      "cancel_reason": null,
+      "market_status": "accepted"
+    },
+    "phase": "accepted",
+    "escrow": {
+      "token": null,
+      "amount": null,
+      "source": "GET /v1/agents/me/assignments",
+      "missing": "the assignment is not in the agent assignment list (first 100)",
+      "read_ok": false,
+      "funding_tx": null,
+      "started_at": null,
+      "finalized_at": null,
+      "submitted_at": null,
+      "assignment_status": null,
+      "funding_tx_source": "requester ledger (buyer side)",
+      "market_deliverable_hash": null
+    },
+    "schema": "agentproof-market-job-ref-v1",
+    "dry_run": false,
+    "missing": [
+      "escrow: the assignment is not in the agent assignment list (first 100)",
+      "settlement.ledger_entries: unauthorized"
+    ],
+    "delivery": {
+      "output": {
+        "schema": "agentproof-extraction-v1",
+        "task_id": "b68f5497-80e9-4652-9d24-2450e3ffa43d",
+        "extracted": {
+          "AGENT_NAME": "Ohwow-Executor-01",
+          "CAPABILITY": "structured-data-extraction",
+          "WALLET_TYPE": "NEAR",
+          "JURISDICTION": "US",
+          "AGENT_VERSION": "2.4.1",
+          "CONTACT_EMAIL": "ops@example.com",
+          "REGISTERED_AT": "2026-11-03T09:00:00Z",
+          "MAX_TASK_SPEND_USDC": "10.00"
+        },
+        "executor_agent_id": "ohwow-agent",
+        "extraction_timestamp_iso": "2026-11-03T17:02:04.524Z"
+      },
+      "checker": {
+        "notes": [],
+        "outcome": "pass",
+        "judged_at": "2026-11-03T17:02:04.524Z",
+        "task_type": "structured-field-extraction-v1",
+        "checker_ref": "ohwow-port-of-AGENTPROOF-CHECKER.md@2026-10-30",
+        "digest_canon": "python-json.dumps(sort_keys=True,separators=(\",\",\":\"),ensure_ascii=True)",
+        "output_schema": "agentproof-extraction-v1",
+        "evidence_digest": "bede85c360ca8635803f382a28c2c853c534febb723c97739a75c7f3d365a607"
+      },
+      "submitted_at": "2026-11-03T17:02:05.593+00:00",
+      "deliverable_bytes": 503,
+      "deliverable_sha256": "1b327bd549a4a35246f250e6d01460fa34c8f99ec2d3abfc0527cc2b1817e15e"
+    },
+    "executor": {
+      "handle": "ohwow-agent",
+      "executor_agent_id": "ohwow-agent"
+    },
+    "terminal": true,
+    "settlement": {
+      "note": "The release row is a promise, not booked money: the payout is a later market step. Ledger rows above are what the market showed this seller token for this job.",
+      "ours": {
+        "rail": "near_market",
+        "reason": "Aceptado en NEAR. Pago en camino, todavía no está en tu saldo.",
+        "decision": "release",
+        "rail_ref": "26771355-d730-48d5-85fc-e5f5f154a922",
+        "resolved_at": "2026-11-03T17:02:34.201+00:00"
+      },
+      "dispute": null,
+      "missing": "unauthorized",
+      "ledger_source": "GET /v1/wallet/ledger (newest 200 rows)",
+      "ledger_entries": [],
+      "ledger_read_ok": false
+    },
+    "written_at": "2026-11-03T17:02:34.772Z",
+    "checks_task_004": {
+      "escrow_funded_usdc_onchain": {
+        "proof": "not visible seller-side: escrow.amount/escrow.token show the held escrow, the funding tx is on the requester ledger (escrow.funding_tx_source)",
+        "value": null
+      },
+      "settlement_path_documented": {
+        "proof": "settlement.ours.decision/reason (our settlement row) + settlement.ledger_entries (market ledger rows for this job)",
+        "value": true
+      },
+      "job_created_via_confirmed_api": {
+        "proof": "job.id equals hire.job_id and job.status/created_at come from GET /v1/jobs/{id}",
+        "value": true
+      },
+      "delivery_submitted_by_executor": {
+        "proof": "delivery.submitted_at + delivery.deliverable_sha256 (escrow.market_deliverable_hash is the market copy)",
+        "value": true
+      },
+      "job_ref_independently_retrievable": {
+        "proof": "job.read_ok: the market returned the job to the seller token by its id, not from our own database",
+        "value": true
+      },
+      "executor_received_and_acknowledged": {
+        "proof": "hire.started_at (our startAssignment success)",
+        "value": true
+      },
+      "all_committed_to_market_job_ref_json": {
+        "proof": "committing this file to the partner repo is a human step; this record is the content",
+        "value": null
+      }
+    }
+  },
+  "events": [
+    {
+      "event": "hire.created",
+      "received_at": "2026-11-03T16:53:19.310Z",
+      "processed_at": "2026-11-03T16:53:21.378Z"
+    },
+    {
+      "event": "hire.changes_requested",
+      "received_at": "2026-11-03T17:01:33.836Z",
+      "processed_at": "2026-11-03T17:01:35.346Z"
+    },
+    {
+      "event": "message.created",
+      "received_at": "2026-11-03T17:02:01.687Z",
+      "processed_at": "2026-11-03T17:02:04.264Z"
+    },
+    {
+      "event": "hire.accepted",
+      "received_at": "2026-11-03T17:02:33.723Z",
+      "processed_at": "2026-11-03T17:02:35.966Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "e18ccf7d-88aa-429c-9ef2-04457628dc00",
+      "status": "completed",
+      "created_at": "2026-11-03T16:53:20.011Z",
+      "started_at": "2026-11-03T16:53:21.247Z",
+      "completed_at": "2026-11-03T16:53:34.736Z",
+      "cost_cents": 2
+    },
+    {
+      "id": "b23d511d-dd5d-48bd-9ec5-a8d0c7ead555",
+      "status": "completed",
+      "created_at": "2026-11-03T17:01:34.324Z",
+      "started_at": "2026-11-03T17:01:35.067Z",
+      "completed_at": "2026-11-03T17:01:47.078Z",
+      "cost_cents": 2
+    }
+  ],
+  "requester": {
+    "agent": "buyer"
+  },
+  "chain": [
+    {
+      "kind": "deposit",
+      "network": "NEAR Intents (1Click)",
+      "amount_in": "5.0",
+      "credited_usdc": "4.999589",
+      "status": "SUCCESS",
+      "at": "2026-11-03T16:51:00Z",
+      "at_approx": true,
+      "tx": "recorded privately, not published"
+    }
+  ],
+  "first_submit": {
+    "at": "2026-11-03T17:00:04Z",
+    "note": "first submit waited for the poller (bug fixed in ohwow.fun sql/767)"
+  },
+  "settlement_observed": {
+    "payout_usdc": "0.95",
+    "fee_usdc": "0.05",
+    "note": "seen in the seller owner's market wallet; the seller token cannot read the market ledger"
+  },
+  "self_hire": true,
+  "provenance": {
+    "source": "ohwow.fun production: marketplace_hires.job_ref, marketplace_events, agent_workforce_tasks",
+    "read_at": "2026-11-03",
+    "exported_by": "scripts/export-ohwow-market-job.sh"
+  }
+}
