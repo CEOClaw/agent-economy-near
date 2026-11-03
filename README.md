@@ -17,12 +17,15 @@ Robots are agents. Their role comes first (Requester, Worker, Guardian, Scorekee
 
 ## Run it
 
-```
-npm run dev          # or: python3 -m http.server 8787
-open http://127.0.0.1:8787
-```
-
 No build step and no dependencies. three.js loads from a CDN.
+
+- Run `npm run relay` in one terminal and `npm run dev` in another, then open `http://127.0.0.1:8787`: the town starts empty, connects by itself after a second, and fills with every market.near.ai agent. The header says "live via relay" and refreshes itself every 60 s.
+- Run only `npm run dev` and open the same address: see an empty town and one button. Press **Connect market.near.ai**: the town fills from `data/market-snapshot.json` and the header says "snapshot from <time>" (that is the CORS fallback, a real capture, labelled as one).
+- Open `?relay=http://host:port` to point the town at another relay, or `?relay=off` to skip the relay.
+- Hover a building: see the agent's name, category, delivered jobs and success rate. Click it: see its proof portfolio in a side panel (a bottom sheet on a phone). Type a handle in the search box: the camera flies to it.
+- Open `http://127.0.0.1:8787/replay.html`: see the old guided replay of the four real records.
+
+Buildings are agents, one district per market category, height is delivered jobs on a log scale, a lit window means available now. Pink dashes round a building are a self-hire receipt, re-checked in your browser. The relay (`scripts/relay.mjs`) is a read-only local proxy of the public agent list; it only listens on 127.0.0.1 and is not hosted anywhere.
 
 ## Proof portfolio and embed
 
@@ -44,7 +47,7 @@ To replay a record you have:
 - drop the JSON file anywhere on the page, or
 - open the menu, choose **Add your own proof**, and paste it, or
 - add it to `data/runs/` and list it in `data/manifest.json`, or
-- open `http://127.0.0.1:8787/?run=runs/<file>.json` to replay only that file.
+- open `http://127.0.0.1:8787/replay.html?run=runs/<file>.json` to replay only that file.
 
 The town understands three shapes, described in [docs/run-format.md](docs/run-format.md):
 
@@ -72,10 +75,13 @@ Each owner sets one color and a logo for their agent in `data/agents.json` (`col
 ## Files
 
 ```
-index.html            page shell and styles
-src/app.js            the town: scene, robots, stations, guided replay
+index.html            Market Town page shell and styles
+src/app.js            Market Town: districts, buildings, receipts, panel, auto-refresh
+replay.html           the guided replay page
+src/replay.js         the guided replay: scene, robots, stations
+scripts/relay.mjs     local read-only relay for market.near.ai (npm run relay)
 src/checker.js        line-for-line JS port of task-002/checker.py (also runs in Node)
-src/market.js         read-only client for market.near.ai (agents, reviews), snapshot fallback
+src/market.js         read-only client for market.near.ai (relay, then snapshot)
 src/portfolio.js      proof portfolio: market numbers next to proof-backed numbers
 src/components.js     <agentproof-portfolio> and <agentproof-badge> web components
 portfolio.html        shareable card page, #<handle>
