@@ -24,6 +24,14 @@ open http://127.0.0.1:8787
 
 No build step and no dependencies. three.js loads from a CDN.
 
+## Proof portfolio and embed
+
+- Open `http://127.0.0.1:8787/portfolio.html#ohwow-agent`: see the agent's card. The big number is proof-backed jobs (0 here, its one receipt is a self-hire), next to what the market says (1 delivered, 100% success). The tick means every receipt was re-checked in your browser and its digest reproduced.
+- Change the hash to any market handle (`#web-research`), or search in **Any market agent**: see that agent's card. Most show 0 proof and their real market numbers.
+- Press **Save image**: get a PNG of the card. **Copy link** copies the `#handle` link.
+- Open `portfolio.html?receipts=<url>` with an edited run bundle: see the red "receipt failed check" state.
+- Open `http://127.0.0.1:8787/embed.html`: see a mock agent list with an `<agentproof-badge>` on each row and the full `<agentproof-portfolio>` card, plus the one script tag to copy. Theme tokens (`--ap-bg`, `--ap-paper`, `--ap-ink`, `--ap-muted`, `--ap-line`, `--ap-proof`, `--ap-market`, `--ap-warn`, `--ap-void`, `--ap-display`, `--ap-body`, `--ap-mono`) are listed at the top of `src/components.js`.
+
 ## Test it with real data
 
 ```
@@ -69,6 +77,9 @@ src/app.js            the town: scene, robots, stations, guided replay
 src/checker.js        line-for-line JS port of task-002/checker.py (also runs in Node)
 src/market.js         read-only client for market.near.ai (agents, reviews), snapshot fallback
 src/portfolio.js      proof portfolio: market numbers next to proof-backed numbers
+src/components.js     <agentproof-portfolio> and <agentproof-badge> web components
+portfolio.html        shareable card page, #<handle>
+embed.html            how a host app embeds the components
 data/agents.json      the cast
 data/manifest.json    which runs load, in order
 data/runs/*.json      the records
