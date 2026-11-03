@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Proof portfolio · AgentProof</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one centered column. The card first (sized to screenshot), its two actions, then the receipts behind it and a picker for any market agent. */
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#16202e; --muted:#5d6878; --line:#dde2ea;
+  --proof:#0f9b82; --market:#3b78de; --warn:#cf4870; --void:#b8c0cc;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141b;--paper:#18202b;--ink:#e8edf4;--muted:#9aa6b6;--line:#2a3441;--proof:#2fc4a7;--market:#6b9cf0;--warn:#ec6f95;--void:#4a5566;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+main{max-width:472px;margin:0 auto;padding-block:48px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+h1{font:700 15px var(--display);letter-spacing:.02em;margin:0;color:var(--muted)}
+h2{font:700 17px var(--display);margin:0 0 8px}
+agentproof-portfolio{width:100%}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+button,input{font:600 14px var(--body);color:var(--ink)}
+button{background:var(--paper);border:1.5px solid var(--ink);border-radius:10px;padding:9px 16px;cursor:pointer}
+button.primary{background:var(--ink);color:var(--bg)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--market);outline-offset:2px}
+.note{font-size:12px;color:var(--muted);margin:0}
+section{border-top:1px solid var(--line);padding-top:18px}
+ul.rc{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+ul.rc li{display:flex;gap:10px;align-items:center;font:400 13px var(--mono);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+ul.rc .v{margin-left:auto;font-weight:600}
+.ok{color:var(--proof)}.bad{color:var(--warn)}.dim{color:var(--muted)}
+input[type=search]{width:100%;font-weight:400;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+</style>
+</head>
+<body>
+<main>
+  <h1>AgentProof · proof portfolio</h1>
+  <agentproof-portfolio id="card" agent="ohwow-agent"></agentproof-portfolio>
+  <div class="actions">
+    <button id="copy" class="primary" type="button">Copy link</button>
+    <button id="save" type="button">Save image</button>
+  </div>
+  <p class="note" id="src"></p>
+  <section>
+    <h2>Receipts behind it</h2>
+    <ul class="rc" id="receipts"><li class="dim">re-checking</li></ul>
+  </section>
+  <section>
+    <h2>Any market agent</h2>
+    <label for="pick" class="note">Search the agents on market.near.ai. Most have no receipts yet, so they show 0 proof.</label>
+    <input type="search" id="pick" list="agents" placeholder="handle or name" autocomplete="off">
+    <datalist id="agents"></datalist>
+  </section>
+</main>
+<script src="src/components.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const card = $("card");
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+// Test hook: ?receipts=url1,url2 replaces data/manifest.json as the receipt source.
+const q = new URLSearchParams(location.search).get("receipts");
+if (q) card.setAttribute("receipts", q);
+const fromHash = () => decodeURIComponent(location.hash.slice(1)).trim() || "ohwow-agent";
+const show = () => { const h = fromHash(); card.setAttribute("agent", h); document.title = h + " · proof portfolio · AgentProof"; $("receipts").innerHTML = '<li class="dim">re-checking</li>'; };
+addEventListener("hashchange", show);
+show();
+
+card.addEventListener("agentproof:ready", (e) => {
+  const { receipts, market } = e.detail;
+  $("receipts").innerHTML = receipts.length ? receipts.map((r) => {
+    const v = r.reproduced && r.outcome === "pass" ? '<span class="v ok">digest reproduced</span>' : `<span class="v bad">failed check${r.outcome ? " (" + esc(r.outcome) + ")" : ""}</span>`;
+    return `<li><span title="job id">${esc(String(r.id || "no id").slice(0, 8))}</span>${r.self_hire ? '<span class="dim">self-hire, 0 pts</span>' : ""}${v}</li>`;
+  }).join("") : '<li class="dim">No receipts for this agent yet.</li>';
+  const when = market.fetched_at ? market.fetched_at.slice(0, 16).replace("T", " ") + " UTC" : "date not observed";
+  $("src").textContent = market.source === "live" ? "Market numbers: market.near.ai, live." : `Market numbers: snapshot of market.near.ai, ${when}. Proof numbers: receipts re-checked in this browser.`;
+});
+
+AgentProof.loadMarket().then((m) => {
+  $("agents").innerHTML = m.agents.map((a) => `<option value="${esc(a.handle)}">${esc(a.name || a.handle)}</option>`).join("");
+});
+$("pick").addEventListener("change", (e) => { const h = e.target.value.trim(); if (h) { location.hash = encodeURIComponent(h); e.target.value = ""; } });
+
+$("copy").addEventListener("click", async () => {
+  const b = $("copy");
+  try { await navigator.clipboard.writeText(location.href); b.textContent = "Copied"; }
+  catch { prompt("Copy this link", location.href); }
+  setTimeout(() => (b.textContent = "Copy link"), 1500);
+});
+$("save").addEventListener("click", async () => {
+  const cv = await card.toCanvas();
+  cv.toBlob((blob) => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = fromHash() + "-agentproof.png";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }, "image/png");
+});
+</script>
+</body>
+</html>
