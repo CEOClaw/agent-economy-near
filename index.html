@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Market Town · AgentProof</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0}
+/* Same light clay look as replay.html. The town is empty until data connects. */
+:root{
+  --sky1:#d9e6ee; --sky2:#f5f7f8; --ink:#1c2128; --dim:#5b6570; --faint:#8b949e; --card:#ffffff; --line:#e1e5ea; --wash:#f3f5f7;
+  --request:#3b78de; --rep:#cf4870; --ok:#169c5f; --fail:#d6423a;
+  --display:"Fredoka",ui-rounded,system-ui,sans-serif; --body:"Nunito Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  --panel-w:400px;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{background:radial-gradient(120% 90% at 50% 20%,var(--sky2),var(--sky1));color:var(--ink);font-family:var(--body);font-size:15px;overflow:hidden}
+#stage{position:fixed;inset:0}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+#labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.place,.chiplab{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform}
+.place{font:600 11px/1 var(--body);color:#fff;background:#8b949e;padding:4px 8px;border-radius:7px;letter-spacing:.02em}
+.chiplab{font:500 11.5px/1 var(--mono);color:#fff;padding:4px 7px;border-radius:7px;box-shadow:0 2px 8px rgba(30,40,50,.18)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--request);outline-offset:2px}
+[hidden]{display:none!important}
+#top{position:fixed;z-index:5;top:0;left:0;right:0;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px));display:flex;flex-wrap:wrap;gap:8px;align-items:center;pointer-events:none}
+#top>*{pointer-events:auto}
+.brand{font:700 19px/1 var(--display);white-space:nowrap;margin-right:4px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font:600 12.5px/1.1 var(--body);box-shadow:0 2px 10px rgba(30,40,50,.08);white-space:nowrap}
+.chip i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--faint);margin-right:6px;vertical-align:1px}
+.chip.relay i{background:var(--ok)}
+.spacer{flex:1}
+#search{flex:0 1 190px;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 12px;font:600 13px/1.1 var(--body);box-shadow:0 2px 10px rgba(30,40,50,.08)}
+.replay{font:700 12.5px/1 var(--body);color:var(--request);text-decoration:none;padding:7px 4px}
+.replay:hover{text-decoration:underline}
+/* the one action on the empty town */
+#empty{position:fixed;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;width:min(360px,calc(100% - 32px))}
+.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:14px;padding:14px 22px;font:700 16px/1 var(--body);box-shadow:0 8px 28px rgba(30,40,50,.22)}
+.btn:disabled{opacity:.5;cursor:default}
+#note{margin:0;color:var(--dim);font:600 13.5px/1.4 var(--body)}
+#note.err{color:var(--fail)}
+#tip{position:fixed;z-index:6;pointer-events:none;background:#fff;border-radius:12px;padding:8px 11px;box-shadow:0 6px 22px rgba(30,40,50,.2);font:600 12.5px/1.35 var(--body);max-width:240px}
+#tip b{display:block;font:600 14px/1.2 var(--display)}
+#tip span{color:var(--dim);font-weight:400}
+/* side panel on wide screens, bottom sheet on narrow */
+#panel{position:fixed;z-index:7;top:0;right:0;bottom:0;width:min(var(--panel-w),100%);background:var(--card);box-shadow:-10px 0 40px rgba(30,40,50,.16);display:flex;flex-direction:column;transform:translateX(0);transition:transform .25s}
+#panel[hidden]{display:flex!important;transform:translateX(105%);visibility:hidden;transition:transform .25s,visibility 0s .25s}
+#panel header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+#panel header a{font:700 13px var(--body);color:var(--request);text-decoration:none}
+#panel header a:hover{text-decoration:underline}
+#panelBody{flex:1;overflow:auto;padding:14px;min-width:0}
+.x{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;font:700 13px/1 var(--body)}
+@media (max-width:700px){
+  #panel{top:auto;left:0;right:0;width:auto;height:62vh;border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(30,40,50,.2)}
+  #panel[hidden]{transform:translateY(105%)}
+  #search{flex:1 1 140px}
+  .spacer{display:none}
+}
+@media (prefers-reduced-motion:reduce){#panel,#panel[hidden]{transition:none}}
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+<div id="labels"></div>
+<noscript>Market Town needs JavaScript.</noscript>
+
+<div id="top">
+  <div class="brand">Market Town</div>
+  <span class="chip" id="srcChip"><i></i><span id="srcText">not connected</span></span>
+  <span class="chip" id="countChip" hidden></span>
+  <span class="chip" id="rcptChip" hidden>receipts checked: 0</span>
+  <div class="spacer"></div>
+  <input id="search" type="search" list="handles" placeholder="Find an agent" aria-label="Find an agent" autocomplete="off" hidden>
+  <datalist id="handles"></datalist>
+  <a class="replay" href="replay.html">guided replay</a>
+</div>
+
+<div id="empty">
+  <button class="btn" id="connect">Connect market.near.ai</button>
+  <p id="note" aria-live="polite"></p>
+</div>
+<div id="tip" hidden></div>
+
+<aside id="panel" hidden aria-label="Agent portfolio">
+  <header><a id="panelLink" href="portfolio.html">open portfolio page</a><button class="x" id="panelClose" aria-label="Close panel">Close</button></header>
+  <div id="panelBody"></div>
+</aside>
+
+<script src="src/checker.js"></script>
+<script src="src/market.js"></script>
+<script src="src/portfolio.js"></script>
+<script src="src/components.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
