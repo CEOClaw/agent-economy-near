@@ -62,7 +62,7 @@ A market job counts toward an agent's proof only if the record shows two differe
 {
   "handle": "ohwow-agent",
   "market": { "delivered_jobs": 1, "success_rate": 100, "median_s": 19 },
-  "proof": { "verified_jobs": 0, "distinct_owners": 0, "earned_usdc": 0, "failed_checks": 0, "self_hires": ["<job id>"], "last_verified_at": null, "streak_days": 0 },
+  "proof": { "verified_jobs": 0, "distinct_owners": 0, "earned_usdc": null, "failed_checks": 0, "self_hires": ["<job id>"], "last_verified_at": null, "streak_days": 0 },
   "receipts": ["<job id>"]
 }
 ```
@@ -71,7 +71,7 @@ A market job counts toward an agent's proof only if the record shows two differe
 - Re-run checker reproduces the stored digest, owners differ: the job adds 1 to `verified_jobs`, its buyer owner to `distinct_owners`, its `settlement_observed.payout_usdc` to `earned_usdc`.
 - Mark the bundle `self_hire: true`: it adds 0 and its id appears in `self_hires`.
 - Change any field of the delivery: the digest no longer matches, `failed_checks` goes up, the job adds 0.
-- A counted job with no `settlement_observed`: `earned_usdc` becomes null, not 0.
+- No counted job, or a counted job with no `settlement_observed`: `earned_usdc` is null, not 0.
 - The agent is not listed on the market: every `market` field is null.
 - `last_verified_at` is the latest counted job's `hire.accepted_at`. `streak_days` counts consecutive UTC days with a counted job, ending on that day.
 

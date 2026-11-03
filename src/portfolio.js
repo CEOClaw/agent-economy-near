@@ -59,7 +59,7 @@
       proof: {
         verified_jobs: ok.length,
         distinct_owners: new Set(ok.map((r) => r.buyer_owner)).size,
-        earned_usdc: ok.some((r) => r.payout_usdc == null) ? null : Math.round(ok.reduce((s, r) => s + r.payout_usdc, 0) * 1e6) / 1e6,
+        earned_usdc: ok.length === 0 || ok.some((r) => r.payout_usdc == null) ? null : Math.round(ok.reduce((s, r) => s + r.payout_usdc, 0) * 1e6) / 1e6,
         failed_checks: mine.filter((r) => (r.outcome != null && r.outcome !== "pass") || (r.stored_digest != null && !r.reproduced)).length,
         self_hires: mine.filter((r) => r.self_hire).map((r) => r.id),
         last_verified_at: times.length ? times.sort().at(-1) : null,
