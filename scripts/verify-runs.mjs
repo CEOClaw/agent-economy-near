@@ -1,18 +1,22 @@
 #!/usr/bin/env node
 // Re-checks every run in data/manifest.json with src/checker.js (the same code the town runs in the browser).
 // Exit code 1 if any stored digest or committed result disagrees with a fresh run.
+// Then prints a proof portfolio per market handle in data/agents.json (executor_ids),
+// market numbers from market.near.ai live, or data/market-snapshot.json if offline.
 //   node scripts/verify-runs.mjs            all runs in the manifest
 //   node scripts/verify-runs.mjs <file>...  specific run files
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
-const CHK = createRequire(import.meta.url)(path.join(root, "src/checker.js"));
+const req = createRequire(import.meta.url);
+const CHK = req(path.join(root, "src/checker.js")), MKT = req(path.join(root, "src/market.js")), PF = req(path.join(root, "src/portfolio.js"));
 globalThis.crypto ??= (await import("node:crypto")).webcrypto;
 const files = process.argv.slice(2).length ? process.argv.slice(2) : JSON.parse(await readFile(path.join(root, "data/manifest.json"), "utf8")).runs.map((r) => path.join(root, "data", r.file));
-let bad = 0;
+let bad = 0; const receipts = [];
 for (const f of files) {
   const o = JSON.parse(await readFile(f, "utf8")); const name = path.basename(f);
+  const rc = await PF.checkReceipt(o, CHK); if (rc) receipts.push(rc);
   if (o.job_ref) {
     let env = o.envelope || o.extracted_input?.envelope; if (typeof env === "string") env = JSON.parse(env);
     const out = o.job_ref.delivery?.output, stored = o.job_ref.delivery?.checker?.evidence_digest;
@@ -25,5 +29,16 @@ for (const f of files) {
   } else if (o.governance_record) {
     const g = o.governance_record; console.log(`OK    ${name}: policy record, ${g.decision} ($${g.requested_usdc} vs cap $${g.permitted_max_usdc}); not re-executable here, shown as recorded`);
   } else { console.log(`SKIP  ${name}: unknown shape`); }
+}
+
+const snapshot = await readFile(path.join(root, "data/market-snapshot.json"), "utf8").then(JSON.parse, () => null);
+const mk = await MKT.fetchAgents({ snapshot });
+console.log(`\nmarket: ${mk.count} agents, ${mk.source}${mk.source === "snapshot" ? " from " + mk.fetched_at + " (live failed: " + mk.live_error + ")" : ""}`);
+const byHandle = new Map(mk.agents.map((a) => [a.handle, a]));
+const handles = JSON.parse(await readFile(path.join(root, "data/agents.json"), "utf8")).agents.flatMap((a) => a.executor_ids || []);
+const n = (v) => (v == null ? "null" : v);
+for (const h of handles) {
+  const p = PF.buildPortfolio(h, byHandle.get(h) || null, receipts), q = p.proof;
+  console.log(`PORTFOLIO ${h}: market delivered ${n(p.market.delivered_jobs)} / success ${n(p.market.success_rate)} / median_s ${n(p.market.median_s)}${byHandle.has(h) ? "" : " (not listed on the market)"}; proof verified_jobs ${q.verified_jobs}, distinct_owners ${q.distinct_owners}, earned_usdc ${n(q.earned_usdc)}, failed_checks ${q.failed_checks}, self_hires ${q.self_hires.length}, last_verified_at ${n(q.last_verified_at)}, streak_days ${q.streak_days}; receipts ${p.receipts.length}`);
 }
 process.exit(bad ? 1 : 0);
