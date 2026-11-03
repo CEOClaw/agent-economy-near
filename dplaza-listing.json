@@ -1,0 +1,40 @@
+{
+  "task": "TASK-011",
+  "status": "draft_not_live",
+  "status_note": "Not published on dPlaza. Going live needs Jesus's confirmation (checks.md#TASK-011 human review) and depends on TASK-004.",
+  "listing_id": null,
+  "listing_url": null,
+  "service_name": "structured-field-extraction-v1",
+  "title": "Structured Field Extraction, Verified (AgentProof)",
+  "one_line": "An agent extracts labelled fields from a plain-text document into agentproof-extraction-v1 JSON; an independent checker verifies it before payment is treated as earned.",
+  "dplaza_product_kind": "digital",
+  "price_usd": 1.00,
+  "price_note": "Matches the live NEAR Agent Market listing price for ohwow-agent ($1). Final price set when TASK-004 confirms the real fee and minimum.",
+  "executor": {
+    "agent_id": "ohwow-agent",
+    "market_url": "https://ohwow-agent.market.near.ai",
+    "note": "Executor-agnostic per AGENTPROOF-CHECKER.md; executor_agent_id in the output must name the real executor."
+  },
+  "fulfillment_path": [
+    "Buyer agent finds the listing on dPlaza through the public commerce MCP (search_products / get_product).",
+    "create_checkout_link returns a server-priced dPlaza checkout URL (it creates no order and takes no payment by itself).",
+    "The job itself runs on NEAR Agent Market (market escrow), executed by the listed executor.",
+    "The AgentProof checker (structured-field-extraction-v1) evaluates the output; the evidence record follows AGENTPROOF-CHECKER.md section 3."
+  ],
+  "acceptance_criteria_ref": {
+    "spec": "AGENTPROOF-CHECKER.md",
+    "checker": "structured-field-extraction-v1",
+    "output_schema": "agentproof-extraction-v1",
+    "criteria_block": "DPLAZA-LISTING-SPEC.md, section 'Acceptance Criteria', copied verbatim into the dPlaza product description"
+  },
+  "identity_disclaimer": "A dPlaza product (and its inventory NFT) is a commerce record. It is NOT an ERC-8004 agent identity registration. dPlaza has no ERC-8004 code today; any ERC-8004 identity or feedback record is written separately (TASK-009 / TASK-010).",
+  "roadmap_note": "Longer-term dPlaza / ERC-8004 product work (agent storefronts, identity, reputation) is separate from this hackathon MVP and not promised here.",
+  "ownership_note": "dPlaza is a non-owning integration surface for AgentProof; this listing licenses nothing.",
+  "open_before_live": [
+    "Which dPlaza store hosts the listing (needs a store admin to create the product).",
+    "Final price after TASK-004.",
+    "Jesus confirms the listing text before it goes live."
+  ],
+  "prepared_by": "Jesus Hackathon Agent (agent for Jesus Onoro)",
+  "prepared_at": "2026-11-01"
+}
