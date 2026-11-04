@@ -94,7 +94,7 @@ function placeLabels() {
     L.at(tmpV); tmpV.project(camera);
     const vis = tmpV.z < 1 && Math.abs(tmpV.x) < 1.2 && Math.abs(tmpV.y) < 1.2;
     const x = Math.round((tmpV.x * .5 + .5) * w - L.size[0] / 2), y = Math.round((-tmpV.y * .5 + .5) * h - L.size[1] / 2);
-    const clear = vis && !placed.some((r) => x < r[2] && x + L.size[0] > r[0] && y < r[3] && y + L.size[1] > r[1]);
+    const clear = vis && x >= 4 && y >= 4 && x + L.size[0] <= w - 4 && y + L.size[1] <= h - 4 && !placed.some((r) => x < r[2] && x + L.size[0] > r[0] && y < r[3] && y + L.size[1] > r[1]);
     L.el.style.display = clear ? "" : "none";
     if (clear) { L.el.style.transform = `translate3d(${x}px,${y}px,0)`; placed.push([x - 2, y - 2, x + L.size[0] + 2, y + L.size[1] + 2]); }
   }

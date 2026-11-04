@@ -172,8 +172,8 @@
       const logo = o.logo ? `style="background-color:${esc(o.color)};background-image:url('${esc(o.logo)}')"` : `style="background:${esc(o.color)}"`;
       const market = c.listed ? `<span>${nil(c.delivered)} delivered · ${c.rate == null ? nil(null) : `<b class="num">${esc(c.rate)}%</b>`} success</span>` : `<span class="nil">not listed</span>`;
       this._shell(`<article class="A" part="card"><div class="who"><div class="logo" ${logo}>${o.logo ? "" : esc(o.letter)}</div><div><div class="nm" title="${esc(o.name)}">${esc(o.name)}</div><div class="hd">${esc(c.handle)} · market.near.ai</div></div></div>
-<div class="row"><div class="big num">${c.big}<small>proof-backed jobs</small></div><span class="st ${c.status.kind}" data-status="${c.status.kind || "none"}">${esc(c.status.text)}</span></div>
-<div class="stats"><div><b class="num">${c.owners}</b><span>different owners</span></div><div>${c.earned == null ? `<b class="nil">none</b>` : `<b class="num">${esc(c.earned)}</b>`}<span>earned, verified</span></div><div><b class="num">${c.self}</b><span>self-hires, 0 pts</span></div></div>
+<div class="row"><div class="big num">${c.big}<small>proof-backed ${c.big === 1 ? "job" : "jobs"}</small></div><span class="st ${c.status.kind}" data-status="${c.status.kind || "none"}">${esc(c.status.text)}</span></div>
+<div class="stats"><div><b class="num">${c.owners}</b><span>${c.owners === 1 ? "outside owner" : "outside owners"}</span></div><div>${c.earned == null ? `<b class="nil">pending</b>` : `<b class="num">${esc(c.earned)}</b>`}<span>earned, verified</span></div><div><b class="num">${c.self}</b><span>${c.self === 1 ? "self-hire" : "self-hires"}, 0 pts</span></div></div>
 <div class="vs"><span>Market says</span>${market}</div>
 <div class="foot"><span>AgentProof · re-checked in your browser</span><span>${esc(c.last)}</span></div></article>`);
     }
@@ -216,13 +216,13 @@
       // big number + status pill
       const bigTop = P + 44 + 22;
       text(c.big, P, bigTop + 60, `800 76px ${F.display}`, t("--ink"));
-      text("proof-backed jobs", P, bigTop + 68 + 8 + 10, `600 15px ${F.body}`, t("--muted"));
+      text(c.big === 1 ? "proof-backed job" : "proof-backed jobs", P, bigTop + 68 + 8 + 10, `600 15px ${F.body}`, t("--muted"));
       x.font = `600 11px ${F.mono}`; const sw = x.measureText(c.status.text).width + 18;
       rr(P + inner - sw, bigTop + 2, sw, 23, 12); x.fillStyle = c.status.kind === "bad" ? t("--warn") : t("--bg"); x.fill();
       text(c.status.text, P + inner - 9, bigTop + 18, `600 11px ${F.mono}`, c.status.kind === "bad" ? "#fff" : c.status.kind === "ok" ? t("--proof") : t("--muted"), "right");
       // stats
       const sTop = bigTop + 68 + 8 + 22 + 18, cw = (inner - 20) / 3;
-      [[c.owners, "different owners"], [c.earned, "earned, verified", "none"], [c.self, "self-hires, 0 pts"]].forEach(([v, label, empty], i) => {
+      [[c.owners, c.owners === 1 ? "outside owner" : "outside owners"], [c.earned, "earned, verified", "pending"], [c.self, (c.self === 1 ? "self-hire" : "self-hires") + ", 0 pts"]].forEach(([v, label, empty], i) => {
         const X = P + i * (cw + 10);
         x.fillStyle = t("--line"); x.fillRect(X, sTop, cw, 2);
         text(v == null ? empty : v, X, sTop + 31, `700 20px ${F.display}`, v == null ? t("--void") : t("--ink"));
