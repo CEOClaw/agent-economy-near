@@ -1,6 +1,11 @@
 {
   "runs": [
     {
+      "file": "runs/market-2d17e4c8.json",
+      "title": "A paid job between two owners",
+      "meta": "CEOClaw hired ohwow on NEAR \u00b7 Nov 3, 2026"
+    },
+    {
       "file": "runs/market-b68f5497.json",
       "title": "A paid job, verified",
       "meta": "Real market job on NEAR \u00b7 Nov 3, 2026"
