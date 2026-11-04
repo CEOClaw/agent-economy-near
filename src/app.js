@@ -84,7 +84,7 @@ const labelsEl = $("labels"); const LABELS = [];
 const PRIO = { tag: 5, chiplab: 3, place: 2, nm: 1 };
 function label(cls, text, style, at, when, prio = PRIO[cls] || 0) { const el = document.createElement("div"); el.className = cls; el.textContent = text; if (style) el.style.cssText = style; labelsEl.appendChild(el); const L = { el, at, when, prio, size: null }; LABELS.push(L); LABELS.sort((p, q2) => q2.prio - p.prio); return L; }
 const dropLabel = (L) => { const k = LABELS.indexOf(L); if (k >= 0) LABELS.splice(k, 1); L.el.remove(); };
-const tmpV = new THREE.Vector3(), chrome = [$("legend"), ...document.querySelectorAll("#top > *")];
+const tmpV = new THREE.Vector3(), chrome = [$("legend"), $("panel"), ...document.querySelectorAll("#top > *")];
 function placeLabels() {
   const w = innerWidth, h = innerHeight, placed = [];
   for (const el of chrome) if (!el.hidden) { const r = el.getBoundingClientRect(); placed.push([r.left, r.top, r.right, r.bottom]); } // never under the header or legend
@@ -289,7 +289,7 @@ const counted = (rc) => rc.reproduced && rc.outcome === "pass" && !rc.self_hire 
 const norm = (v) => String(v || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 // The buyer is an owner in data/agents.json (run.requester.agent). Its building is one of its executor_ids
-// when listed, else the market listing whose builder display_name (or handle, or name) is that owner's name.
+// when listed, else the market listing whose builder display_name (or handle, or name) equals that owner's name.
 // With no listing at all it is a labelled off-market marker at the town edge: the buyer is real, it just has no listing.
 function buyerOf(run) {
   const id = run.requester && run.requester.agent; if (!id) return null;
@@ -297,7 +297,7 @@ function buyerOf(run) {
   const exec = ((def && def.executor_ids) || []).find((h) => BY.has(h) && S[BY.get(h)].kind !== "sink");
   if (exec) return { handle: exec, name, via: "executor_ids" };
   const byBuilder = (s) => (norm(s.agent.builder && s.agent.builder.display_name) === key ? 0 : 1);
-  const hits = key.length < 4 ? [] : [...BY.values()].map((i) => S[i]).filter((s) => s.kind !== "sink" && (byBuilder(s) === 0 || norm(s.handle).startsWith(key) || norm(s.agent.name).startsWith(key)))
+  const hits = key.length < 4 ? [] : [...BY.values()].map((i) => S[i]).filter((s) => s.kind !== "sink" && (byBuilder(s) === 0 || norm(s.handle) === key || norm(s.agent.name) === key))
     .sort((p, q2) => byBuilder(p) - byBuilder(q2) || (q2.agent.delivered_jobs || 0) - (p.agent.delivered_jobs || 0) || (p.handle < q2.handle ? -1 : 1));
   return hits.length ? { handle: hits[0].handle, name, via: byBuilder(hits[0]) === 0 ? "builder display_name" : "handle or name" } : { handle: null, name, via: "off-market" };
 }
@@ -338,7 +338,7 @@ function arcOf(e) {
 }
 function drawReceipt(r) {
   const { rc, run } = r, sellerSlot = BY.get(rc.seller_handle); if (sellerSlot == null) return;
-  if (r.reveal == null) r.reveal = tour.state === "done" || tour.state === "skipped" ? 1 : 0;
+  if (r.reveal == null) r.reveal = tour.state === "idle" ? 0 : 1; // only a tour that has not started yet will play it
   if (rc.self_hire) {
     const g = new THREE.Group(), m = new THREE.MeshStandardMaterial({ color: T.pink, roughness: .6, emissive: T.pink, emissiveIntensity: .25 });
     for (let k = 0; k < 18; k++) { const a = k / 18 * Math.PI * 2, b = new THREE.Mesh(new THREE.BoxGeometry(.2, .06, .09), m); b.position.set(Math.cos(a) * .85, 0, Math.sin(a) * .85); b.rotation.y = -a; g.add(b); }
@@ -355,8 +355,9 @@ function drawReceipt(r) {
   if (e.off) offMarket(e.off);
   RC.push(e); r.drawn = true; arcOf(e);
   town.loops.push({ handle: rc.seller_handle, kind: loop });
-  town.buyers = RC.filter((x) => x.kind === "arc").map((x) => ({ seller: x.seller, buyer: x.buyer, off_market: x.off, owner: x.buyerName, via: x.via }));
+  syncBuyers();
 }
+const syncBuyers = () => (town.buyers = RC.filter((x) => x.kind === "arc").map((x) => ({ seller: x.seller, buyer: x.buyer, off_market: x.off, owner: x.buyerName, via: x.via })));
 const drawPending = () => { for (const r of RD) if (!r.drawn) drawReceipt(r); };
 function removeReceipts(h) {
   for (const e of [...RC]) {
@@ -365,7 +366,9 @@ function removeReceipts(h) {
     if (e.g) scene.remove(e.g); if (e.mesh) { scene.remove(e.mesh); e.mesh.geometry.dispose(); } if (e.L) dropLabel(e.L);
     const k = town.loops.findIndex((l) => l.handle === e.seller && l.kind === e.loop); if (k >= 0) town.loops.splice(k, 1);
   }
-  drawPending(); refreshSeals(); nameLabels(); // a buyer that left is looked up again (another listing, or off-market); a seller that left leaves nothing
+  drawPending(); refreshSeals(); nameLabels(); syncBuyers();
+  for (const [name, o] of [...OFF]) if (!RC.some((e) => e.off === name)) { scene.remove(o.g); dropLabel(o.L); OFF.delete(name); }
+  // a buyer that left is looked up again (another listing, or off-market); a seller that left leaves nothing
 }
 async function loadReceipts() {
   const j = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: HTTP ${r.status}`); return r.json(); });
@@ -464,6 +467,7 @@ async function playOne(e, alive) {
   step.phase = "check"; setTag(e.seller, "re-checking...", "");
   const t0 = performance.now(), rc2 = await P.checkReceipt(r.run, C);
   await sleep(Math.max(0, T.recheck - (performance.now() - t0))); if (!alive()) return;
+  if (!rc2) { setTag(e.seller, "nothing to re-check", "bad"); await sleep(T.result); setTag(null, ""); haloAt = null; return; }
   tour.check = { id: rc2.id, outcome: rc2.outcome, recomputed_digest: rc2.recomputed_digest, stored_digest: rc2.stored_digest, reproduced: rc2.reproduced };
   const d8 = (x) => String(x).slice(0, 8), good = rc2.reproduced && rc2.outcome === "pass";
   const text = rc2.outcome == null ? "nothing to re-check" : rc2.outcome !== "pass" && !rc2.recomputed_digest ? `re-check failed: checker says ${rc2.outcome}` : !rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} does not match ${rc2.stored_digest ? d8(rc2.stored_digest) : "a stored seal"}`

@@ -82,7 +82,7 @@ button.chip{color:var(--request)}
 .demo #search,.demo .replay,.demo #replayBtn{display:none!important}
 .x{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;font:700 13px/1 var(--body)}
 /* the open card must not cover the header controls */
-@media (min-width:701px){body.panel-open #top{padding-right:calc(var(--panel-w) + 12px)}}
+@media (min-width:701px){body.panel-open #top{padding-right:calc(var(--panel-w) + 12px)}body.panel-open .replay{display:none}}
 @media (max-width:700px){
   #panel{top:auto;left:0;right:0;width:auto;height:62vh;border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(30,40,50,.2)}
   #panel[hidden]{transform:translateY(105%)}
