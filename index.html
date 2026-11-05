@@ -65,7 +65,7 @@ button.chip{color:var(--request)}
 .lens button[aria-pressed="true"]{background:var(--request);color:#fff}
 .lens button[data-lens="proof"][aria-pressed="true"]{background:var(--ok)}
 #tools{display:contents}
-#tally{font-variant-numeric:tabular-nums}
+#tally{font-variant-numeric:tabular-nums;min-width:27ch;box-sizing:content-box} /* the lens flip swaps "delivered (market's word)" for "proven": a fixed width keeps the header from reflowing */
 .chip.calm i{background:var(--faint)}
 .chip.stale i{background:var(--gold)}
 #srcLine,#srcShort{display:none}

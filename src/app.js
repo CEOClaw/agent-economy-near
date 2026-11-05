@@ -541,12 +541,12 @@ const marker = new THREE.Group(); marker.visible = false; scene.add(marker);
   const ring = new THREE.Mesh(new THREE.TorusGeometry(.6, .05, 8, 40), m); ring.rotation.x = Math.PI / 2; ring.position.y = .12;
   const pin = new THREE.Mesh(new THREE.ConeGeometry(.2, .4, 14), m); pin.rotation.x = Math.PI; pin.name = "pin"; marker.add(ring, pin); }
 let selH = null; // selection is by handle: slots are recycled
-function select(handle) {
+function select(handle, still) {
   selH = handle != null && BY.has(handle) ? handle : null; marker.visible = selH != null;
   const p = $("panel"); document.body.classList.toggle("panel-open", selH != null);
   if (selH == null) { p.hidden = true; $("panelBody").replaceChildren(); return; }
   closeAnalysis();
-  const el = document.createElement("agentproof-portfolio"); el.setAttribute("agent", handle); el.setAttribute("theme", DARK ? "dark" : "light"); el.setAttribute("flip", "");
+  const el = document.createElement("agentproof-portfolio"); el.setAttribute("agent", handle); el.setAttribute("theme", DARK ? "dark" : "light"); if (!still) el.setAttribute("flip", ""); // still: a live refresh re-renders the open card without replaying the flip
   // A dropped run file is re-checked by the card too, next to the manifest runs.
   if (EXTRA.length) el.setAttribute("receipts", [...MANIFEST.map((f) => new URL(`data/${f}`, location.href).href), ...EXTRA].join(","));
   $("saveBtn").disabled = true; el.addEventListener("agentproof:ready", () => { if (selH === handle) $("saveBtn").disabled = false; });
@@ -628,8 +628,9 @@ addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("panel").hidde
 /* ---------- find an agent: fuzzy over handle and name ---------- */
 // Rank 0 exact, 1 prefix, 2 substring, 3 subsequence ("ceow" finds ceoclaw-web). Lower wins; ties go to the busier agent.
 // Subsequence: the tightest window that holds the letters in order, so "ceow" prefers ceoclaw-web to a long name that happens to contain c, e, o, w.
-const subseq = (t, q) => { let best = null; for (let a = t.indexOf(q[0]); a >= 0; a = t.indexOf(q[0], a + 1)) { let k = 1, i = a; while (k < q.length && (i = t.indexOf(q[k], i + 1)) >= 0) k++; if (k === q.length) best = Math.min(best ?? 1e9, i - a + 1); } return best; };
-const scoreOf = (t, q) => { if (t === q) return 0; if (t.startsWith(q)) return 1; if (t.includes(q)) return 2; const w = subseq(t, q); return w == null ? null : 3 + Math.min(.99, w / 100); };
+const subseq = (t, q) => { let best = null; for (let a = t.indexOf(q[0]); a >= 0; a = t.indexOf(q[0], a + 1)) { let k = 1, i = a; while (k < q.length && (i = t.indexOf(q[k], i + 1)) >= 0) k++; if (k === q.length) { const w = i - a + 1, start = a === 0 ? 0 : /[-_. ]/.test(t[a - 1]) ? 1 : 2; if (best == null || start < best.start || (start === best.start && w < best.w)) best = { start, w }; } } return best; };
+// Among subsequence hits: a match that starts the string beats one that starts a word beats one mid-word; then the tighter window.
+const scoreOf = (t, q) => { if (t === q) return 0; if (t.startsWith(q)) return 1; if (t.includes(q)) return 2; const m = subseq(t, q); return m == null ? null : 3 + m.start + Math.min(.99, m.w / 100); };
 function findAgents(text) {
   const q = text.trim().toLowerCase(), qn = norm(text); if (!qn) return [];
   const out = [];
@@ -689,7 +690,8 @@ function revealUI() {
 const mqPhone = matchMedia("(max-width:700px)");
 let dockH = 0, topH = 0;
 function placeTools() { searchEl.placeholder = mqPhone.matches ? "Find agent" : "Find an agent by handle or name"; const t = $("tools"); if (mqPhone.matches) $("dock").insertBefore(t, $("legend")); else $("top").append(t); layoutPhone(); }
-function layoutPhone() { dockH = $("dock").offsetHeight + 12; topH = $("top").offsetHeight + 8; }
+function layoutPhone() { dockH = $("dock").offsetHeight + 12; topH = $("top").offsetHeight + 8; document.documentElement.style.setProperty("--dock-h", dockH + "px"); } // --dock-h lets the first-visit hint sit above the dock
+if (window.ResizeObserver) new ResizeObserver(() => layoutPhone()).observe($("dock")); // the dock grows as chips and notes arrive
 mqPhone.addEventListener("change", placeTools); placeTools();
 
 /* ---------- proof lens: Market view (delivered) <-> Proof view (counted receipts) ---------- */
@@ -771,8 +773,10 @@ let pinMine = false;
 function pinRelay(v) { if (PINNED) return; document.documentElement.dataset.relay = v; pinMine = true; town.relay = v === "off" ? null : v; }
 async function probe() { if (pinMine) { delete document.documentElement.dataset.relay; pinMine = false; } return M.findRelay ? M.findRelay() : null; } // an "off" pin of ours would hide every candidate
 function applyLive(res) {
-  const first = !wasLive, d = M.diffAgents(curAgents, res.agents);
+  const first = !wasLive, d = M.diffAgents(curAgents, res.agents), pick = (l) => JSON.stringify(l.find((a) => a.handle === selH) || null), before = selH != null ? pick(curAgents) : null;
   update(res.agents); curAgents = res.agents; wasLive = true; goodAt = res.fetched_at; header(res); fails = 0;
+  if (window.AgentProof && window.AgentProof.useMarket) window.AgentProof.useMarket(res);
+  if (selH != null && !$("panel").hidden && pick(res.agents) !== before) select(selH, true); // the card read the old numbers
   if (!first) announce(d); // the jump from the snapshot is a different capture, not news
   searchRefresh(); tally(true); refreshAnalysis(); layoutPhone();
 }
@@ -792,10 +796,10 @@ async function refresh() {
   } catch (e) { relayUrl = null; pinRelay("off"); paused(String((e && e.message) || e)); }
   finally { refreshing = false; schedule(ok); }
 }
-// After a miss the wait grows (live: 4 s, 12 s, 36 s, 60 s; never live: 30 s up to 5 min) and the next try probes every relay port again.
+// After a miss the wait grows (live: 4 s, 12 s, 36 s, 60 s; never live: 5 s, 10 s, 20 s, then 30 s doubling up to 5 min, so a relay started after load is found fast) and the next try probes every relay port again.
 function schedule(ok) {
   clearTimeout(refreshTimer); if (ok) fails = 0; else fails++;
-  const wait = ok ? T.refresh : wasLive ? Math.min(60000, 4000 * 3 ** (fails - 1)) : Math.min(300000, 30000 * 2 ** (fails - 1));
+  const wait = ok ? T.refresh : wasLive ? Math.min(60000, 4000 * 3 ** (fails - 1)) : fails <= 3 ? 5000 * 2 ** (fails - 1) : Math.min(300000, 30000 * 2 ** (fails - 4));
   town.nextRefreshMs = wait; refreshTimer = setTimeout(() => (document.hidden ? schedule(true) : refresh()), wait);
 }
 async function boot() {
@@ -817,6 +821,7 @@ async function boot() {
 }
 
 /* ---------- drop or paste a run file ---------- */
+addEventListener("pagehide", () => { for (const u of EXTRA) URL.revokeObjectURL(u); });
 async function takeRun(text, name) {
   let run; try { run = JSON.parse(text); } catch (e) { return toast(`${name} is not JSON, so there is nothing to check.`); }
   let got; try { got = await addRun(run, name); } catch (e) { return toast(`${name} looks like a run file but could not be checked: ${e.message || e}`); }
@@ -862,29 +867,29 @@ $("analysisBtn").addEventListener("click", () => (anEl.hidden ? openAnalysis() :
 anEl.addEventListener("analysis:close", () => { anEl.hidden = true; document.body.classList.remove("analysis-open"); $("analysisBtn").setAttribute("aria-pressed", "false"); });
 
 /* ---------- teach (slice 2's AgentProofTeach): the app owns the 3D for each step ---------- */
-let teachUI = null, teachSaved = null;
+let teachUI = null, teachSaved = null, teachTok = 0; // every hook bumps teachTok: an async step that resumes after the user moved on must not touch the map
 const d8 = (x) => (x == null ? "?" : String(x).slice(0, 8));
 const hero = () => { const v = RC.find((x) => x.kind === "arc" && x.loop === "verified"); return { buyer: (v && v.buyer) || "ceoclaw-web", seller: (v && v.seller) || "ohwow-agent" }; };
-function teachBegin() { skipTour("teach"); select(null); closeAnalysis(); if (!teachSaved) teachSaved = { lens }; setTag(null, ""); haloAt = null; clearHL(); unhide(); }
+function teachBegin() { teachTok++; skipTour("teach"); select(null); closeAnalysis(); if (!teachSaved) teachSaved = { lens }; setTag(null, ""); haloAt = null; clearHL(); unhide(); }
 const focusOn = (hs, dur) => { const pts = hs.map((h) => BY.has(h) && S[BY.get(h)]).filter(Boolean); return pts.length ? frameOn(pts, REDUCED ? 1 : dur) : Promise.resolve(); };
 const teachHooks = {
   step1() { teachBegin(); const { buyer, seller } = hero(); frameAll(false, REDUCED ? 1 : T.flyHome); highlight([buyer], T.blue); highlight([seller], T.green, true); let n = 0; const go = () => { pulse(buyer); pulse(seller); }; go(); pTimer = setInterval(() => (++n >= 3 ? clearInterval(pTimer) : go()), 900); },
   step2() { teachBegin(); setLens("market"); frameAll(false, REDUCED ? 1 : T.flyHome); const top = [...BY.values()].map((i) => S[i]).filter((s) => s.kind !== "sink").sort((p, q2) => (q2.agent.delivered_jobs || 0) - (p.agent.delivered_jobs || 0) || (p.handle < q2.handle ? -1 : 1)).slice(0, 5).map((s) => s.handle); highlight(top, T.blue); top.forEach(pulse); },
   async step3() {
-    teachBegin(); await receiptsReady; const { seller } = hero(), rd = RD.find((x) => counted(x.rc) && x.rc.seller_handle === seller) || RD.find((x) => counted(x.rc));
+    teachBegin(); const my = teachTok; await receiptsReady; if (my !== teachTok) return; const { seller } = hero(), rd = RD.find((x) => counted(x.rc) && x.rc.seller_handle === seller) || RD.find((x) => counted(x.rc));
     for (const r of RD) r.reveal = 1; refreshSeals(); nameLabels();
-    await focusOn([seller], T.tourFly); highlight([seller], T.green);
+    await focusOn([seller], T.tourFly); if (my !== teachTok) return; highlight([seller], T.green);
     if (!rd) return { stored: null, recomputed: null, match: false };
-    setTag(seller, "re-checking...", ""); const rc2 = await P.checkReceipt(rd.run, C);
+    setTag(seller, "re-checking...", ""); const rc2 = await P.checkReceipt(rd.run, C); if (my !== teachTok) return;
     setTag(seller, rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} matches` : `seal ${d8(rc2.recomputed_digest)} does not match`, rc2.reproduced ? "ok" : "bad");
     return { stored: rc2.stored_digest, recomputed: rc2.recomputed_digest, match: !!rc2.reproduced };
   },
   async step4() {
     teachBegin(); setLens("proof"); for (const r of RD) r.reveal = 1; for (const x of RC) if (x.kind === "arc") x.hide = true; refreshSeals(); nameLabels();
-    const self = RC.find((x) => x.kind === "self"); if (!self) return; await focusOn([self.seller], T.tourFly); highlight([self.seller], T.pink);
+    const my = teachTok, self = RC.find((x) => x.kind === "self"); if (!self) return; await focusOn([self.seller], T.tourFly); if (my !== teachTok) return; highlight([self.seller], T.pink);
     setTag(self.seller, "checker passed, but hiring yourself\nearns 0 reputation: same owner", "self");
   },
-  done() { clearHL(); setTag(null, ""); haloAt = null; unhide(); const back = teachSaved; teachSaved = null; if (back) setLens(back.lens); frameAll(false, REDUCED ? 1 : T.flyHome); },
+  done() { teachTok++; clearHL(); setTag(null, ""); haloAt = null; unhide(); const back = teachSaved; teachSaved = null; if (back) setLens(back.lens); frameAll(false, REDUCED ? 1 : T.flyHome); },
 };
 function initTeach() {
   const Tc = window.AgentProofTeach; if (!Tc) return;
