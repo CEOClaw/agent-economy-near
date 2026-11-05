@@ -104,19 +104,23 @@ const server = http.createServer(async (req, res) => {
 
 // Walk PORT, PORT+1, PORT+2 so a second relay (or a stale one) does not crash with a stack trace.
 const LAST = PORT + 2;
-function listen(port) {
-  server.once("error", (e) => {
-    if (e.code !== "EADDRINUSE") { console.error(`relay: could not start (${e.message})`); process.exit(1); }
-    if (port < LAST) {
-      console.log(`relay: port ${port} is in use (maybe another relay). Trying ${port + 1}.`);
-      return listen(port + 1);
-    }
-    console.log(`relay: ports ${PORT}-${LAST} are all in use. Stop the other process or run PORT=<free port> npm run relay, then open the town with ?relay=http://127.0.0.1:<port>`);
-    process.exit(1);
-  });
-  server.listen(port, "127.0.0.1", () => {
-    boundPort = port;
-    console.log(`relay on http://127.0.0.1:${port} -> ${UPSTREAM}`);
-  });
+// One "listening" handler for the whole walk: server.listen(port, host, cb) would add a callback per try,
+// and the failed tries' callbacks would all fire on the final bind, announcing ports it is not on.
+let trying = PORT;
+function onError(e) {
+  if (e.code !== "EADDRINUSE") { console.error(`relay: could not start (${e.message})`); process.exit(1); }
+  if (trying < LAST) {
+    console.log(`relay: port ${trying} is in use (maybe another relay). Trying ${trying + 1}.`);
+    return listen(trying + 1);
+  }
+  console.log(`relay: ports ${PORT}-${LAST} are all in use. Stop the other process or run PORT=<free port> npm run relay, then open the town with ?relay=http://127.0.0.1:<port>`);
+  process.exit(1);
 }
+server.on("error", onError);
+server.once("listening", () => {
+  server.off("error", onError);
+  boundPort = server.address().port;
+  console.log(`relay on http://127.0.0.1:${boundPort} -> ${UPSTREAM}`);
+});
+function listen(port) { trying = port; server.listen(port, "127.0.0.1"); }
 listen(PORT);

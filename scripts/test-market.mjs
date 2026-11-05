@@ -20,6 +20,7 @@ function fakeRelay(total, hook) {
   const log = { calls: [], inflight: 0, maxInflight: 0, attempts: new Map() };
   const fetch = async (url, init = {}) => {
     const u = new URL(url), offset = Number(u.searchParams.get("offset"));
+    if (u.pathname === "/health") return res(200, { ok: true, service: "agentproof-relay" });
     const attempt = (log.attempts.get(offset) || 0) + 1;
     log.attempts.set(offset, attempt);
     log.calls.push(offset);
@@ -199,6 +200,8 @@ test("relay process: port walk, /health, all-ports-taken exit 1", async () => {
   const c = startRelay(18788);
   await until(c, /relay on http:\/\/127\.0\.0\.1:18790/);
   assert.match(c.out, /port 18789 is in use .* Trying 18790\./);
+  // Only the bound port is announced: a walk must not print the ports it gave up on.
+  for (const [o, port] of [[a, 18788], [b, 18789], [c, 18790]]) assert.deepEqual(o.out.match(/relay on \S+/g), [`relay on http://127.0.0.1:${port}`]);
 
   const d = startRelay(18788);
   assert.equal(await d.exited, 1);

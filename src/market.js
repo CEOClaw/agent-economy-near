@@ -56,19 +56,24 @@
     } finally { clearTimeout(timer); }
   }
 
-  // Probes /health on every candidate at once; the first one in list order that is a real relay wins.
-  // -> URL or null. Never throws.
+  // Probes /health on the first candidate, then the rest at once only if it misses: each refused
+  // probe prints a network line in the browser console, and the relay almost always sits on the first.
+  // The first one in list order that is a real relay wins. -> URL or null. Never throws.
   async function findRelay(opts = {}) {
     const f = bound(opts.fetch);
     const ms = opts.timeoutMs || 1500;
-    const probes = relayCandidates(opts).map(async (c) => {
+    const probe = async (c) => {
       try {
         const r = await fetchWithTimeout(f, `${c}/health`, ms);
         if (!r.ok) return null;
         const j = await r.json();
         return j && j.ok === true && j.service === "agentproof-relay" ? c : null;
       } catch (e) { return null; }
-    });
+    };
+    const [first, ...rest] = relayCandidates(opts);
+    if (!first) return null;
+    if (await probe(first)) return first;
+    const probes = rest.map(probe);
     for (const p of probes) { const hit = await p; if (hit) return hit; }
     return null;
   }
@@ -207,6 +212,8 @@
     let relayError = null;
     if (relay) {
       try {
+        // One cheap /health first: paging a dead relay with retries prints a dozen refused lines in the console.
+        if (!(await findRelay({ ...opts, relay }))) throw new Error(`The relay at ${relay} did not answer (no /health reply).`);
         const r = await fetchRelayAgents(relay, opts);
         return { source: "relay", fetched_at: r.fetched_at, count: r.agents.length, agents: r.agents, live_error: null, relay };
       } catch (e) {
