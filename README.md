@@ -1,38 +1,38 @@
-# Proof Town
+# AgentProof Market Town
 
-A 3D town where AI agents replay real AgentProof records, one step at a time. The point is that nothing in it is staged: every step comes from a record file, and your browser re-runs the checker on that record while you watch.
+A 3D town of every agent listed on market.near.ai. Each building is a real agent: its height is what the market says it delivered. Flip to **Proof view** and the town tells the other story: only jobs backed by a receipt your browser re-checks stay standing. On the 2026-11-03 snapshot the market reports 507 delivered jobs across 560 agents (450 have none), and exactly 1 job is proven between two different owners (CEOClaw hired ohwow-agent).
 
-Every job passes six stations:
-
-| Station | What happens | Layer |
-|---|---|---|
-| Request | Someone posts a job (the envelope) with a budget | job contract |
-| Policy | Spend limits are checked before anything runs | governance |
-| AI work | An AI agent does the task | AI, off-chain |
-| Verify | A neutral checker tests the result and seals it as a SHA-256 fingerprint | proof |
-| Settle | Money moves only after the proof: escrow, and on-chain steps where the record has them | web3 |
-| Reputation | Only checked, paid work from a different owner counts | scorekeeping |
-
-Robots are agents. Their role comes first (Requester, Worker, Guardian, Scorekeeper), and their name and look come from `data/agents.json`.
+The older guided replay (`replay.html`) walks one record at a time through six stations: request, policy, AI work, verify, settle, reputation. It is kept as is.
 
 ## Run it
 
 No build step and no dependencies. three.js loads from a CDN.
 
-- Run `npm run relay` in one terminal and `npm run dev` in another, then open `http://127.0.0.1:8787`: the town starts empty, connects by itself after a second, and fills with every market.near.ai agent. The header says "live via relay" and refreshes itself every 60 s.
-- Run only `npm run dev` and open the same address: see an empty town and one button. Press **Connect market.near.ai**: the town fills from `data/market-snapshot.json` and the header says "snapshot from <time>" (that is the CORS fallback, a real capture, labelled as one).
-- Open `?relay=http://host:port` to point the town at another relay, or `?relay=off` to skip the relay.
-- Hover a building: see the agent's name, category, delivered jobs and success rate. Click it: see its proof portfolio in a side panel (a bottom sheet on a phone). Type a handle in the search box: the camera flies to it.
-- Open `http://127.0.0.1:8787/replay.html`: see the old guided replay of the four real records.
-- Wait for the town to rise: the receipts play by themselves. The camera eases to each one (the cross-owner receipt first), the buyer's building pulses, an arc draws from buyer to seller, a tag says "re-checking..." and then the seal your browser just recomputed ("seal 89c9b813 matches"), and the seller's card opens. Then the camera returns to the overview. Press **Replay receipts** to run it again. Touching the town stops it and shows every receipt at once. With reduced motion on, the camera stays put and only the highlights change.
-- Open `?demo=1`: the same run paced for a ~30 s recording, with no search or controls, ending on the overview with the card open. `?theme=dark` switches to the dark tokens (light is the default).
+- Run `npm run dev` and open `http://127.0.0.1:8787`: the town draws at once from `data/market-snapshot.json`, labelled "snapshot from <time>". There is no Connect button.
+- Also run `npm run relay` (any order, any time): the page finds the relay in the background, swaps in the live list without a reload and the header says "live via relay" only once real data has arrived. It refreshes every 60 s. If the relay stops, the town keeps its data and says "live paused, showing data from HH:MM UTC" (amber, not an error) and keeps retrying, so a restarted relay is picked up again.
+- The relay listens on 127.0.0.1:8788. If that port is taken it says so and tries 8789, then 8790; if all three are taken it prints what to do and exits. `GET /health` answers without touching the market. The page probes all three ports; `?relay=http://host:port` points it at another relay and `?relay=off` skips it. With no relay running, the browser console shows refused-connection lines from that probe: they are expected, not errors in the page.
+- **Market view / Proof view** (header switch): market view is delivered jobs as the market reports them; proof view is proof-backed jobs. Flipping sinks everything without a counted receipt, the proven building stays and glows, and the header counter runs between the two totals. With reduced motion on it swaps at once.
+- **Find an agent** (header search): type any handle or name, fuzzy matching works ("wbrsrch" finds web-research). The camera flies there and the card opens, first with what the market says, then flipping to what is proven. **Save image** downloads the card as a PNG, **Copy link** copies `portfolio.html#<handle>`. An agent with no proof says what it would take to get one.
+- **How this works**: four short steps for newcomers (the market, the problem, the proof, why owners matter), each tied to the map. Step 3 re-runs the checker in your browser and shows the stored and recomputed fingerprints side by side. A first visit shows a skippable hint; `?teach=0` hides it, `?teach=1` shows it again. Underlined terms (seal, proof-backed, cross-owner, self-hire, escrow, digest) explain themselves on hover or tap.
+- **Data**: an analysis panel computed from whatever the town is showing, snapshot or live, and every chart says which: delivered jobs per agent (log bins, the long tail), the share with zero, delivered vs proven per category, success rate vs delivered (100% on 1 job means little), median response time by category, availability now, and the receipts table (buyer, seller, owners, price, verdict, digest stored vs recomputed).
+- A ticker shows real changes between refreshes (new agent, delivered count up, availability changed) and the changed buildings pulse. Lit windows breathe. Sound is off until you turn it on.
+- Drop or paste a run JSON anywhere on the town: it is re-checked, added and played. Hover a building for its numbers, click it for its card (a bottom sheet on a phone).
+- The receipts play by themselves once the town is up: the camera eases to each one (the cross-owner receipt first), the buyer's building pulses on its blue plinth, an arc draws from buyer to seller, a tag says "re-checking..." and then the seal your browser just recomputed. The self-hire beat says "checker passed" and, apart, "earns 0 reputation: same owner". Press **Replay receipts** to run it again; touching the town stops it.
+- `?demo=1`: the same run paced for a ~30 s recording with the controls hidden. `?theme=dark` switches to the dark tokens.
 
-Buildings are agents, one district (and one hue) per market category, height is delivered jobs on a log scale, and a zero-job agent is a low plinth. Lit windows mean `available_now` (a plinth gets a small roof light instead). A gold seal on a roof means at least one proof-backed receipt. Arcs: green is verified between two different owners, pink dashes round a building are a self-hire (0 points), red is a failed check. The buyer of a receipt is the owner in `run.requester.agent`: its building is one of its `executor_ids` when listed, else the market listing whose builder display name matches that owner (CEOClaw's is `ceoclaw-web`). A buyer with no listing at all is drawn as a labelled "off-market buyer" marker west of the town. The relay (`scripts/relay.mjs`) is a read-only local proxy of the public agent list; it only listens on 127.0.0.1 and is not hosted anywhere.
+Districts are market categories, one hue each. A zero-job agent is a low plinth. Lit windows mean `available_now`. A gold seal on a roof means at least one proof-backed receipt. Arcs: green is verified between two different owners, pink round a building is a self-hire (0 points), red is a failed check. The buyer of a receipt is the owner in `run.requester.agent`: its building is one of its `executor_ids` when listed, else the market listing whose builder display name matches that owner (CEOClaw's is `ceoclaw-web`). A buyer with no listing at all is drawn as a labelled "off-market buyer" marker west of the town.
+
+## Judge path
+
+1. `npm run verify`: it re-runs the checker on every run file and prints, for ohwow-agent, `market delivered N ... proof verified_jobs 1, distinct_owners 1 ... self_hires 1`.
+2. Open the town, flip to **Proof view**: the one building left standing is ohwow-agent, with its seal. Its card says proven 1, plus 1 self-hire at 0 points. Those are the same numbers, computed by the same `src/checker.js` and `src/portfolio.js`, in your browser.
+3. `node scripts/check-analysis.mjs`: it recomputes the Data panel's headline numbers from the snapshot (560 agents, 507 delivered, 450 with zero, 288 available, 1 proven) and prints the exact strings the panel shows.
+4. `npm test`: relay and market client tests (parallel pages, retries, port walk, diff).
 
 ## Proof portfolio and embed
 
-- Open `http://127.0.0.1:8787/portfolio.html#ohwow-agent`: see the agent's card. The big number is proof-backed jobs (0 here, its one receipt is a self-hire), next to what the market says (1 delivered, 100% success). The tick means every receipt was re-checked in your browser and its digest reproduced.
-- Change the hash to any market handle (`#web-research`), or search in **Any market agent**: see that agent's card. Most show 0 proof and their real market numbers.
+- Open `http://127.0.0.1:8787/portfolio.html#ohwow-agent`: see the agent's card. The big number is proof-backed jobs (1 here: CEOClaw, a different owner, hired it; its other receipt is a self-hire and counts 0), next to what the market says. The tick means every receipt was re-checked in your browser and its digest reproduced.
+- Change the hash to any market handle (`#web-research`), or search in **Any market agent**: see that agent's card. Most show 0 proof, their real market numbers and what it would take to get a proof-backed job.
 - Press **Save image**: get a PNG of the card. **Copy link** copies the `#handle` link.
 - Open `portfolio.html?receipts=<url>` with an edited run bundle: see the red "receipt failed check" state.
 - Open `http://127.0.0.1:8787/embed.html`: see a mock agent list with an `<agentproof-badge>` on each row and the full `<agentproof-portfolio>` card, plus the one script tag to copy. Theme tokens (`--ap-bg`, `--ap-paper`, `--ap-ink`, `--ap-muted`, `--ap-line`, `--ap-proof`, `--ap-market`, `--ap-warn`, `--ap-void`, `--ap-display`, `--ap-body`, `--ap-mono`) are listed at the top of `src/components.js`.
@@ -46,8 +46,8 @@ node scripts/verify-runs.mjs path/to/record.json # re-check one file
 
 To replay a record you have:
 
-- drop the JSON file anywhere on the page, or
-- open the menu, choose **Add your own proof**, and paste it, or
+- drop or paste the JSON file on the town page (`index.html`), or
+- on `replay.html`, drop it or open the menu, choose **Add your own proof**, and paste it, or
 - add it to `data/runs/` and list it in `data/manifest.json`, or
 - open `http://127.0.0.1:8787/replay.html?run=runs/<file>.json` to replay only that file.
 
@@ -65,6 +65,7 @@ For ohwow operators, `scripts/export-ohwow-market-job.sh <job_id>` exports a rea
 
 | File | What it is | Source |
 |---|---|---|
+| `runs/market-2d17e4c8.json` | The first cross-owner receipt: CEOClaw hired ohwow-agent on market.near.ai, checker pass, digest reproduced. Two different owners, so it counts as 1 proof-backed job. | market.near.ai job, 2026-11-03 |
 | `runs/market-b68f5497.json` | A real $1 job on market.near.ai: hire, AI work, one change request, checker pass, accept, 0.95 USDC payout. Buyer and seller share an owner, so it earns no reputation. | ohwow.fun production records, 2026-11-03 |
 | `runs/fixture-wrong-delivery.json` | CEOClaw's deliberately wrong delivery, caught at step 5 | `task-002` fixtures |
 | `runs/checker-blocked-budget.json` | ohwow refuses a job over the buyer's $0.25 cap; the browser result equals the committed result | `task-004` checker run |
@@ -72,18 +73,20 @@ For ohwow operators, `scripts/export-ohwow-market-job.sh <job_id>` exports a rea
 
 ## Agent look
 
-Each owner sets one color and a logo for their agent in `data/agents.json` (`color`, `logo` as a path under `data/`). The in-page **Customize agents** panel previews changes.
+Each owner sets one color and a logo for their agent in `data/agents.json` (`color`, `logo` as a path under `data/`). The **Customize agents** panel on `replay.html` previews changes.
 
 ## Files
 
 ```
 index.html            Market Town page shell and styles
-src/app.js            Market Town: districts, buildings, receipts, panel, auto-refresh
-replay.html           the guided replay page
+src/app.js            Market Town: districts, buildings, proof lens, search, receipts, live refresh, ticker
+src/analysis.js       the Data panel: stats (also runs in Node) and SVG charts
+src/teach.js          How this works walkthrough, first-visit hint, glossary tooltips
+replay.html           the older guided replay page
 src/replay.js         the guided replay: scene, robots, stations
 scripts/relay.mjs     local read-only relay for market.near.ai (npm run relay)
 src/checker.js        line-for-line JS port of task-002/checker.py (also runs in Node)
-src/market.js         read-only client for market.near.ai (relay, then snapshot)
+src/market.js         read-only client for market.near.ai (snapshot, relay discovery, parallel pages, diff)
 src/portfolio.js      proof portfolio: market numbers next to proof-backed numbers
 src/components.js     <agentproof-portfolio> and <agentproof-badge> web components
 portfolio.html        shareable card page, #<handle>
@@ -93,6 +96,9 @@ data/manifest.json    which runs load, in order
 data/runs/*.json      the records
 data/market-snapshot.json  market agents for pages outside market.near.ai (CORS)
 scripts/verify-runs.mjs
+scripts/check-analysis.mjs  recomputes the Data panel numbers from the snapshot
+scripts/test-market.mjs     relay + market client tests (npm test)
 scripts/market-snapshot.mjs
 scripts/export-ohwow-market-job.sh
+LICENSE               MIT
 ```
