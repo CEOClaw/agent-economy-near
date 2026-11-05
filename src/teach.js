@@ -59,7 +59,7 @@
 .tt-chip .see{color:var(--request);padding-left:0;text-align:left}
 .tt-chip .skip{color:var(--dim);font-weight:400;min-width:44px;font-size:20px}
 html.demo .tt-chip{display:none}
-@media (max-width:640px){.tt-card{left:8px;right:8px;bottom:8px;width:auto;max-width:none;padding:10px 14px 8px}.tt-card h2{margin-top:2px;font-size:16px}.tt-card{font-size:14px}.tt-foot{margin-top:6px}.tt-chip{left:8px;bottom:8px}}
+@media (max-width:640px){.tt-card{left:8px;right:8px;bottom:8px;width:auto;max-width:none;padding:10px 14px 8px}.tt-card h2{margin-top:2px;font-size:16px}.tt-card{font-size:14px}.tt-foot{margin-top:6px}.tt-chip{left:8px;bottom:calc(var(--dock-h,0px) + 2px)}}
 `;
   function style() {
     if (document.getElementById("tt-style")) return;
@@ -67,7 +67,7 @@ html.demo .tt-chip{display:none}
   }
 
   // ---- glossary: one shared tooltip, any element with data-term ----
-  let tip = null, tipFor = null, tipListening = false;
+  let tip = null, tipFor = null, tipListening = false, ptype = "mouse";
   function showTip(t) {
     const text = GLOSSARY[t.dataset.term]; if (!text) return;
     if (!tip) { tip = el("div", { id: "tt-tip", role: "tooltip", hidden: "" }); document.body.appendChild(tip); }
@@ -86,12 +86,14 @@ html.demo .tt-chip{display:none}
       t._ttBound = true;
       if (!t.matches("a[href],button,input,select,textarea,[tabindex]")) t.setAttribute("tabindex", "0");
       t.classList.add("tt-term");
-      t.addEventListener("mouseenter", () => showTip(t));
-      t.addEventListener("mouseleave", hideTip);
-      t.addEventListener("focus", () => showTip(t));
-      t.addEventListener("blur", hideTip);
-      // Touch has no hover: a tap toggles it. Buttons keep their own click action.
-      t.addEventListener("click", () => (tipFor === t && !tip.hidden ? hideTip() : showTip(t)));
+      // Touch browsers emulate mouseenter + focus before click, which would open then immediately toggle off: track the pointer type and let touch own open/close on pointerdown only.
+      t.addEventListener("pointerenter", (e) => { ptype = e.pointerType; });
+      t.addEventListener("pointerdown", (e) => { ptype = e.pointerType; if (ptype === "touch") { tipFor === t && !tip.hidden ? hideTip() : showTip(t); } });
+      t.addEventListener("mouseenter", () => { if (ptype !== "touch") showTip(t); });
+      t.addEventListener("mouseleave", () => { if (ptype !== "touch") hideTip(); });
+      t.addEventListener("focus", () => { if (ptype !== "touch") showTip(t); });
+      t.addEventListener("blur", () => { if (ptype !== "touch") hideTip(); });
+      t.addEventListener("keydown", (e) => { ptype = "key"; });
     });
     if (!tipListening) {
       tipListening = true;
