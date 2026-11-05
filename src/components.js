@@ -10,11 +10,14 @@
 //   agent     market handle
 //   receipts  optional comma-separated run URLs that replace the manifest
 //   theme     "light" | "dark"; default follows prefers-color-scheme
+//   flip      (portfolio only) first show "Market says N delivered", then after
+//             ~900 ms count down to the proven number; reduced motion skips it
 // Theme tokens (set on the element or any ancestor):
 //   --ap-bg --ap-paper --ap-ink --ap-muted --ap-line
 //   --ap-proof (verified) --ap-market (market numbers) --ap-warn (failed check)
 //   --ap-void (not observed) --ap-display --ap-body --ap-mono (font stacks)
-// Events: "agentproof:ready" with detail { portfolio, receipts, market, owner }.
+// Events: "agentproof:ready" with detail { portfolio, receipts, market, owner };
+//   "agentproof:flipped" (same detail) once the flip has landed on the proven number.
 (function () {
   const SELF = document.currentScript && document.currentScript.src;
   const SRC = new URL(".", SELF || location.href);
@@ -98,14 +101,18 @@
 .row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
 .big{font:800 76px/0.9 var(--display);margin:22px 0 4px}
 .big small{font:600 15px var(--body);color:var(--muted);display:block;margin-top:8px;white-space:nowrap}
+.big .bn{display:inline-block;transition:color .4s}
+.big.mk .bn{color:var(--market)}
 .st{margin-top:24px;font:600 11px var(--mono);border-radius:999px;padding:4px 9px;white-space:nowrap;color:var(--muted);background:var(--bg)}
 .st.ok{color:var(--proof)}.st.bad{color:#fff;background:var(--warn)}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
 .stats div{border-top:2px solid var(--line);padding-top:8px;min-width:0}
 .stats b{font:700 20px var(--display);display:block}
 .stats span{font-size:12px;color:var(--muted)}
+.stats b.sm{font:600 14px/30px var(--body)}
 .vs{margin-top:18px;display:flex;justify-content:space-between;gap:10px;font-size:13px;background:var(--bg);border-radius:12px;padding:10px 12px}
 .vs b{color:var(--market)}
+.why{margin:14px 0 0;font-size:13px;line-height:1.45;color:var(--muted)}
 .foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font:400 11px var(--mono);color:var(--muted);gap:10px;flex-wrap:wrap}`;
 
   // Everything the card shows, as plain values. The canvas export draws from this too.
@@ -115,11 +122,16 @@
     const last = q.last_verified_at ? "last verified " + q.last_verified_at.slice(0, 10)
       : q.self_hires.length ? "self-hire, " + ((mine.find((r) => r.self_hire) || {}).verified_at || "").slice(0, 10).replace(/^$/, "date not observed")
       : mine.length ? "no counted receipts" : "no receipts yet";
+    const earned = q.verified_jobs && q.earned_usdc != null ? "$" + q.earned_usdc : null;
     return {
       owner, handle: p.handle,
       big: q.verified_jobs,
       owners: q.distinct_owners,
-      earned: q.verified_jobs && q.earned_usdc != null ? "$" + q.earned_usdc : null,
+      earned,
+      // Zero proof is "none", not a pending state; a counted job with no payout seen is "not observed".
+      earnedText: q.verified_jobs ? earned || "not observed" : "none",
+      why: q.verified_jobs ? null : (q.self_hires.length ? "Its self-hire does not count. " : "") + "To get a proof-backed job: a buyer with a different owner hires this agent, and the checker passes the delivery.",
+      foot: mine.length ? "AgentProof · re-checked in your browser" : "AgentProof · no receipts to re-check",
       self: q.self_hires.length,
       listed: !!marketAgent,
       delivered: m.delivered_jobs, rate: m.success_rate,
@@ -160,7 +172,7 @@
   }
 
   class Portfolio extends Base {
-    _shell(inner) { this.shadowRoot.innerHTML = `<style>${CARD_CSS}</style>${inner}`; }
+    _shell(inner) { clearTimeout(this._ft); cancelAnimationFrame(this._fr); this.shadowRoot.innerHTML = `<style>${CARD_CSS}</style>${inner}`; }
     _checking(count) {
       this._shell(`<article class="A" aria-busy="true"><div class="who"><div class="logo" style="background:${NEUTRAL}"></div><div><div class="nm">${esc(this.handle)}</div><div class="hd">${esc(this.handle)} · market.near.ai</div></div></div>
 <div class="row"><div class="big num nil">&nbsp;<small>re-checking ${count} ${count === 1 ? "receipt" : "receipts"}</small></div><span class="st">re-checking</span></div></article>`);
@@ -172,10 +184,32 @@
       const logo = o.logo ? `style="background-color:${esc(o.color)};background-image:url('${esc(o.logo)}')"` : `style="background:${esc(o.color)}"`;
       const market = c.listed ? `<span>${nil(c.delivered)} delivered · ${c.rate == null ? nil(null) : `<b class="num">${esc(c.rate)}%</b>`} success</span>` : `<span class="nil">not listed</span>`;
       this._shell(`<article class="A" part="card"><div class="who"><div class="logo" ${logo}>${o.logo ? "" : esc(o.letter)}</div><div><div class="nm" title="${esc(o.name)}">${esc(o.name)}</div><div class="hd">${esc(c.handle)} · market.near.ai</div></div></div>
-<div class="row"><div class="big num">${c.big}<small>proof-backed ${c.big === 1 ? "job" : "jobs"}</small></div><span class="st ${c.status.kind}" data-status="${c.status.kind || "none"}">${esc(c.status.text)}</span></div>
-<div class="stats"><div><b class="num">${c.owners}</b><span>${c.owners === 1 ? "outside owner" : "outside owners"}</span></div><div>${c.earned == null ? `<b class="nil">pending</b>` : `<b class="num">${esc(c.earned)}</b>`}<span>earned, verified</span></div><div><b class="num">${c.self}</b><span>${c.self === 1 ? "self-hire" : "self-hires"}, 0 pts</span></div></div>
-<div class="vs"><span>Market says</span>${market}</div>
-<div class="foot"><span>AgentProof · re-checked in your browser</span><span>${esc(c.last)}</span></div></article>`);
+<div class="row"><div class="big num"><span class="bn">${c.big}</span><small>proof-backed ${c.big === 1 ? "job" : "jobs"}</small></div><span class="st ${c.status.kind}" data-status="${c.status.kind || "none"}">${esc(c.status.text)}</span></div>
+<div class="stats"><div><b class="num">${c.owners}</b><span>${c.owners === 1 ? "outside owner" : "outside owners"}</span></div><div>${c.earned == null ? `<b class="nil${c.earnedText === "not observed" ? " sm" : ""}">${esc(c.earnedText)}</b>` : `<b class="num">${esc(c.earned)}</b>`}<span>earned, verified</span></div><div><b class="num">${c.self}</b><span>${c.self === 1 ? "self-hire" : "self-hires"}, 0 pts</span></div></div>
+<div class="vs"><span>Market says</span>${market}</div>${c.why ? `<p class="why">${esc(c.why)}</p>` : ""}
+<div class="foot"><span>${esc(c.foot)}</span><span>${esc(c.last)}</span></div></article>`);
+      this._flip(c);
+    }
+
+    // `flip`: the big number starts as the market's own claim and lands on the proven count.
+    _flip(c) {
+      clearTimeout(this._ft); cancelAnimationFrame(this._fr);
+      const done = () => this.dispatchEvent(new CustomEvent("agentproof:flipped", { detail: this.data, bubbles: true }));
+      if (!this.hasAttribute("flip")) return;
+      const root = this.shadowRoot, big = root.querySelector(".big"), bn = root.querySelector(".bn"), lab = root.querySelector(".big small");
+      const proven = () => { big.classList.remove("mk"); bn.textContent = c.big; lab.textContent = "Proven · proof-backed " + (c.big === 1 ? "job" : "jobs"); big.dataset.flip = "proven"; };
+      if (!c.listed || c.delivered == null || matchMedia("(prefers-reduced-motion: reduce)").matches) { proven(); done(); return; }
+      big.classList.add("mk"); big.dataset.flip = "market"; bn.textContent = c.delivered; lab.textContent = "Market says " + c.delivered + " delivered";
+      this._ft = setTimeout(() => {
+        const from = Number(c.delivered), t0 = performance.now(), D = 700;
+        big.dataset.flip = "flipping"; big.classList.remove("mk"); lab.textContent = "Proven · proof-backed " + (c.big === 1 ? "job" : "jobs");
+        const tick = (now) => {
+          const k = from === c.big ? 1 : Math.min(1, (now - t0) / D);
+          bn.textContent = Math.round(from + (c.big - from) * (1 - Math.pow(1 - k, 3)));
+          if (k < 1) this._fr = requestAnimationFrame(tick); else { proven(); done(); }
+        };
+        this._fr = requestAnimationFrame(tick);
+      }, 900);
     }
 
     // Draws the same layout to a canvas (2x) for "Save image". -> HTMLCanvasElement
@@ -185,11 +219,16 @@
       const t = (k) => cs.getPropertyValue(k).trim();
       const F = { display: t("--display"), body: t("--body"), mono: t("--mono") };
       await Promise.all(["800 76px", "700 20px", "700 18px"].map((w) => document.fonts.load(`${w} ${F.display}`)).concat(document.fonts.load(`600 15px ${F.body}`), document.fonts.load(`400 12px ${F.mono}`), document.fonts.load(`600 11px ${F.mono}`)));
-      const M = 24, W = 440, P = 26, FOOT = "AgentProof · re-checked in your browser";
+      const M = 24, W = 440, P = 26, FOOT = c.foot, WHY_LH = 19, WHY_GAP = 14;
       // The footer wraps to two lines when both halves do not fit, as it does in the DOM.
       const mx = document.createElement("canvas").getContext("2d"); mx.font = `400 11px ${F.mono}`;
       const wrap = mx.measureText(FOOT).width + 10 + mx.measureText(c.last).width > W - 2 * P;
-      const H = 384 + (wrap ? 17 : 0);
+      // The explainer wraps by measured width, so the card grows by exactly the lines it needs.
+      mx.font = `400 13px ${F.body}`;
+      const whyLines = [];
+      if (c.why) { let cur = ""; for (const w of c.why.split(" ")) { const nx = cur ? cur + " " + w : w; if (cur && mx.measureText(nx).width > W - 2 * P) { whyLines.push(cur); cur = w; } else cur = nx; } whyLines.push(cur); }
+      const whyH = whyLines.length ? WHY_GAP + whyLines.length * WHY_LH : 0;
+      const H = 384 + (wrap ? 17 : 0) + whyH;
       const cv = document.createElement("canvas"); cv.width = (W + 2 * M) * scale; cv.height = (H + 2 * M) * scale;
       const x = cv.getContext("2d"); x.scale(scale, scale);
       const rr = (X, Y, w, h, r) => { x.beginPath(); x.roundRect(X, Y, w, h, r); };
@@ -222,10 +261,10 @@
       text(c.status.text, P + inner - 9, bigTop + 18, `600 11px ${F.mono}`, c.status.kind === "bad" ? "#fff" : c.status.kind === "ok" ? t("--proof") : t("--muted"), "right");
       // stats
       const sTop = bigTop + 68 + 8 + 22 + 18, cw = (inner - 20) / 3;
-      [[c.owners, c.owners === 1 ? "outside owner" : "outside owners"], [c.earned, "earned, verified", "pending"], [c.self, (c.self === 1 ? "self-hire" : "self-hires") + ", 0 pts"]].forEach(([v, label, empty], i) => {
+      [[c.owners, c.owners === 1 ? "outside owner" : "outside owners"], [c.earnedText, "earned, verified"], [c.self, (c.self === 1 ? "self-hire" : "self-hires") + ", 0 pts"]].forEach(([v, label], i) => {
         const X = P + i * (cw + 10);
         x.fillStyle = t("--line"); x.fillRect(X, sTop, cw, 2);
-        text(v == null ? empty : v, X, sTop + 31, `700 20px ${F.display}`, v == null ? t("--void") : t("--ink"));
+        text(v, X, sTop + 31, v === "not observed" ? `600 14px ${F.body}` : `700 20px ${F.display}`, i === 1 && c.earned == null ? t("--void") : t("--ink"));
         text(label, X, sTop + 50, `400 12px ${F.body}`, t("--muted"));
       });
       // market strip
@@ -237,8 +276,9 @@
         [c.rate == null ? "not observed" : c.rate + "%", c.rate == null ? "--void" : "--market", 600], [" success", "--ink"]];
       let X = P + inner - 12;
       for (const [s, col, w] of parts.reverse()) { x.font = `${w || 400} 13px ${F.body}`; X -= x.measureText(String(s)).width; text(s, X, vTop + 25, x.font, t(col)); }
+      whyLines.forEach((l, i) => text(l, P, vTop + 40 + WHY_GAP + 13 + i * WHY_LH, `400 13px ${F.body}`, t("--muted")));
       // foot
-      const fY = vTop + 40 + 16 + 12;
+      const fY = vTop + 40 + whyH + 16 + 12;
       text(FOOT, P, fY, `400 11px ${F.mono}`, t("--muted"));
       if (wrap) text(c.last, P, fY + 17, `400 11px ${F.mono}`, t("--muted"));
       else text(c.last, P + inner, fY, `400 11px ${F.mono}`, t("--muted"), "right");

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<title>Proof portfolio · AgentProof</title>
+<title>Proof portfolio · AgentProof Market Town</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,7 +65,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 const q = new URLSearchParams(location.search).get("receipts");
 if (q) card.setAttribute("receipts", q);
 const fromHash = () => decodeURIComponent(location.hash.slice(1)).trim() || "ohwow-agent";
-const show = () => { const h = fromHash(); card.setAttribute("agent", h); document.title = h + " · proof portfolio · AgentProof"; $("receipts").innerHTML = '<li class="dim">re-checking</li>'; };
+const show = () => { const h = fromHash(); card.setAttribute("agent", h); document.title = h + " · Proof portfolio · AgentProof Market Town"; $("receipts").innerHTML = '<li class="dim">re-checking</li>'; };
 addEventListener("hashchange", show);
 show();
 
