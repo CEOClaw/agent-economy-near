@@ -121,7 +121,7 @@
     const mine = receipts.filter((r) => r.seller_handle === p.handle);
     const last = q.last_verified_at ? "last verified " + q.last_verified_at.slice(0, 10)
       : q.self_hires.length ? "self-hire, " + ((mine.find((r) => r.self_hire) || {}).verified_at || "").slice(0, 10).replace(/^$/, "date not observed")
-      : mine.length ? "no counted receipts" : "no receipts yet";
+      : mine.length ? "no counted receipts" : ""; // no receipts at all: the footer already says so
     const earned = q.verified_jobs && q.earned_usdc != null ? "$" + q.earned_usdc : null;
     return {
       owner, handle: p.handle,
@@ -135,7 +135,7 @@
       self: q.self_hires.length,
       listed: !!marketAgent,
       delivered: m.delivered_jobs, rate: m.success_rate,
-      status: q.failed_checks ? { kind: "bad", text: "receipt failed check" } : mine.length ? { kind: "ok", text: "✓ verified in your browser" } : { kind: "", text: "no receipts to check" },
+      status: q.failed_checks ? { kind: "bad", text: "receipt failed check" } : mine.length ? { kind: "ok", text: "✓ verified in your browser" } : { kind: "", text: "no receipts" },
       last,
     };
   }
@@ -222,7 +222,7 @@
       const M = 24, W = 440, P = 26, FOOT = c.foot, WHY_LH = 19, WHY_GAP = 14;
       // The footer wraps to two lines when both halves do not fit, as it does in the DOM.
       const mx = document.createElement("canvas").getContext("2d"); mx.font = `400 11px ${F.mono}`;
-      const wrap = mx.measureText(FOOT).width + 10 + mx.measureText(c.last).width > W - 2 * P;
+      const wrap = mx.measureText(FOOT).width + (c.last ? 10 : 0) + mx.measureText(c.last).width > W - 2 * P;
       // The explainer wraps by measured width, so the card grows by exactly the lines it needs.
       mx.font = `400 13px ${F.body}`;
       const whyLines = [];
@@ -308,5 +308,6 @@
   if (!customElements.get("agentproof-portfolio")) customElements.define("agentproof-portfolio", Portfolio);
   if (!customElements.get("agentproof-badge")) customElements.define("agentproof-badge", Badge);
   // For host pages that want the market list (the picker, the embed demo).
-  window.AgentProof = { loadMarket: () => loadBase().then((b) => b.market) };
+  // useMarket: the host page upgraded snapshot to live, so cards drawn from now on read the same numbers.
+  window.AgentProof = { loadMarket: () => loadBase().then((b) => b.market), useMarket: (m) => { if (base) base = base.then((b) => ({ market: m, byHandle: new Map(m.agents.map((a) => [a.handle, a])), cast: b.cast })); } };
 })();
