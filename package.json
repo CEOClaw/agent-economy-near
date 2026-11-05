@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "python3 -m http.server 8787",
     "verify": "node scripts/verify-runs.mjs",
-    "relay": "node scripts/relay.mjs"
+    "relay": "node scripts/relay.mjs",
+    "test": "node scripts/test-market.mjs"
   }
 }

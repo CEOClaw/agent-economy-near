@@ -8,6 +8,8 @@ const PORT = Number(process.env.PORT) || 8788;
 const TTL_MS = 60000;
 const TIMEOUT_MS = 10000;
 const HANDLE = /^[A-Za-z0-9._-]{1,80}$/;
+const STARTED = new Date().toISOString();
+let boundPort = PORT;
 const cache = new Map(); // normalized url -> { at, fetchedAt, status, body }
 
 const CORS = {
@@ -39,11 +41,32 @@ function normalize(u) {
   return null;
 }
 
+// One retry on a network error, timeout or 5xx before giving up.
+async function fetchUpstream(target) {
+  let last;
+  for (let i = 0; i < 2; i++) {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), TIMEOUT_MS);
+    try {
+      const up = await fetch(UPSTREAM + target, { headers: { accept: "application/json" }, signal: ac.signal });
+      const body = await up.text();
+      if (up.status < 500 || i === 1) return { up, body };
+      last = new Error(`HTTP ${up.status}`);
+    } catch (e) { last = e; } finally { clearTimeout(timer); }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  throw last;
+}
+
 const server = http.createServer(async (req, res) => {
   const t0 = Date.now();
   const log = (status, note) => console.log(`${new Date().toISOString()} ${req.method} ${(req.url || "").split("?")[0]} ${status} ${note} ${Date.now() - t0}ms`);
   try {
     if (req.method === "OPTIONS") { res.writeHead(204, { ...CORS, "Access-Control-Max-Age": "600" }); res.end(); return log(204, "preflight"); }
+    if (req.method === "GET" && new URL(req.url, "http://relay.local").pathname === "/health") {
+      send(res, 200, { ok: true, service: "agentproof-relay", port: boundPort, upstream: UPSTREAM, started_at: STARTED, cache_entries: cache.size });
+      return log(200, "health");
+    }
     if (req.method !== "GET") { send(res, 405, { error: "method not allowed" }); return log(405, "-"); }
     const target = normalize(new URL(req.url, "http://relay.local"));
     if (!target) { send(res, 404, { error: "not relayed" }); return log(404, "-"); }
@@ -53,15 +76,23 @@ const server = http.createServer(async (req, res) => {
       send(res, hit.status, hit.body, { "X-Relay-Fetched-At": hit.fetchedAt, "X-Relay-Cache": "hit" });
       return log(hit.status, "hit");
     }
-    const ac = new AbortController();
-    const timer = setTimeout(() => ac.abort(), TIMEOUT_MS);
     let up, body;
     try {
-      up = await fetch(UPSTREAM + target, { headers: { accept: "application/json" }, signal: ac.signal });
-      body = await up.text();
-    } finally { clearTimeout(timer); }
+      ({ up, body } = await fetchUpstream(target));
+    } catch (e) {
+      // Serve what we last had rather than a blank town when the upstream is down.
+      if (hit) {
+        send(res, hit.status, hit.body, { "X-Relay-Fetched-At": hit.fetchedAt, "X-Relay-Cache": "stale" });
+        return log(hit.status, "stale");
+      }
+      throw e;
+    }
     const fetchedAt = new Date().toISOString();
     if (up.status >= 200 && up.status < 300) cache.set(target, { at: Date.now(), fetchedAt, status: up.status, body });
+    else if (hit && up.status >= 500) {
+      send(res, hit.status, hit.body, { "X-Relay-Fetched-At": hit.fetchedAt, "X-Relay-Cache": "stale" });
+      return log(hit.status, "stale");
+    }
     send(res, up.status, body, { "X-Relay-Fetched-At": fetchedAt, "X-Relay-Cache": "miss" });
     log(up.status, "miss");
   } catch (e) {
@@ -71,4 +102,21 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, "127.0.0.1", () => console.log(`relay on http://127.0.0.1:${PORT} -> ${UPSTREAM}`));
+// Walk PORT, PORT+1, PORT+2 so a second relay (or a stale one) does not crash with a stack trace.
+const LAST = PORT + 2;
+function listen(port) {
+  server.once("error", (e) => {
+    if (e.code !== "EADDRINUSE") { console.error(`relay: could not start (${e.message})`); process.exit(1); }
+    if (port < LAST) {
+      console.log(`relay: port ${port} is in use (maybe another relay). Trying ${port + 1}.`);
+      return listen(port + 1);
+    }
+    console.log(`relay: ports ${PORT}-${LAST} are all in use. Stop the other process or run PORT=<free port> npm run relay, then open the town with ?relay=http://127.0.0.1:<port>`);
+    process.exit(1);
+  });
+  server.listen(port, "127.0.0.1", () => {
+    boundPort = port;
+    console.log(`relay on http://127.0.0.1:${port} -> ${UPSTREAM}`);
+  });
+}
+listen(PORT);
