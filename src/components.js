@@ -84,10 +84,10 @@
 
   const TOKENS = `
 :host{--bg:var(--ap-bg,#f3f5f9);--paper:var(--ap-paper,#fff);--ink:var(--ap-ink,#16202e);--muted:var(--ap-muted,#5d6878);--line:var(--ap-line,#dde2ea);
-  --proof:var(--ap-proof,#0f9b82);--market:var(--ap-market,#3b78de);--warn:var(--ap-warn,#cf4870);--void:var(--ap-void,#b8c0cc);
+  --proof:var(--ap-proof,#0f9b82);--market:var(--ap-market,#3b78de);--warn:var(--ap-warn,#cf4870);--void:var(--ap-void,#b8c0cc);--on-warn:#fff;
   --display:var(--ap-display,"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif);--body:var(--ap-body,"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif);--mono:var(--ap-mono,"JetBrains Mono",ui-monospace,Menlo,monospace)}
-@media (prefers-color-scheme:dark){:host(:not([theme="light"])){--bg:var(--ap-bg,#0f141b);--paper:var(--ap-paper,#18202b);--ink:var(--ap-ink,#e8edf4);--muted:var(--ap-muted,#9aa6b6);--line:var(--ap-line,#2a3441);--proof:var(--ap-proof,#2fc4a7);--market:var(--ap-market,#6b9cf0);--warn:var(--ap-warn,#ec6f95);--void:var(--ap-void,#4a5566)}}
-:host([theme="dark"]){--bg:var(--ap-bg,#0f141b);--paper:var(--ap-paper,#18202b);--ink:var(--ap-ink,#e8edf4);--muted:var(--ap-muted,#9aa6b6);--line:var(--ap-line,#2a3441);--proof:var(--ap-proof,#2fc4a7);--market:var(--ap-market,#6b9cf0);--warn:var(--ap-warn,#ec6f95);--void:var(--ap-void,#4a5566)}
+@media (prefers-color-scheme:dark){:host(:not([theme="light"])){--bg:var(--ap-bg,#0f141b);--paper:var(--ap-paper,#18202b);--ink:var(--ap-ink,#e8edf4);--muted:var(--ap-muted,#9aa6b6);--line:var(--ap-line,#2a3441);--proof:var(--ap-proof,#2fc4a7);--market:var(--ap-market,#6b9cf0);--warn:var(--ap-warn,#ec6f95);--void:var(--ap-void,#7d8899);--on-warn:#18202b}}
+:host([theme="dark"]){--bg:var(--ap-bg,#0f141b);--paper:var(--ap-paper,#18202b);--ink:var(--ap-ink,#e8edf4);--muted:var(--ap-muted,#9aa6b6);--line:var(--ap-line,#2a3441);--proof:var(--ap-proof,#2fc4a7);--market:var(--ap-market,#6b9cf0);--warn:var(--ap-warn,#ec6f95);--void:var(--ap-void,#7d8899);--on-warn:#18202b}
 *{box-sizing:border-box}.num{font-variant-numeric:tabular-nums}.nil{color:var(--void)}`;
 
   const CARD_CSS = TOKENS + `
@@ -104,7 +104,7 @@
 .big .bn{display:inline-block;transition:color .4s}
 .big.mk .bn{color:var(--market)}
 .st{margin-top:24px;font:600 11px var(--mono);border-radius:999px;padding:4px 9px;white-space:nowrap;color:var(--muted);background:var(--bg)}
-.st.ok{color:var(--proof)}.st.bad{color:#fff;background:var(--warn)}
+.st.ok{color:var(--proof)}.st.bad{color:var(--on-warn);background:var(--warn)}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
 .stats div{border-top:2px solid var(--line);padding-top:8px;min-width:0}
 .stats b{font:700 20px var(--display);display:block}
@@ -258,7 +258,7 @@
       text(c.big === 1 ? "proof-backed job" : "proof-backed jobs", P, bigTop + 68 + 8 + 10, `600 15px ${F.body}`, t("--muted"));
       x.font = `600 11px ${F.mono}`; const sw = x.measureText(c.status.text).width + 18;
       rr(P + inner - sw, bigTop + 2, sw, 23, 12); x.fillStyle = c.status.kind === "bad" ? t("--warn") : t("--bg"); x.fill();
-      text(c.status.text, P + inner - 9, bigTop + 18, `600 11px ${F.mono}`, c.status.kind === "bad" ? "#fff" : c.status.kind === "ok" ? t("--proof") : t("--muted"), "right");
+      text(c.status.text, P + inner - 9, bigTop + 18, `600 11px ${F.mono}`, c.status.kind === "bad" ? t("--on-warn") : c.status.kind === "ok" ? t("--proof") : t("--muted"), "right");
       // stats
       const sTop = bigTop + 68 + 8 + 22 + 18, cw = (inner - 20) / 3;
       [[c.owners, c.owners === 1 ? "outside owner" : "outside owners"], [c.earnedText, "earned, verified"], [c.self, (c.self === 1 ? "self-hire" : "self-hires") + ", 0 pts"]].forEach(([v, label], i) => {

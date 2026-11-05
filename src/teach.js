@@ -51,7 +51,7 @@
 .tt-dot{width:8px;height:8px;border-radius:50%;background:var(--line)}
 .tt-dot[aria-current=step]{background:var(--request);outline:2px solid var(--request);outline-offset:1px;outline-color:color-mix(in srgb,var(--request) 30%,transparent)}
 .tt-btn{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 14px var(--body);cursor:pointer}
-.tt-btn.go{background:var(--request);border-color:var(--request);color:#fff}
+.tt-btn.go{background:var(--request);border-color:var(--request);color:var(--on-accent,#fff)}
 .tt-btn:disabled{opacity:.4;cursor:default}
 .tt-btn:focus-visible,.tt-x:focus-visible,.tt-chip button:focus-visible{outline:2px solid var(--request);outline-offset:2px}
 .tt-chip{position:fixed;z-index:80;left:16px;bottom:16px;display:flex;align-items:center;gap:4px;max-width:calc(100vw - 32px);padding:4px 4px 4px 14px;border-radius:999px;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:0 6px 24px rgba(20,30,45,.18);font:600 14px var(--body)}
