@@ -771,7 +771,7 @@ let connected = false, curAgents = [], relayUrl = null, wasLive = false, goodAt 
 const PINNED = Q.get("relay") !== null || !!document.documentElement.dataset.relay;
 let pinMine = false;
 function pinRelay(v) { if (PINNED) return; document.documentElement.dataset.relay = v; pinMine = true; town.relay = v === "off" ? null : v; }
-async function probe() { if (pinMine) { delete document.documentElement.dataset.relay; pinMine = false; } return M.findRelay ? M.findRelay() : null; } // an "off" pin of ours would hide every candidate
+async function probe(o) { if (pinMine) { delete document.documentElement.dataset.relay; pinMine = false; } return M.findRelay ? M.findRelay(o) : null; } // an "off" pin of ours would hide every candidate
 function applyLive(res) {
   const first = !wasLive, d = M.diffAgents(curAgents, res.agents), pick = (l) => JSON.stringify(l.find((a) => a.handle === selH) || null), before = selH != null ? pick(curAgents) : null;
   update(res.agents); curAgents = res.agents; wasLive = true; goodAt = res.fetched_at; header(res); fails = 0;
@@ -789,14 +789,15 @@ const searchRefresh = () => { if (document.activeElement === searchEl && searchE
 async function refresh() {
   if (refreshing) return; refreshing = true; let ok = false;
   try {
-    if (!relayUrl) { relayUrl = await probe(); pinRelay(relayUrl || "off"); if (!relayUrl) throw new Error("no relay answered"); }
+    if (!relayUrl) { relayUrl = await probe({ firstOnly: !wasLive && fails >= 1 && fails <= 3 }); pinRelay(relayUrl || "off"); if (!relayUrl) throw new Error("no relay answered"); }
     const res = await M.fetchRelayAgents(relayUrl), n = new Set(res.agents.map((a) => a.handle).filter(Boolean)).size;
     if (n === 0 || n < town.count * .5) throw new Error(`relay answered with ${n} agents, kept the ${town.count} already drawn`);
     applyLive(res); ok = true;
   } catch (e) { relayUrl = null; pinRelay("off"); paused(String((e && e.message) || e)); }
   finally { refreshing = false; schedule(ok); }
 }
-// After a miss the wait grows (live: 4 s, 12 s, 36 s, 60 s; never live: 5 s, 10 s, 20 s, then 30 s doubling up to 5 min, so a relay started after load is found fast) and the next try probes every relay port again.
+// After a miss the wait grows (live: 4 s, 12 s, 36 s, 60 s; never live: 5 s, 10 s, 20 s, then 30 s doubling up to 5 min, so a relay started after load is found fast).
+// The fast never-live retries probe only the first relay port (each refused port is a console line); the other tiers probe all of them.
 function schedule(ok) {
   clearTimeout(refreshTimer); if (ok) fails = 0; else fails++;
   const wait = ok ? T.refresh : wasLive ? Math.min(60000, 4000 * 3 ** (fails - 1)) : fails <= 3 ? 5000 * 2 ** (fails - 1) : Math.min(300000, 30000 * 2 ** (fails - 4));

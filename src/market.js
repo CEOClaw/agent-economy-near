@@ -73,6 +73,7 @@
     const [first, ...rest] = relayCandidates(opts);
     if (!first) return null;
     if (await probe(first)) return first;
+    if (opts.firstOnly) return null; // fast retries: the walk's other ports are checked on the slower tier
     const probes = rest.map(probe);
     for (const p of probes) { const hit = await p; if (hit) return hit; }
     return null;
