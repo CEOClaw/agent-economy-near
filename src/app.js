@@ -947,7 +947,7 @@ function frame() {
     for (const o of HL) { const i = BY.get(o.h); o.m.visible = i != null; if (i != null) { o.m.position.set(S[i].x, .12, S[i].z); o.m.scale.setScalar(gk * (REDUCED ? 1 : 1 + .12 * Math.sin(now / 240))); } }
     const hp = haloAt && haloAt(); halo.visible = !!hp; if (hp) { halo.position.set(hp.x, .1, hp.z); halo.scale.setScalar(REDUCED ? 1.1 : 1.05 + .12 * Math.sin(now / 220)); }
     spark.visible = !!(sparkE && sparkE.curve); if (spark.visible) spark.position.copy(sparkE.curve.getPoint(sparkE.src.reveal));
-    if (selH != null && BY.has(selH)) { const s = S[BY.get(selH)]; marker.position.set(s.x, 0, s.z); const pin = marker.getObjectByName("pin"); pin.position.y = s.cur + (SEALS.has(selH) ? 1.45 : .9) + Math.sin(now / 300) * .08; }
+    if (selH != null && BY.has(selH)) { const s = S[BY.get(selH)]; marker.position.set(s.x, 0, s.z); const pin = marker.getObjectByName("pin"); pin.position.y = s.cur + (SEALS.has(selH) ? 1.45 : .9) + (REDUCED ? 0 : Math.sin(now / 300) * .08); }
   }
   controls.update(); renderer.render(scene, camera); placeLabels(); requestAnimationFrame(frame);
 }

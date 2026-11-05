@@ -446,7 +446,7 @@ function frame() {
   Object.entries(ROBOTS).forEach(([id, r]) => (r.tag.show = introOn || !actors || actors.includes(id)));
   Object.entries(STLAB).forEach(([k, L]) => (L.show = introOn || k === stKey));
   Object.values(ROBOTS).forEach((r) => { const w = r.walking; r.body.position.y = REDUCED ? 0 : w ? Math.abs(Math.sin(t * 9 + r.phase)) * .12 : Math.sin(t * 2 + r.phase) * .03; r.head.rotation.z = REDUCED ? 0 : Math.sin(t * 1.3 + r.phase) * .05; });
-  Object.values(COINS).forEach((k) => (k.g.rotation.y += dt * 3)); orb.rotation.y += dt * 1.4; orb.pts.rotation.y -= dt * 2.4; orb.pts.rotation.x += dt * .7; orb.core.scale.setScalar(1 + Math.sin(t * 6) * .12);
+  if (!REDUCED) { Object.values(COINS).forEach((k) => (k.g.rotation.y += dt * 3)); orb.rotation.y += dt * 1.4; orb.pts.rotation.y -= dt * 2.4; orb.pts.rotation.x += dt * .7; orb.core.scale.setScalar(1 + Math.sin(t * 6) * .12); }
   if (bubbleEl && bubbleEl._r) { bubbleEl._r.headAnchor.getWorldPosition(tmpV); tmpV.project(camera); bubbleEl.style.left = ((tmpV.x + 1) / 2 * innerWidth) + "px"; bubbleEl.style.top = ((1 - tmpV.y) / 2 * innerHeight) + "px"; }
   if (introOn && !REDUCED && performance.now() - userAt > 3500) { tmp.copy(camera.position).sub(controls.target).applyAxisAngle(new THREE.Vector3(0, 1, 0), dt * .06); camera.position.copy(controls.target).add(tmp); }
   if (performance.now() - userAt > 4000) { const k = REDUCED ? 1 : 1 - Math.pow(.03, dt); tmp.subVectors(camTarget, controls.target).multiplyScalar(k); controls.target.add(tmp); camera.position.add(tmp);
