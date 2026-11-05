@@ -88,6 +88,8 @@
 
   const CSS = `
 #analysis{--an-pad:20px;position:fixed;top:0;right:0;bottom:0;width:min(720px,100vw);z-index:60;overflow-y:auto;overscroll-behavior:contain;background:var(--card);color:var(--ink);border-left:1px solid var(--line);box-shadow:-12px 0 40px rgba(20,30,45,.18);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-overflow-scrolling:touch}
+#analysis{--an-mk:var(--request);--an-pv:var(--ok)}
+:root[data-theme="dark"] #analysis{--an-mk:#3987e5;--an-pv:#26a874}
 #analysis[hidden]{display:none}
 @media (max-width:640px){#analysis{border-left:0;top:0;height:100dvh}}
 #analysis .an-head{position:sticky;top:0;z-index:2;display:flex;align-items:flex-start;gap:12px;padding:16px var(--an-pad) 12px;background:var(--card);border-bottom:1px solid var(--line)}
@@ -111,7 +113,7 @@
 #analysis .an-hist{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;align-items:end;height:190px;margin:8px 0 0;padding:0;list-style:none;border-bottom:1px solid var(--line)}
 #analysis .an-hist li{display:flex;flex-direction:column;justify-content:flex-end;height:100%;text-align:center;min-width:0}
 #analysis .an-hist .v{font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink);padding-bottom:2px}
-#analysis .an-hist .b{background:var(--request);border-radius:4px 4px 0 0;min-height:2px}
+#analysis .an-hist .b{background:var(--an-mk);border-radius:4px 4px 0 0;min-height:2px}
 #analysis .an-hist .z .b{background:var(--faint);background-image:repeating-linear-gradient(135deg,transparent 0 5px,rgba(255,255,255,.35) 5px 7px)}
 #analysis .an-hist-x{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:4px 0 0;padding:0;list-style:none;text-align:center;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
 #analysis .an-axis{margin:4px 0 0;text-align:center;font-size:12px;color:var(--faint)}
@@ -121,35 +123,36 @@
 #analysis .an-key i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
 #analysis .an-rows{display:grid;grid-template-columns:minmax(0,max-content) 1fr;gap:8px 12px;align-items:center;margin:0;padding:0;list-style:none}
 #analysis .an-rows>li{display:contents}
-#analysis .an-rows .nm{font-size:13px;white-space:nowrap}
-#analysis .an-rows .nm small{color:var(--faint);font-variant-numeric:tabular-nums}
+#analysis .an-rows .an-nm{font-size:13px;white-space:nowrap}
+#analysis .an-rows .an-nm small{color:var(--faint);font-variant-numeric:tabular-nums}
 #analysis .an-pair{display:grid;gap:3px;min-width:0}
 #analysis .an-bar{display:flex;align-items:center;gap:6px;height:14px;font-size:12px;font-variant-numeric:tabular-nums;color:var(--dim)}
 #analysis .an-bar s{display:block;height:100%;min-width:2px;border-radius:0 4px 4px 0;text-decoration:none}
-#analysis .an-bar.m s{background:var(--request)}
-#analysis .an-bar.p s{background:var(--ok)}
-#analysis .an-bar.r s{background:var(--request);opacity:.8}
+#analysis .an-bar.m s{background:var(--an-mk)}
+#analysis .an-bar.p s{background:var(--an-pv)}
+#analysis .an-bar.r s{background:var(--an-mk)}
 #analysis .an-bar.p.zero{color:var(--faint)}
 #analysis svg.an-sc{display:block;width:100%;height:auto;overflow:visible}
-#analysis svg.an-sc text{font-family:var(--body);fill:var(--dim);font-size:18px;font-variant-numeric:tabular-nums}
-#analysis svg.an-sc .ln{stroke:var(--line);stroke-width:1.5}
-#analysis svg.an-sc .pt{fill:var(--request);fill-opacity:.5;stroke:var(--request);stroke-opacity:.9;stroke-width:1}
+#analysis svg.an-sc text{font-family:var(--body);fill:var(--dim);font-size:15px;font-variant-numeric:tabular-nums}
+#analysis svg.an-sc .ln{stroke:var(--line);stroke-width:1}
+#analysis svg.an-sc .pt{fill:var(--an-mk);fill-opacity:.7;stroke:var(--card);stroke-width:1.5}
 #analysis svg.an-sc .ring{fill:none;stroke:var(--fail);stroke-width:2.5;stroke-dasharray:6 4}
-#analysis svg.an-sc .cap{fill:var(--fail);font-weight:700}
+#analysis svg.an-sc .cap{fill:var(--ink);font-weight:700}
+@media (max-width:640px){#analysis svg.an-sc text{font-size:24px}}
 #analysis .an-stack{display:flex;height:26px;border-radius:8px;overflow:hidden;border:1px solid var(--line);margin:6px 0 6px}
 #analysis .an-stack i{display:block;height:100%}
-#analysis .an-stack .on{background:var(--ok)}
+#analysis .an-stack .on{background:var(--an-mk);box-shadow:2px 0 0 var(--card)}
 #analysis .an-stack .off{background:var(--wash);background-image:repeating-linear-gradient(135deg,transparent 0 5px,var(--line) 5px 7px)}
 #analysis .an-twrap{overflow-x:auto;margin:0 calc(var(--an-pad) * -1);padding:0 var(--an-pad)}
 #analysis table{border-collapse:collapse;width:100%;min-width:600px;font-size:13px}
 #analysis th{text-align:left;font-weight:600;color:var(--dim);font-size:12px;padding:6px 10px 6px 0;border-bottom:1px solid var(--line);white-space:nowrap}
 #analysis td{padding:8px 10px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
 #analysis td.mono,#analysis .mono{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
-#analysis .tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid currentColor;white-space:nowrap}
-#analysis .tag.ok{color:var(--ok)}
-#analysis .tag.rep{color:var(--rep)}
-#analysis .tag.fail{color:var(--fail)}
-#analysis .tag.nil{color:var(--dim)}
+#analysis .an-tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid currentColor;white-space:nowrap}
+#analysis .an-tag.ok{color:var(--ok)}
+#analysis .an-tag.rep{color:var(--rep)}
+#analysis .an-tag.fail{color:var(--fail)}
+#analysis .an-tag.nil{color:var(--dim)}
 #analysis .an-empty{color:var(--dim);font-size:14px}
 `;
 
@@ -162,7 +165,7 @@
 
   function histogram(s, src) {
     const max = Math.max(1, ...s.histogram.map((b) => b.count));
-    const lis = s.histogram.map((b) => `<li class="${b.lo === 0 ? "z" : ""}"><span class="v">${fmt(b.count)}</span><span class="b" style="height:${(b.count / max) * 150}px"></span></li>`).join("");
+    const lis = s.histogram.map((b) => `<li class="${b.lo === 0 ? "z" : ""}" title="${esc(`${b.label} jobs: ${fmt(b.count)} agents`)}"><span class="v">${fmt(b.count)}</span><span class="b" style="height:${(b.count / max) * 150}px"></span></li>`).join("");
     const xs = s.histogram.map((b) => `<li>${esc(b.label)}</li>`).join("");
     const alt = s.histogram.map((b) => `${b.label} jobs: ${b.count} agents`).join("; ");
     const h = headline(s);
@@ -174,13 +177,13 @@
   function categories(s, src) {
     const max = Math.max(1, ...s.categories.map((c) => c.delivered));
     const w = (v) => (v / max) * 100;
-    const rows = s.categories.map((c) => `<li><span class="nm">${esc(nice(c.category))} <small>${fmt(c.agents)}</small></span><span class="an-pair">
+    const rows = s.categories.map((c) => `<li><span class="an-nm">${esc(nice(c.category))} <small>${fmt(c.agents)}</small></span><span class="an-pair">
       <span class="an-bar m"><s style="width:calc(${w(c.delivered)}% * .82)"></s>${fmt(c.delivered)}</span>
       <span class="an-bar p${c.proven ? "" : " zero"}"><s style="width:${c.proven ? `max(3px,calc(${w(c.proven)}% * .82))` : "2px"}"></s>${fmt(c.proven)} proven</span></span></li>`).join("");
     const alt = s.categories.map((c) => `${nice(c.category)}: ${c.delivered} delivered, ${c.proven} proven`).join("; ");
     return sec(s.proven_total ? `Only ${fmt(s.proven_total)} of ${fmt(s.delivered_total)} delivered jobs is proof-backed` : `None of ${fmt(s.delivered_total)} delivered jobs is proof-backed yet`,
       "Per category: jobs the market says were delivered (blue) next to jobs with a re-checked receipt from a different owner (green). The small number is the agent count.",
-      `<div class="an-key"><span><i style="background:var(--request)"></i>delivered, on the market's word</span><span><i style="background:var(--ok)"></i>proven, re-checked here</span></div><ul class="an-rows" role="img" aria-label="${esc(alt)}">${rows}</ul>`, src);
+      `<div class="an-key"><span><i style="background:var(--an-mk)"></i>delivered, on the market's word</span><span><i style="background:var(--an-pv)"></i>proven, re-checked here</span></div><ul class="an-rows" role="img" aria-label="${esc(alt)}">${rows}</ul>`, src);
   }
 
   function scatter(s, src) {
@@ -190,7 +193,7 @@
     const X = (d) => L + ((Math.log10(d || 0.5) - lo) / (hi - lo)) * pw, Y = (r) => T + ph - (r / 100) * ph;
     const grid = [0, 50, 100].map((v) => `<line class="ln" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 8}" y="${Y(v) + 6}" text-anchor="end">${v}%</text>`).join("");
     const ticks = [0, 1, 10, 100, 1000].filter((t) => t <= maxD * 1.3).map((t) => `<text x="${X(t)}" y="${H - B + 24}" text-anchor="middle">${t}</text>`).join("");
-    const pts = s.scatter.map((p) => `<circle class="pt" cx="${(X(p.delivered) * (1 + (hash(p.handle) - 0.5) * 0.03) + (p.delivered <= 1 ? (hash(p.handle + "x") - 0.5) * 18 : 0)).toFixed(1)}" cy="${(Y(p.success_rate) + (hash(p.handle + "y") - 0.5) * 9).toFixed(1)}" r="5"/>`).join("");
+    const pts = s.scatter.map((p) => `<circle class="pt" cx="${(X(p.delivered) * (1 + (hash(p.handle) - 0.5) * 0.03) + (p.delivered <= 1 ? (hash(p.handle + "x") - 0.5) * 18 : 0)).toFixed(1)}" cy="${(Y(p.success_rate) + (hash(p.handle + "y") - 0.5) * 9).toFixed(1)}" r="5"><title>${esc(`${p.handle}: ${p.success_rate}% on ${fmt(p.delivered)} delivered`)}</title></circle>`).join("");
     const cl = s.scatter.filter((p) => p.delivered === 1 && p.success_rate === 100).length;
     const note = cl ? `<ellipse class="ring" cx="${X(1)}" cy="${Y(100)}" rx="30" ry="18"/><line class="ln" style="stroke:var(--fail)" x1="${X(1)}" x2="${X(1)}" y1="${Y(100) - 18}" y2="${T - 16}"/><text class="cap" x="${L}" y="${T - 20}">${cl} agents: 100% on 1 job</text>` : "";
     const alt = `${s.scatter.length} agents with a success rate. ${cl} of them show 100% on exactly 1 delivered job.`;
@@ -200,7 +203,7 @@
 
   function response(s, src) {
     const lg = (v) => Math.log10(1 + v), max = Math.max(1, ...s.response_by_category.map((c) => lg(c.median_s)));
-    const rows = s.response_by_category.map((c) => `<li><span class="nm">${esc(nice(c.category))} <small>${fmt(c.n)}</small></span><span class="an-pair"><span class="an-bar r"><s style="width:calc(${(lg(c.median_s) / max) * 100}% * .8)"></s>${esc(dur(c.median_s))}</span></span></li>`).join("");
+    const rows = s.response_by_category.map((c) => `<li><span class="an-nm">${esc(nice(c.category))} <small>${fmt(c.n)}</small></span><span class="an-pair"><span class="an-bar r"><s style="width:calc(${(lg(c.median_s) / max) * 100}% * .8)"></s>${esc(dur(c.median_s))}</span></span></li>`).join("");
     const alt = s.response_by_category.map((c) => `${nice(c.category)}: ${dur(c.median_s)} (${c.n} agents)`).join("; ");
     // A category with one or two agents is an anecdote, so the headline only compares ones with 3 or more.
     const big = s.response_by_category.filter((c) => c.n >= 3), f = big[0], l = big[big.length - 1];
@@ -213,14 +216,14 @@
     const on = s.available.share * 100, h = headline(s);
     return sec(`${pct(s.available.share)} of agents say they can take a job right now`, "Agents whose listing says available now.",
       `<div class="an-stack" role="img" aria-label="${esc(`${h.available} available now`)}"><i class="on" style="width:${on}%"></i><i class="off" style="width:${100 - on}%"></i></div>
-      <div class="an-key"><span><i style="background:var(--ok)"></i>available now: <b class="an-num">${esc(h.available)}</b></span><span><i style="background:var(--wash);border:1px solid var(--line)"></i>not available: <b class="an-num">${fmt(s.n - s.available.count)}</b></span></div>`, src);
+      <div class="an-key"><span><i style="background:var(--an-mk)"></i>available now: <b class="an-num">${esc(h.available)}</b></span><span><i style="background:var(--wash);border:1px solid var(--line)"></i>not available: <b class="an-num">${fmt(s.n - s.available.count)}</b></span></div>`, src);
   }
 
   function receiptsTable(s) {
     if (!s.receipts.length) return sec("No receipts to re-check", "Run files give the proof side of every number above.", `<p class="an-empty">none yet</p>`, "source: run files in this repo");
     const rows = s.receipts.map((r) => {
-      const own = r.self_hire ? `<span class="tag rep">self-hire</span>` : r.buyer_owner != null && r.seller_owner != null && r.buyer_owner !== r.seller_owner ? `<span class="tag ok">cross-owner</span>` : `<span class="tag nil">owner unknown</span>`;
-      const v = r.counted ? `<span class="tag ok">counted</span>` : !r.reproduced ? `<span class="tag fail">digest differs</span>` : r.outcome !== "pass" ? `<span class="tag fail">${esc(r.outcome || "no outcome")}</span>` : `<span class="tag rep">not counted</span>`;
+      const own = r.self_hire ? `<span class="an-tag rep">self-hire</span>` : r.buyer_owner != null && r.seller_owner != null && r.buyer_owner !== r.seller_owner ? `<span class="an-tag ok">cross-owner</span>` : `<span class="an-tag nil">owner unknown</span>`;
+      const v = r.counted ? `<span class="an-tag ok">counted</span>` : !r.reproduced ? `<span class="an-tag fail">digest differs</span>` : r.outcome !== "pass" ? `<span class="an-tag fail">${esc(r.outcome || "no outcome")}</span>` : `<span class="an-tag rep">not counted</span>`;
       const same = r.stored_digest && r.recomputed_digest && r.stored_digest === r.recomputed_digest;
       return `<tr><td class="mono">${esc(String(r.id || "").slice(0, 8) || "none")}</td><td>${esc(r.buyer_owner ?? "not observed")}</td><td>${esc(r.seller_handle ?? "not observed")}<br><span class="mono" style="color:var(--dim)">${esc(r.seller_owner ?? "not observed")}</span></td><td>${own}</td><td class="mono">${r.price_usdc == null ? "not observed" : "$" + r.price_usdc}</td><td>${v}<br><span style="color:var(--dim)">checker: ${esc(r.outcome ?? "none")}</span></td><td class="mono">${esc(short(r.stored_digest))}<br>${esc(short(r.recomputed_digest))}<br><span style="color:${same ? "var(--ok)" : "var(--fail)"}">${same ? "match" : "no match"}</span></td></tr>`;
     }).join("");
