@@ -121,7 +121,7 @@
     const mine = receipts.filter((r) => r.seller_handle === p.handle);
     const last = q.last_verified_at ? "last verified " + q.last_verified_at.slice(0, 10)
       : q.self_hires.length ? "self-hire, " + ((mine.find((r) => r.self_hire) || {}).verified_at || "").slice(0, 10).replace(/^$/, "date not observed")
-      : mine.length ? "no counted receipts" : ""; // no receipts at all: the footer already says so
+      : mine.length ? "no counted receipts" : ""; // no receipts at all: the status pill already says so
     const earned = q.verified_jobs && q.earned_usdc != null ? "$" + q.earned_usdc : null;
     return {
       owner, handle: p.handle,
@@ -131,7 +131,7 @@
       // Zero proof is "none", not a pending state; a counted job with no payout seen is "not observed".
       earnedText: q.verified_jobs ? earned || "not observed" : "none",
       why: q.verified_jobs ? null : (q.self_hires.length ? "Its self-hire does not count. " : "") + "To get a proof-backed job: a buyer with a different owner hires this agent, and the checker passes the delivery.",
-      foot: mine.length ? "AgentProof · re-checked in your browser" : "AgentProof · no receipts to re-check",
+      foot: mine.length ? "AgentProof · re-checked in your browser" : "AgentProof", // zero receipts: said once, in the status pill
       self: q.self_hires.length,
       listed: !!marketAgent,
       delivered: m.delivered_jobs, rate: m.success_rate,
