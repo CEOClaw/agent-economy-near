@@ -1,6 +1,7 @@
-// Market Town: every building is a real market.near.ai agent. The scene starts empty
-// and fills only after M.fetchAgents() answers (relay -> snapshot). Receipts come from
-// data/manifest.json and are re-checked in this browser before they are drawn.
+// Market Town: every building is a real market.near.ai agent. The scene fills at once from the
+// bundled snapshot (labelled as one), then upgrades to the live relay in the background when one
+// answers. Receipts come from data/manifest.json (or a dropped run file) and are re-checked in this
+// browser before they are drawn.
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
@@ -13,8 +14,9 @@ const T = {
   plinth: 0.1, hBase: 0.5, hSpan: 2.6, hRef: 50, hMax: 1.5,   // height: log1p(jobs)/log1p(hRef), capped at hMax
   neutral: "#c9c2b8", pad: "#ddd6c8", ground: "#f6f2ea",
   rise: 480, stagger: 2.5, pulse: 700, sink: 500, fly: 900, refresh: 60000, autoDelay: 1000,
-  capHead: 1.5,
-  pink: 0xcf4870, green: 0x169c5f, red: 0xd6423a, lamp_on: 0xffc94d, gold: 0xd4a52a,
+  capHead: 1.5, lens: 900, // lens: ms for the Market view <-> Proof view flip
+  breathe: 1.7, breatheAmp: .2, // lit windows: radians per second, share of the glow that swings
+  pink: 0xcf4870, blue: 0x3b78de, green: 0x169c5f, red: 0xd6423a, lamp_on: 0xffc94d, gold: 0xd4a52a,
   names: 5, // name labels on the busiest agents at the overview zoom
   // receipt tour (ms): overview hold, camera flight, arc draw, minimum "re-checking" time, result hold, card hold
   tourHold: 1200, tourFly: 1600, arcDraw: 1100, recheck: 800, result: 700, cardHold: 2200, flyHome: 1600,
@@ -30,14 +32,17 @@ const TONE = DARK ? { tall: [34, 50], low: [14, 30], pad: [18, 20], label: [34, 
 const tone = (cat, role) => { const h = hueOf(cat), [sat, l] = TONE[role]; return h == null ? `hsl(30,6%,${l}%)` : `hsl(${h},${sat}%,${l}%)`; };
 const hex = (c) => new THREE.Color(c);
 const uncat = (c) => c || "uncategorized";
+const PROOF = new Map(); // seller handle -> counted receipts; the Proof view's height
+let lens = "market";
 const height = (jobs) => (jobs > 0 ? T.hBase + T.hSpan * Math.min(T.hMax, Math.log1p(jobs) / Math.log1p(T.hRef)) : T.plinth);
 // available_now is the market's "right now" flag; availability ("available") is set on nearly every listing, so it only counts when available_now is absent.
 const isOn = (a) => (a.available_now != null ? a.available_now === true : a.availability === "available" || a.availability === "available_now");
+const targetH = (a) => (lens === "proof" ? (PROOF.get(a.handle) ? height(PROOF.get(a.handle)) : T.plinth) : height(a.delivered_jobs));
 const ease = (t) => 1 - Math.pow(1 - t, 3);
 const back = (t) => { const c = 1.4; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
 
 // Test hooks. count = buildings alive in the scene, kept equal to what the instances draw.
-const town = (window.__town = { count: 0, capacity: 0, source: null, fetched_at: null, receipts: 0, loops: [], handles: [], fps: 0, districts: {}, ready: false, webgl: true });
+const town = (window.__town = { count: 0, capacity: 0, source: null, fetched_at: null, receipts: 0, loops: [], handles: [], fps: 0, districts: {}, ready: false, webgl: true, lens: "market", ticker: [], firstPaintMs: null, relay: null });
 
 /* ---------- renderer ---------- */
 let renderer;
@@ -45,7 +50,7 @@ try {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 } catch (e) {
   town.webgl = false;
-  $("connect").hidden = true;
+  $("empty").hidden = false;
   $("note").textContent = "WebGL is not available in this browser, so the town cannot be drawn. The guided replay and the portfolio page still work.";
   $("note").className = "err";
   throw e;
@@ -84,10 +89,10 @@ const labelsEl = $("labels"); const LABELS = [];
 const PRIO = { tag: 5, chiplab: 3, place: 2, nm: 1 };
 function label(cls, text, style, at, when, prio = PRIO[cls] || 0) { const el = document.createElement("div"); el.className = cls; el.textContent = text; if (style) el.style.cssText = style; labelsEl.appendChild(el); const L = { el, at, when, prio, size: null }; LABELS.push(L); LABELS.sort((p, q2) => q2.prio - p.prio); return L; }
 const dropLabel = (L) => { const k = LABELS.indexOf(L); if (k >= 0) LABELS.splice(k, 1); L.el.remove(); };
-const tmpV = new THREE.Vector3(), chrome = [$("legend"), $("panel"), ...document.querySelectorAll("#top > *")];
+const tmpV = new THREE.Vector3(), CHROME = "#top > *, #top #tools > *, #dock > *, #dock #tools > *, #panel, #analysis, #toast";
 function placeLabels() {
   const w = innerWidth, h = innerHeight, placed = [];
-  for (const el of chrome) if (!el.hidden) { const r = el.getBoundingClientRect(); placed.push([r.left, r.top, r.right, r.bottom]); } // never under the header or legend
+  for (const el of document.querySelectorAll(CHROME)) if (!el.hidden) { const r = el.getBoundingClientRect(); if (r.width && r.height) placed.push([r.left, r.top, r.right, r.bottom]); } // never under the header, dock or panels
   for (const L of LABELS) {
     if (L.when && !L.when()) { L.el.style.display = "none"; continue; }
     if (!L.size) { L.el.style.display = ""; L.size = [L.el.offsetWidth, L.el.offsetHeight]; }
@@ -111,18 +116,19 @@ const bodyGeo = new THREE.BoxGeometry(1, 1, 1).translate(0, .5, 0), lampGeo = ne
 let litAttr = null; // per instance: 1 = available now, its windows glow
 // Windows in world units (so a tall tower gets more floors, not stretched ones), a darker foot
 // for contact shadow, a lighter roof. Plinths (zero delivered jobs) are too low for windows.
+let bodyShader = null; // kept so one uniform (uTime) drives every lit window
 bodyMat.onBeforeCompile = (sh) => {
-  sh.uniforms.uLamp = { value: new THREE.Color(T.lamp_on) };
-  const v = "varying float vLit; varying float vY; varying float vH; varying float vU; varying float vSide;";
+  bodyShader = sh; sh.uniforms.uLamp = { value: new THREE.Color(T.lamp_on) }; sh.uniforms.uTime = { value: 0 }; sh.uniforms.uAmp = { value: T.breatheAmp };
+  const v = "varying float vLit; varying float vY; varying float vH; varying float vU; varying float vSide; varying float vPh;";
   sh.vertexShader = sh.vertexShader.replace("#include <common>", `#include <common>\nattribute float aLit;\n${v}`)
-    .replace("#include <begin_vertex>", "#include <begin_vertex>\nvLit = aLit; vH = length(instanceMatrix[1].xyz); vY = position.y * vH; vU = abs(normal.x) > .5 ? position.z + .5 : position.x + .5; vSide = 1. - abs(normal.y);");
-  sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>\nuniform vec3 uLamp;\n${v}`)
+    .replace("#include <begin_vertex>", "#include <begin_vertex>\nvLit = aLit; vH = length(instanceMatrix[1].xyz); vY = position.y * vH; vU = abs(normal.x) > .5 ? position.z + .5 : position.x + .5; vSide = 1. - abs(normal.y); vPh = instanceMatrix[3].x * .9 + instanceMatrix[3].z * 1.7;");
+  sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>\nuniform vec3 uLamp; uniform float uTime; uniform float uAmp;\n${v}`)
     .replace("#include <color_fragment>", `#include <color_fragment>
       diffuseColor.rgb *= mix(1.07, mix(.6, 1., smoothstep(0., .5, vY)), vSide);
       float win = 0.;
       if (vSide > .5 && vH > .3) { float c = fract(vU * 3.), r = fract((vY - .2) / .22); win = step(.24, c) * step(c, .76) * step(.3, r) * step(r, .76) * step(.2, vY) * step(vY, vH - .14); }
       diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * mix(.48, .95, vLit), win);`)
-    .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += uLamp * win * vLit * .85;");
+    .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>\ntotalEmissiveRadiance += uLamp * win * vLit * .85 * (1. - uAmp + uAmp * sin(uTime * ${T.breathe.toFixed(2)} + vPh));`);
 };
 
 function makeMeshes(n) {
@@ -166,7 +172,8 @@ function layout(groups) {
   // Shelf packing: biggest district first, rows wrap near the width of a square of the same total area.
   if (!groups.length) { extentMinX = extentMaxX = extentMinZ = extentMaxZ = 0; return []; } // empty list must not Math.max() of nothing
   const sizes = groups.map((g) => dimOf(g.agents.length) * T.pitch);
-  const rowW = Math.max(sizes[0] || 0, Math.sqrt(sizes.reduce((a, s) => a + (s + T.gap) * (s + T.gap), 0)) * 1.25);
+  const wide = Math.min(1.25, Math.max(.7, innerWidth / innerHeight * 1.1)); // a portrait phone gets a taller footprint so the town fills the screen
+  const rowW = Math.max(sizes[0] || 0, Math.sqrt(sizes.reduce((a, s) => a + (s + T.gap) * (s + T.gap), 0)) * wide);
   let x = 0, z = 0, rowH = 0; const at = [];
   sizes.forEach((s) => { if (x > 0 && x + s > rowW) { x = 0; z += rowH + T.gap; rowH = 0; } at.push([x, z]); x += s + T.gap; rowH = Math.max(rowH, s); });
   const maxX = Math.max(...at.map((p, i) => p[0] + sizes[i])), maxZ = z + rowH;
@@ -188,7 +195,7 @@ function setLook(i) {
 function addBuilding(a, d, delay) {
   const i = FREE.length ? FREE.pop() : hw++;
   const k = cellOf(d), [x, z] = cellPos(d, k);
-  const to = height(a.delivered_jobs), now = performance.now();
+  const to = targetH(a), now = performance.now();
   S[i] = { handle: a.handle, agent: a, x, z, k, color: null, on: isOn(a), cur: REDUCED ? to : 0, from: 0, to, t0: now + delay, dur: T.rise, kind: "rise", pulse0: null, dead: false, d };
   BY.set(a.handle, i); d.n++; bodies.count = lamps.count = hw;
   setLook(i);
@@ -201,7 +208,7 @@ function ensureCap(extra) { if (hw + extra - FREE.length > cap) { makeMeshes(Mat
 function syncTown() {
   town.count = [...BY.values()].length;
   town.handles = [...BY.keys()];
-  if (connected) $("countChip").textContent = `${town.count} agents`; // a sunk building leaves after its animation
+  if (connected) { $("countChip").textContent = `${town.count} agents`; tally(); } // a sunk building leaves after its animation
 }
 
 function fill(agents) {
@@ -228,7 +235,7 @@ function update(agents) {
   for (const a of agents) {
     const i = a.handle ? BY.get(a.handle) : null; if (i == null) continue;
     const s = S[i]; if (s.kind === "sink") continue;
-    const to = height(a.delivered_jobs); s.agent = a; s.on = isOn(a); setLook(i);
+    const to = targetH(a); s.agent = a; s.on = isOn(a); setLook(i);
     if (to !== s.to) { Object.assign(s, { from: s.cur, to, t0: now, dur: T.rise, kind: "grow", pulse0: REDUCED ? null : now }); if (!REDUCED) ACTIVE.add(i); else { s.cur = to; } }
     writeSlot(i); dirty = true;
   }
@@ -318,7 +325,7 @@ function endB(e) { // the buyer end of an arc -> { x, z, cur } or null
   return null;
 }
 function revealArc(e) {
-  const k = e.src.reveal; e.mesh.visible = k > 0;
+  const k = e.src.reveal; e.mesh.visible = k > 0 && !e.hide; if (e.ped) e.ped.visible = e.mesh.visible;
   if (e.curve) { const g = e.mesh.geometry.parameters; e.mesh.geometry.setDrawRange(0, Math.round(k * g.tubularSegments) * g.radialSegments * 6); }
   else e.mesh.scale.y = Math.max(k, 1e-3);
 }
@@ -329,21 +336,28 @@ function arcOf(e) {
     e.sig = sig;
     if (e.mesh) { scene.remove(e.mesh); e.mesh.geometry.dispose(); }
     if (b) { const mid = new THREE.Vector3((a.x + b.x) / 2, Math.max(a.cur, b.cur) + 2 + Math.hypot(a.x - b.x, a.z - b.z) * .3, (a.z + b.z) / 2);
-      e.curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(b.x, b.cur + .3, b.z), mid, new THREE.Vector3(a.x, a.cur + .3, a.z));
+      e.curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(b.x, Math.max(b.cur, e.ped ? PED_H : 0) + .3, b.z), mid, new THREE.Vector3(a.x, a.cur + .3, a.z));
       e.mesh = new THREE.Mesh(new THREE.TubeGeometry(e.curve, 64, .075, 8), e.mat);
     } else { e.curve = null; e.mesh = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 6, 8).translate(0, 3, 0), e.mat); e.mesh.position.set(a.x, a.cur, a.z); }
     scene.add(e.mesh);
   }
+  if (e.ped && b) e.ped.position.set(b.x, 0, b.z);
   revealArc(e);
+}
+// A zero-job buyer is a flat tile; this blue pedestal gives the arc something to land on.
+const PED_H = .26, pedMat = new THREE.MeshStandardMaterial({ color: T.blue, roughness: .55, emissive: T.blue, emissiveIntensity: .18 });
+function makePed() {
+  const g = new THREE.Group(), base = new THREE.Mesh(new THREE.CylinderGeometry(.5, .56, PED_H, 28).translate(0, PED_H / 2, 0), pedMat), ring = new THREE.Mesh(new THREE.TorusGeometry(.66, .045, 8, 36), pedMat);
+  ring.rotation.x = Math.PI / 2; ring.position.y = .08; base.castShadow = true; g.add(base, ring); g.visible = false; scene.add(g); return g;
 }
 function drawReceipt(r) {
   const { rc, run } = r, sellerSlot = BY.get(rc.seller_handle); if (sellerSlot == null) return;
   if (r.reveal == null) r.reveal = tour.state === "idle" ? 0 : 1; // only a tour that has not started yet will play it
   if (rc.self_hire) {
-    const g = new THREE.Group(), m = new THREE.MeshStandardMaterial({ color: T.pink, roughness: .6, emissive: T.pink, emissiveIntensity: .25 });
-    for (let k = 0; k < 18; k++) { const a = k / 18 * Math.PI * 2, b = new THREE.Mesh(new THREE.BoxGeometry(.2, .06, .09), m); b.position.set(Math.cos(a) * .85, 0, Math.sin(a) * .85); b.rotation.y = -a; g.add(b); }
+    const g = new THREE.Group(), m = new THREE.MeshStandardMaterial({ color: T.pink, roughness: .6, emissive: T.pink, emissiveIntensity: .5 });
+    for (let k = 0; k < 18; k++) { const a = k / 18 * Math.PI * 2, b = new THREE.Mesh(new THREE.BoxGeometry(.3, .1, .14), m); b.position.set(Math.cos(a) * 1.05, 0, Math.sin(a) * 1.05); b.rotation.y = -a; g.add(b); }
     scene.add(g);
-    const L = label("chiplab", "self-hire, 0 points", `background:#cf4870`, (v) => { const s = S[BY.get(rc.seller_handle)]; if (s) v.set(s.x, s.cur + .35, s.z + 1.3); }, () => r.reveal >= 1 && BY.has(rc.seller_handle));
+    const L = label("chiplab", "self-hire: earns 0", `background:#cf4870;font-size:13px;padding:6px 9px`, (v) => { const s = S[BY.get(rc.seller_handle)]; if (s) v.set(s.x, s.cur + .35, s.z + 1.3); }, () => r.reveal >= 1 && BY.has(rc.seller_handle));
     RC.push({ kind: "self", seller: rc.seller_handle, g, L, loop: "self_hire", src: r }); r.drawn = true;
     town.loops.push({ handle: rc.seller_handle, kind: "self_hire", label: "self-hire, 0 points" });
     return;
@@ -352,7 +366,7 @@ function drawReceipt(r) {
   const color = ok && cross ? T.green : (!ok ? T.red : null); if (color == null) return;
   const by = buyerOf(run), mat = new THREE.MeshStandardMaterial({ color, roughness: .5, emissive: color, emissiveIntensity: .35 }), loop = ok && cross ? "verified" : "failed";
   const e = { kind: "arc", seller: rc.seller_handle, buyer: by && by.handle, off: by && by.handle == null ? by.name : null, buyerName: by && by.name, via: by && by.via, mat, mesh: null, sig: "", loop, src: r };
-  if (e.off) offMarket(e.off);
+  if (e.off) offMarket(e.off); else if (e.buyer != null) e.ped = makePed();
   RC.push(e); r.drawn = true; arcOf(e);
   town.loops.push({ handle: rc.seller_handle, kind: loop });
   syncBuyers();
@@ -363,26 +377,38 @@ function removeReceipts(h) {
   for (const e of [...RC]) {
     if (e.seller !== h && e.buyer !== h) continue;
     RC.splice(RC.indexOf(e), 1); e.src.drawn = false;
-    if (e.g) scene.remove(e.g); if (e.mesh) { scene.remove(e.mesh); e.mesh.geometry.dispose(); } if (e.L) dropLabel(e.L);
+    if (e.g) scene.remove(e.g); if (e.ped) scene.remove(e.ped); if (e.mesh) { scene.remove(e.mesh); e.mesh.geometry.dispose(); } if (e.L) dropLabel(e.L);
     const k = town.loops.findIndex((l) => l.handle === e.seller && l.kind === e.loop); if (k >= 0) town.loops.splice(k, 1);
   }
   drawPending(); refreshSeals(); nameLabels(); syncBuyers();
   for (const [name, o] of [...OFF]) if (!RC.some((e) => e.off === name)) { scene.remove(o.g); dropLabel(o.L); OFF.delete(name); }
   // a buyer that left is looked up again (another listing, or off-market); a seller that left leaves nothing
 }
+const getJ = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: HTTP ${r.status}`); return r.json(); });
+let MANIFEST = [], EXTRA = []; // EXTRA: blob URLs of dropped run files, so the card re-checks them too
+let receiptsDone; const receiptsReady = new Promise((ok) => (receiptsDone = ok));
+// Re-checks one run bundle in this browser and keeps it. -> { rd } | { dup } | null (not a market job record)
+async function addRun(run, file) {
+  const rc = await P.checkReceipt(run, C); if (!rc) return null;
+  if (rc.id != null && RD.some((x) => x.rc.id === rc.id)) return { dup: rc };
+  const rd = { rc, run, file, drawn: false, reveal: null }; RD.push(rd); return { rd };
+}
+// Counted receipts per seller drive the Proof view; call after any receipt is added.
+function receiptsChanged() {
+  PROOF.clear(); for (const r of RD) if (counted(r.rc)) PROOF.set(r.rc.seller_handle, (PROOF.get(r.rc.seller_handle) || 0) + 1);
+  town.receipts = RD.length; town.crossOwner = RD.filter((x) => counted(x.rc)).length;
+  $("rcptChip").textContent = `receipts checked: ${RD.length}`; $("crossChip").textContent = `verified cross-owner: ${town.crossOwner}`;
+  retarget(); syncGlow(); tally(true); nameLabels(); refreshAnalysis();
+}
 async function loadReceipts() {
-  const j = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: HTTP ${r.status}`); return r.json(); });
   try {
-    const man = await j("data/manifest.json"); let n = 0;
+    const man = await getJ("data/manifest.json"); MANIFEST = (man.runs || []).map((r) => r.file);
     for (const r of man.runs || []) {
-      const run = await j(`data/${r.file}`);
-      const rc = await P.checkReceipt(run, C); if (!rc) continue;
-      n++; town.receipts = n; $("rcptChip").textContent = `receipts checked: ${n}`;
-      const rd = { rc, run, drawn: false, reveal: null }; RD.push(rd); drawReceipt(rd);
-      town.crossOwner = RD.filter((x) => counted(x.rc)).length; $("crossChip").textContent = `verified cross-owner: ${town.crossOwner}`;
+      const got = await addRun(await getJ(`data/${r.file}`), r.file); if (!got || !got.rd) continue;
+      drawReceipt(got.rd); receiptsChanged();
     }
   } catch (e) { console.warn("receipts not loaded", e); }
-  town.receiptsDone = true; refreshSeals();
+  town.receiptsDone = true; refreshSeals(); receiptsChanged(); receiptsDone();
 }
 
 /* ---------- gold seals and name labels ---------- */
@@ -397,9 +423,10 @@ function refreshSeals() {
 }
 const NAMES = new Map(); // handle -> label: the busiest few, plus both ends of every receipt the tour has shown
 function nameLabels() {
-  const live = [...BY.values()].map((i) => S[i]).filter((s) => s.kind !== "sink" && (s.agent.delivered_jobs || 0) > 0);
-  const want = new Map(live.sort((p, q2) => q2.agent.delivered_jobs - p.agent.delivered_jobs || (p.handle < q2.handle ? -1 : 1)).slice(0, innerWidth < 600 ? 3 : T.names).map((s) => [s.handle, s.handle]));
-  for (const e of RC) if (e.kind === "arc" && e.src.reveal >= 1) { want.set(e.seller, e.seller); if (e.buyer != null) want.set(e.buyer, `${e.buyerName} · buyer`); }
+  const score = (s) => (lens === "proof" ? PROOF.get(s.handle) || 0 : s.agent.delivered_jobs || 0);
+  const live = [...BY.values()].map((i) => S[i]).filter((s) => s.kind !== "sink" && score(s) > 0);
+  const want = new Map(live.sort((p, q2) => score(q2) - score(p) || (p.handle < q2.handle ? -1 : 1)).slice(0, innerWidth < 600 ? 3 : T.names).map((s) => [s.handle, s.handle]));
+  for (const e of RC) if (e.kind === "arc" && e.src.reveal >= 1 && !e.hide) { want.set(e.seller, e.seller); if (e.buyer != null) want.set(e.buyer, `${e.buyerName} · buyer`); }
   for (const [h, L] of [...NAMES]) if (want.get(h) !== L.text) { dropLabel(L); NAMES.delete(h); }
   for (const [h, text] of want) if (!NAMES.has(h)) {
     const party = RC.some((e) => e.kind === "arc" && (e.seller === h || e.buyer === h));
@@ -415,7 +442,13 @@ let tourRun = 0, tagAt = null, haloAt = null, sparkE = null;
 const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
 const tween = (ms, fn, alive) => ms <= 0 ? (fn(1), Promise.resolve()) : new Promise((ok) => { const t0 = performance.now(); const go = () => { if (!alive()) return ok(); const k = Math.min(1, (performance.now() - t0) / ms); fn(ease(k)); if (k < 1) setTimeout(go, 16); else ok(); }; go(); });
 const tagL = label("tag", "", "", (v) => { const i = BY.get(tagAt); if (i != null) v.set(S[i].x, S[i].cur + 2.1, S[i].z); }, () => tagAt != null && BY.has(tagAt));
-function setTag(h, text, cls) { tagAt = h; tagL.el.textContent = text; tagL.el.className = "tag" + (cls ? " " + cls : ""); tagL.size = null; tour.tag = h == null ? null : text; }
+// A self-hire tag has two lines in two colours: the checker's verdict, then what the owner rule does to it.
+function setTag(h, text, cls) {
+  tagAt = h; tagL.el.className = "tag" + (cls ? " " + cls : "");
+  if (cls === "self" && text.includes("\n")) { const [a, b] = text.split("\n"), x = document.createElement("span"), y = document.createElement("span"); x.className = "ok"; x.textContent = a + "\n"; y.className = "self"; y.textContent = b; tagL.el.replaceChildren(x, y); }
+  else tagL.el.textContent = text;
+  tagL.size = null; tour.tag = h == null ? null : text.replace("\n", " | ");
+}
 const halo = new THREE.Mesh(new THREE.TorusGeometry(.62, .06, 8, 44), new THREE.MeshBasicMaterial({ color: T.green, transparent: true, opacity: .85 }));
 halo.rotation.x = Math.PI / 2; halo.visible = false; scene.add(halo);
 const spark = new THREE.Mesh(new THREE.SphereGeometry(.16, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff })); spark.visible = false; scene.add(spark);
@@ -435,17 +468,18 @@ function frameOn(pts, dur) {
 }
 const order = () => RC.filter((e) => BY.has(e.seller)).sort((p, q2) => rank(p) - rank(q2));
 const rank = (e) => (e.loop === "verified" ? 0 : e.loop === "failed" ? 1 : 2); // the cross-owner receipt plays first
+const unhide = () => { for (const x of RC) x.hide = false; nameLabels(); };
 async function playTour() {
   const list = order(), run = ++tourRun, alive = () => run === tourRun;
   if (!list.length) { tour.state = "done"; return; }
   tour.state = "playing"; tour.played = []; tour.check = null; $("replayBtn").disabled = true;
   for (const r of RD) r.reveal = 0;
-  refreshSeals(); nameLabels(); select(null);
+  unhide(); refreshSeals(); nameLabels(); select(null);
   if (!REDUCED) frameAll(false, T.flyHome);
   await sleep(T.tourHold);
   for (const e of list) { if (!alive()) return; await playOne(e, alive); }
   if (!alive()) return;
-  setTag(null, ""); haloAt = null;
+  setTag(null, ""); haloAt = null; unhide();
   if (!REDUCED) frameAll(false, T.flyHome);
   if (innerWidth <= 700 && !DEMO) select(null); // a bottom sheet would hide the overview on a phone
   Object.assign(tour, { state: "done", step: null }); $("replayBtn").disabled = false;
@@ -453,6 +487,7 @@ async function playTour() {
 async function playOne(e, alive) {
   const r = e.src, sl = () => S[BY.get(e.seller)], step = (tour.step = { id: r.rc.id, kind: e.loop, seller: e.seller, buyer: e.buyer ?? e.off ?? null, phase: "fly" });
   if (!sl()) return;
+  if (e.kind === "self") { for (const x of RC) if (x.kind === "arc") x.hide = true; nameLabels(); } // the self-hire gets the stage alone
   if (!REDUCED) await frameOn(e.kind === "arc" && endB(e) ? [endB(e), sl()] : [sl()], T.tourFly);
   if (!alive() || !sl()) return;
   // Highlight the buyer (the seller itself on a self-hire) and pulse its building.
@@ -471,8 +506,8 @@ async function playOne(e, alive) {
   tour.check = { id: rc2.id, outcome: rc2.outcome, recomputed_digest: rc2.recomputed_digest, stored_digest: rc2.stored_digest, reproduced: rc2.reproduced };
   const d8 = (x) => String(x).slice(0, 8), good = rc2.reproduced && rc2.outcome === "pass";
   const text = rc2.outcome == null ? "nothing to re-check" : rc2.outcome !== "pass" && !rc2.recomputed_digest ? `re-check failed: checker says ${rc2.outcome}` : !rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} does not match ${rc2.stored_digest ? d8(rc2.stored_digest) : "a stored seal"}`
-    : `seal ${d8(rc2.recomputed_digest)} matches${rc2.outcome !== "pass" ? `, checker says ${rc2.outcome}` : ""}${rc2.self_hire ? ", self-hire: 0 points" : ""}`;
-  setTag(e.seller, text, !good ? "bad" : rc2.self_hire ? "self" : "ok");
+    : `seal ${d8(rc2.recomputed_digest)} matches${rc2.outcome !== "pass" ? `, checker says ${rc2.outcome}` : ""}`;
+  setTag(e.seller, good && rc2.self_hire ? `checker passed, seal ${d8(rc2.recomputed_digest)} matches\nearns 0 reputation: same owner` : text, !good ? "bad" : rc2.self_hire ? "self" : "ok");
   refreshSeals(); nameLabels();
   await sleep(T.result); if (!alive()) return;
   step.phase = "card"; select(e.seller);
@@ -486,7 +521,7 @@ function skipTour(why) {
   tourRun++; if (tour.state === "playing") fly = null;
   Object.assign(tour, { state: "skipped", step: null, skipped: why }); sparkE = null; haloAt = null; setTag(null, "");
   for (const r of RD) r.reveal = 1;
-  refreshSeals(); nameLabels(); $("replayBtn").disabled = false;
+  unhide(); refreshSeals(); $("replayBtn").disabled = false;
 }
 async function autoTour() {
   $("replayBtn").hidden = !RC.length;
@@ -510,21 +545,46 @@ function select(handle) {
   selH = handle != null && BY.has(handle) ? handle : null; marker.visible = selH != null;
   const p = $("panel"); document.body.classList.toggle("panel-open", selH != null);
   if (selH == null) { p.hidden = true; $("panelBody").replaceChildren(); return; }
-  const el = document.createElement("agentproof-portfolio"); el.setAttribute("agent", handle); el.setAttribute("theme", DARK ? "dark" : "light");
+  closeAnalysis();
+  const el = document.createElement("agentproof-portfolio"); el.setAttribute("agent", handle); el.setAttribute("theme", DARK ? "dark" : "light"); el.setAttribute("flip", "");
+  // A dropped run file is re-checked by the card too, next to the manifest runs.
+  if (EXTRA.length) el.setAttribute("receipts", [...MANIFEST.map((f) => new URL(`data/${f}`, location.href).href), ...EXTRA].join(","));
+  $("saveBtn").disabled = true; el.addEventListener("agentproof:ready", () => { if (selH === handle) $("saveBtn").disabled = false; });
+  $("copyBtn").textContent = "Copy link"; $("saveBtn").textContent = "Save image";
   $("panelBody").replaceChildren(el); $("panelLink").href = `portfolio.html#${encodeURIComponent(handle)}`; p.hidden = false;
 }
+const toast = (msg, ms = 6500) => { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), ms); };
+$("saveBtn").addEventListener("click", async () => {
+  const el = $("panelBody").firstElementChild, h = selH; if (!el || !h) return;
+  try {
+    const cv = await el.toCanvas(), blob = await new Promise((ok, no) => cv.toBlob((b) => (b ? ok(b) : no(new Error("empty image"))), "image/png"));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `agentproof-${h}.png`; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    $("saveBtn").textContent = "Saved"; setTimeout(() => ($("saveBtn").textContent = "Save image"), 1600);
+  } catch (e) { toast(`Could not make the image: ${e.message || e}`); }
+});
+$("copyBtn").addEventListener("click", async () => {
+  if (!selH) return; const url = new URL(`portfolio.html#${encodeURIComponent(selH)}`, location.href).href; let ok = false;
+  try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {
+    try { const t = document.createElement("textarea"); t.value = url; t.setAttribute("readonly", ""); t.style.cssText = "position:fixed;opacity:0"; document.body.append(t); t.select(); ok = document.execCommand("copy"); t.remove(); } catch (e2) { ok = false; }
+  }
+  town.copied = url;
+  if (ok) { $("copyBtn").textContent = "Copied"; setTimeout(() => ($("copyBtn").textContent = "Copy link"), 1600); } else toast(`Copy this link: ${url}`, 12000);
+});
 function flyTo(i) {
   const s = S[i], to = new THREE.Vector3(s.x, s.cur / 2, s.z), dir = camera.position.clone().sub(controls.target).setLength(10);
   fly = { t0: performance.now(), from: controls.target.clone(), fromP: camera.position.clone(), to, toP: to.clone().add(dir) };
   if (REDUCED) { controls.target.copy(to); camera.position.copy(fly.toP); fly = null; }
 }
 let fly = null;
+const sideW = () => (innerWidth <= 700 ? 0 : !anEl.hidden ? Math.min(720, innerWidth) : !panelEl.hidden ? Math.min(400, innerWidth) : 0);
 function frameAll(instant, dur) {
-  // With the card open on a wide screen, fit the town into the width the panel leaves.
-  const aspect = !panelEl.hidden && innerWidth > 700 ? Math.max(.5, (innerWidth - Math.min(400, innerWidth)) / innerHeight) : camera.aspect;
+  // With a side panel open on a wide screen, fit the town into the width it leaves.
+  const aspect = sideW() ? Math.max(.5, (innerWidth - sideW()) / innerHeight) : camera.aspect;
   const minX = extentMinX - (OFF.size ? 3.4 : 0); // an off-market buyer stands west of the town and must stay in frame
-  const R = Math.hypot(extentMaxX - minX, extentMaxZ - extentMinZ) / 2, v = camera.fov * Math.PI / 360, hf = Math.atan(Math.tan(v) * aspect);
-  const dist = Math.min(200, R / Math.tan(Math.min(v, hf)) * .82 + 4), tilt = 55 * Math.PI / 180;
+  const tilt = (innerWidth <= 700 ? 62 : 55) * Math.PI / 180, v = camera.fov * Math.PI / 360, hf = Math.atan(Math.tan(v) * aspect);
+  // The footprint is a rectangle: fit its width to the view's width and its foreshortened depth (plus tower height) to the height.
+  const W = extentMaxX - minX, Dp = extentMaxZ - extentMinZ, usable = innerWidth <= 700 ? Math.max(.5, 1 - (dockH + topH) / innerHeight) : 1;
+  const dist = Math.min(200, Math.max(W / 2 * 1.08 / Math.tan(hf), (Dp / 2 * Math.sin(tilt) + 1.6) * 1.12 / Math.tan(v) / usable) + 3);
   const to = new THREE.Vector3((minX + extentMaxX) / 2, 0, (extentMinZ + extentMaxZ) / 2);
   fly = { t0: performance.now(), from: controls.target.clone(), fromP: camera.position.clone(), to, toP: to.clone().add(new THREE.Vector3(0, Math.sin(tilt) * dist, Math.cos(tilt) * dist)), dur, io: !!dur };
   if (instant || REDUCED) { controls.target.copy(to); camera.position.copy(fly.toP); fly = null; }
@@ -565,82 +625,296 @@ function hover() {
 }
 $("panelClose").addEventListener("click", () => select(null));
 addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("panel").hidden) select(null); });
-$("search").addEventListener("change", () => {
-  skipTour("search");
-  const v = $("search").value.trim().toLowerCase(); if (!v) return;
-  const i = BY.get($("search").value.trim()) ?? [...BY].find(([h, k]) => h.toLowerCase() === v || (S[k].agent.name || "").toLowerCase() === v)?.[1];
-  if (i == null) return; flyTo(i); selH = S[i].handle; marker.visible = true;
+/* ---------- find an agent: fuzzy over handle and name ---------- */
+// Rank 0 exact, 1 prefix, 2 substring, 3 subsequence ("ceow" finds ceoclaw-web). Lower wins; ties go to the busier agent.
+// Subsequence: the tightest window that holds the letters in order, so "ceow" prefers ceoclaw-web to a long name that happens to contain c, e, o, w.
+const subseq = (t, q) => { let best = null; for (let a = t.indexOf(q[0]); a >= 0; a = t.indexOf(q[0], a + 1)) { let k = 1, i = a; while (k < q.length && (i = t.indexOf(q[k], i + 1)) >= 0) k++; if (k === q.length) best = Math.min(best ?? 1e9, i - a + 1); } return best; };
+const scoreOf = (t, q) => { if (t === q) return 0; if (t.startsWith(q)) return 1; if (t.includes(q)) return 2; const w = subseq(t, q); return w == null ? null : 3 + Math.min(.99, w / 100); };
+function findAgents(text) {
+  const q = text.trim().toLowerCase(), qn = norm(text); if (!qn) return [];
+  const out = [];
+  for (const [h, i] of BY) {
+    const s = S[i]; if (s.kind === "sink" || s.dead) continue; const nm = (s.agent.name || "").toLowerCase();
+    const r = [scoreOf(h.toLowerCase(), q), scoreOf(norm(h), qn), scoreOf(nm, q), scoreOf(norm(nm), qn)].filter((x) => x != null);
+    if (r.length) out.push([Math.min(...r), -(s.agent.delivered_jobs || 0), h, s.agent]);
+  }
+  return out.sort((p, q2) => p[0] - q2[0] || p[1] - q2[1] || (p[2] < q2[2] ? -1 : 1)).slice(0, 6);
+}
+let hits = [], active = 0;
+const searchEl = $("search"), listEl = $("results");
+function closeList() { listEl.hidden = true; searchEl.setAttribute("aria-expanded", "false"); searchEl.removeAttribute("aria-activedescendant"); }
+function paintList() {
+  const text = searchEl.value; hits = findAgents(text); active = Math.min(active, Math.max(0, hits.length - 1));
+  if (!text.trim()) return closeList();
+  listEl.replaceChildren(...(hits.length ? hits.map(([, , h, a], k) => {
+    const li = document.createElement("li"), n = document.createElement("span"), sm = document.createElement("small");
+    li.id = `res${k}`; li.setAttribute("role", "option"); li.setAttribute("aria-selected", String(k === active)); li.dataset.h = h;
+    n.textContent = h; sm.textContent = a.name && a.name !== h ? a.name : ""; li.append(n, sm); return li;
+  }) : [Object.assign(document.createElement("li"), { className: "none", textContent: BY.size ? "No agent matches that" : "Agents are still loading" })]));
+  listEl.hidden = false; searchEl.setAttribute("aria-expanded", "true");
+  if (hits.length) searchEl.setAttribute("aria-activedescendant", `res${active}`); else searchEl.removeAttribute("aria-activedescendant");
+}
+function goTo(h) {
+  const i = BY.get(h); if (i == null) return;
+  skipTour("search"); closeList(); searchEl.value = h; if (innerWidth <= 700) searchEl.blur();
+  flyTo(i); select(h);
+}
+searchEl.addEventListener("input", () => { active = 0; paintList(); });
+searchEl.addEventListener("focus", () => searchEl.value.trim() && paintList());
+searchEl.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") { if (listEl.hidden) paintList(); if (!hits.length) return; e.preventDefault(); active = (active + (e.key === "ArrowDown" ? 1 : hits.length - 1)) % hits.length; paintList(); }
+  else if (e.key === "Enter") { e.preventDefault(); if (listEl.hidden) paintList(); if (hits[active]) goTo(hits[active][2]); }
+  else if (e.key === "Escape" && !listEl.hidden) { e.stopPropagation(); closeList(); }
 });
+listEl.addEventListener("pointerdown", (e) => { const li = e.target.closest("li[data-h]"); if (li) { e.preventDefault(); goTo(li.dataset.h); } }); // pointerdown, so the input's blur cannot eat the tap
+document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".finder")) closeList(); });
 
 /* ---------- header ---------- */
+const utc = (iso) => (iso && !isNaN(Date.parse(iso)) ? new Date(iso).toISOString().slice(0, 16).replace("T", " ") + " UTC" : null);
+// cls: "calm" (snapshot), "relay" (live, green dot), "stale" (live paused, amber dot). Never red: a paused relay is not an error.
+function setSrc(text, short, cls, title) {
+  $("srcText").textContent = $("srcLine").textContent = text; $("srcShort").textContent = short; $("srcChip").className = "chip " + cls; $("srcChip").title = title || ""; layoutPhone();
+}
 function header(res) {
-  const when = res.fetched_at && !isNaN(Date.parse(res.fetched_at)) ? new Date(res.fetched_at).toISOString().slice(0, 16).replace("T", " ") + " UTC" : null;
-  $("srcText").textContent = res.source === "relay" ? "live via relay" : res.source === "live" ? "live" : `snapshot from ${when || "an unknown time"}`;
-  $("srcChip").classList.toggle("relay", res.source === "relay"); $("srcChip").classList.remove("stale"); $("srcChip").title = res.fetched_at ? `fetched ${res.fetched_at}` : "";
-  $("countChip").hidden = $("rcptChip").hidden = $("crossChip").hidden = $("search").hidden = $("legend").hidden = false;
-  $("countChip").textContent = `${town.count} agents`;
-  town.source = res.source; town.fetched_at = res.fetched_at;
+  const live = res.source === "relay" || res.source === "live", when = utc(res.fetched_at);
+  setSrc(res.source === "relay" ? "live via relay" : res.source === "live" ? "live" : `snapshot from ${when || "an unknown time"}`, live ? "live" : "snapshot", live ? "relay" : "calm", res.fetched_at ? `fetched ${res.fetched_at}` : "");
+  $("countChip").textContent = `${town.count} agents`; town.source = res.source; town.fetched_at = res.fetched_at;
 }
-let goodAt = null;
-// A failed or implausible refresh keeps the buildings but says so; recovery comes from the next good header().
-function stale(why) {
-  const t = goodAt && !isNaN(Date.parse(goodAt)) ? new Date(goodAt).toISOString().slice(11, 16) + " UTC" : "an unknown time";
-  $("srcText").textContent = `relay lost, data from ${t}`; $("srcChip").classList.remove("relay"); $("srcChip").classList.add("stale"); $("srcChip").title = why;
-  town.source = "stale";
+function revealUI() {
+  for (const id of ["tally", "countChip", "rcptChip", "crossChip", "legend", "soundBtn"]) $(id).hidden = false;
+  if (window.AgentProofAnalysis) $("analysisBtn").hidden = false;
+  tally(); layoutPhone();
 }
-function searchList() { $("handles").replaceChildren(...town.handles.sort().map((h) => { const o = document.createElement("option"); o.value = h; o.label = S[BY.get(h)].agent.name || ""; return o; })); }
+// Phone: one header row (brand, source, lens, search); counts and buttons live in the dock above the legend.
+const mqPhone = matchMedia("(max-width:700px)");
+let dockH = 0, topH = 0;
+function placeTools() { searchEl.placeholder = mqPhone.matches ? "Find agent" : "Find an agent by handle or name"; const t = $("tools"); if (mqPhone.matches) $("dock").insertBefore(t, $("legend")); else $("top").append(t); layoutPhone(); }
+function layoutPhone() { dockH = $("dock").offsetHeight + 12; topH = $("top").offsetHeight + 8; }
+mqPhone.addEventListener("change", placeTools); placeTools();
 
-/* ---------- connect ---------- */
-let connected = false, connecting = false, timer = null;
-async function connect(auto) {
-  if (connecting || connected) return; connecting = true; // the probe timer and a click can race
-  const btn = $("connect"), note = $("note"); btn.disabled = true; note.className = ""; note.textContent = auto ? "connecting via relay" : "connecting...";
-  try {
-    const [res, ag] = await Promise.all([M.fetchAgents(), fetch("data/agents.json").then((r) => (r.ok ? r.json() : { agents: [] })).catch(() => ({ agents: [] }))]);
-    // An automatic connect only counts when the relay answered; a silent snapshot would hide that it is not live.
-    if (auto && res.source !== "relay") throw new Error("the relay did not answer");
-    ownerList = ag.agents || [];
-    makeMeshes(Math.ceil(res.agents.length * T.capHead) + 16);
-    $("empty").hidden = true; connected = true;
-    fill(res.agents); header(res); if (res.source === "relay") goodAt = res.fetched_at; searchList(); frameAll(); town.ready = true;
-    loadReceipts().then(autoTour);
-    if (res.source === "relay") timer = setInterval(refresh, T.refresh);
-  } catch (e) {
-    connecting = false; btn.disabled = false; note.className = "err"; note.textContent = `Could not connect: ${e.message || e}. Try again.`;
+/* ---------- proof lens: Market view (delivered) <-> Proof view (counted receipts) ---------- */
+let tShown = null, tRun = 0;
+const deliveredTotal = () => { let n = 0; for (const i of BY.values()) if (S[i].kind !== "sink") n += S[i].agent.delivered_jobs || 0; return n; };
+const provenTotal = () => RD.filter((x) => counted(x.rc)).length;
+function tally(anim) {
+  if (!connected) return;
+  const mk = deliveredTotal(), pf = provenTotal(), to = lens === "proof" ? pf : mk, unit = lens === "proof" ? "proven" : "delivered (market's word)", el = $("tally");
+  town.tally = { market: mk, proof: pf };
+  const paint = (n, u) => { tShown = n; el.textContent = u ? `${n} ${u}` : String(n); }, run = ++tRun;
+  if (!anim || REDUCED || tShown == null || tShown === to) return paint(to, unit);
+  const from = tShown; // bare number while counting, so no half-way figure wears the wrong unit
+  tween(T.lens, (k) => paint(Math.round(from + (to - from) * k)), () => run === tRun).then(() => run === tRun && paint(to, unit));
+}
+function retarget() {
+  if (!bodies) return; const now = performance.now();
+  for (const i of BY.values()) {
+    const s = S[i]; if (s.kind === "sink" || s.dead) continue; const to = targetH(s.agent); if (to === s.to) continue;
+    Object.assign(s, { from: s.cur, to, t0: now + (REDUCED ? 0 : (i % 9) * 30), dur: T.lens, kind: "lens" });
+    if (REDUCED) { s.cur = to; writeSlot(i); } else ACTIVE.add(i);
   }
+  dirty = true;
 }
-let refreshing = false;
+function setLens(l) {
+  if ((l !== "market" && l !== "proof") || l === lens) return;
+  lens = town.lens = l; document.documentElement.dataset.lens = l;
+  for (const b of document.querySelectorAll(".lens button")) b.setAttribute("aria-pressed", String(b.dataset.lens === l));
+  $("lgHeight").textContent = l === "proof" ? "height = proof-backed jobs" : "height = delivered jobs"; $("lgHeight").dataset.term = l === "proof" ? "proof-backed" : "delivered";
+  retarget(); tally(true); nameLabels();
+}
+for (const b of document.querySelectorAll(".lens button")) b.addEventListener("click", () => setLens(b.dataset.lens));
+// Proven buildings glow in the Proof view: a green ring and a faint beam, faded by lensK (0 market, 1 proof).
+const GLOW = new Map(); let lensK = 0;
+const beamMat = new THREE.MeshBasicMaterial({ color: T.green, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }), glowRingMat = new THREE.MeshBasicMaterial({ color: T.green, transparent: true, opacity: 0 });
+const beamGeo = new THREE.CylinderGeometry(.55, .55, 4.4, 24, 1, true).translate(0, 2.2, 0), glowRingGeo = new THREE.TorusGeometry(.92, .07, 8, 44);
+function syncGlow() {
+  const want = new Set([...PROOF.keys()].filter((h) => BY.has(h)));
+  for (const [h, g] of GLOW) if (!want.has(h)) { scene.remove(g); GLOW.delete(h); }
+  for (const h of want) if (!GLOW.has(h)) {
+    const g = new THREE.Group(), ring = new THREE.Mesh(glowRingGeo, glowRingMat); ring.rotation.x = Math.PI / 2; ring.position.y = .12;
+    g.add(new THREE.Mesh(beamGeo, beamMat), ring); g.visible = false; scene.add(g); GLOW.set(h, g);
+  }
+  town.proven = [...GLOW.keys()];
+}
+// Teach highlights: rings on named buildings, cleared by the next step.
+const HL = []; let pTimer = null;
+function highlight(hs, color, keep) { if (!keep) clearHL(); for (const h of hs) { const m = new THREE.Mesh(new THREE.TorusGeometry(.75, .06, 8, 40), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: .9 })); m.rotation.x = Math.PI / 2; scene.add(m); HL.push({ h, m }); } }
+function clearHL() { for (const o of HL) { scene.remove(o.m); o.m.geometry.dispose(); o.m.material.dispose(); } HL.length = 0; clearInterval(pTimer); }
+function pulse(h) { const i = BY.get(h); if (i == null || REDUCED) return; S[i].pulse0 = performance.now(); ACTIVE.add(i); }
+
+/* ---------- change ticker and sound ---------- */
+let audio = null, soundOn = false;
+function blip() {
+  if (!soundOn || !audio) return; const t = audio.currentTime, o = audio.createOscillator(), g = audio.createGain();
+  o.type = "sine"; o.frequency.value = 880; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.05, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + .18);
+  o.connect(g).connect(audio.destination); o.start(t); o.stop(t + .2);
+}
+$("soundBtn").addEventListener("click", () => {
+  soundOn = !soundOn; if (soundOn && !audio) audio = new (window.AudioContext || window.webkitAudioContext)(); // created on the click, never before
+  if (audio && audio.state === "suspended") audio.resume();
+  $("soundBtn").textContent = soundOn ? "Sound on" : "Sound off"; $("soundBtn").setAttribute("aria-pressed", String(soundOn)); town.sound = soundOn; blip();
+});
+// Only differences the data really shows; an empty diff shows nothing.
+function announce(d) {
+  const lines = [...d.added.map((h) => `new agent: ${h}`), ...d.delivered.map((x) => `${x.handle} delivered ${x.from} -> ${x.to}`),
+    ...d.availability.map((x) => (x.to ? `${x.handle} is now available` : `${x.handle} is no longer available`)), ...d.removed.map((h) => `${h} left the market`)];
+  for (const x of [...d.delivered, ...d.availability]) pulse(x.handle);
+  if (!lines.length) return;
+  town.ticker = [...town.ticker, ...lines].slice(-5);
+  $("ticker").replaceChildren(...town.ticker.map((t) => Object.assign(document.createElement("li"), { textContent: t }))); $("ticker").hidden = false; layoutPhone(); blip();
+}
+
+/* ---------- data: snapshot first, relay in the background, calm fallback ---------- */
+let connected = false, curAgents = [], relayUrl = null, wasLive = false, goodAt = null, refreshing = false, fails = 0, refreshTimer = null, ownerLoaded = null;
+// town.html?relay=... or <html data-relay> is the author's choice; otherwise this page pins what it found so the cards follow it.
+const PINNED = Q.get("relay") !== null || !!document.documentElement.dataset.relay;
+let pinMine = false;
+function pinRelay(v) { if (PINNED) return; document.documentElement.dataset.relay = v; pinMine = true; town.relay = v === "off" ? null : v; }
+async function probe() { if (pinMine) { delete document.documentElement.dataset.relay; pinMine = false; } return M.findRelay ? M.findRelay() : null; } // an "off" pin of ours would hide every candidate
+function applyLive(res) {
+  const first = !wasLive, d = M.diffAgents(curAgents, res.agents);
+  update(res.agents); curAgents = res.agents; wasLive = true; goodAt = res.fetched_at; header(res); fails = 0;
+  if (!first) announce(d); // the jump from the snapshot is a different capture, not news
+  searchRefresh(); tally(true); refreshAnalysis(); layoutPhone();
+}
+function paused(why) {
+  if (!wasLive) return; // never was live: the snapshot label already says what this is
+  const t = goodAt && utc(goodAt) ? utc(goodAt).slice(11) : "an unknown time";
+  setSrc(`live paused, showing data from ${t}`, "paused", "stale", why); town.source = "stale";
+}
+const searchRefresh = () => { if (document.activeElement === searchEl && searchEl.value.trim()) paintList(); };
 async function refresh() {
-  if (document.hidden || refreshing) return; refreshing = true;
+  if (refreshing) return; refreshing = true; let ok = false;
   try {
-    const res = await M.fetchAgents();
-    if (res.source !== "relay") return stale(`relay did not answer${res.live_error ? ": " + res.live_error : ""}`);
-    const n = new Set(res.agents.map((a) => a.handle).filter(Boolean)).size;
-    if (n === 0 || n < town.count * .5) return stale(`relay answered with ${n} agents, kept the ${town.count} already drawn`);
-    update(res.agents); header(res); goodAt = res.fetched_at; searchList();
-  } catch (e) { console.warn("refresh failed", e); stale(String(e.message || e)); } finally { refreshing = false; }
+    if (!relayUrl) { relayUrl = await probe(); pinRelay(relayUrl || "off"); if (!relayUrl) throw new Error("no relay answered"); }
+    const res = await M.fetchRelayAgents(relayUrl), n = new Set(res.agents.map((a) => a.handle).filter(Boolean)).size;
+    if (n === 0 || n < town.count * .5) throw new Error(`relay answered with ${n} agents, kept the ${town.count} already drawn`);
+    applyLive(res); ok = true;
+  } catch (e) { relayUrl = null; pinRelay("off"); paused(String((e && e.message) || e)); }
+  finally { refreshing = false; schedule(ok); }
 }
-window.__refresh = refresh; // test hook: one refresh now
-// test hook: live buildings whose cell lies outside their district pad, plus pad/label counts
+// After a miss the wait grows (live: 4 s, 12 s, 36 s, 60 s; never live: 30 s up to 5 min) and the next try probes every relay port again.
+function schedule(ok) {
+  clearTimeout(refreshTimer); if (ok) fails = 0; else fails++;
+  const wait = ok ? T.refresh : wasLive ? Math.min(60000, 4000 * 3 ** (fails - 1)) : Math.min(300000, 30000 * 2 ** (fails - 1));
+  town.nextRefreshMs = wait; refreshTimer = setTimeout(() => (document.hidden ? schedule(true) : refresh()), wait);
+}
+async function boot() {
+  const probing = probe(), agP = fetch("data/agents.json").then((r) => (r.ok ? r.json() : { agents: [] })).catch(() => ({ agents: [] }));
+  let res = null;
+  try { res = await M.fetchSnapshot(); } catch (e) {
+    const relay = await probing; if (relay) { try { res = await M.fetchRelayAgents(relay); relayUrl = relay; } catch (e2) { res = null; } }
+  }
+  if (!res) { $("empty").hidden = false; $("note").className = ""; $("note").textContent = "The bundled snapshot did not load. Reload the page to try again."; return; }
+  if (DEMO) await sleep(T.autoDelay);
+  ownerList = (await agP).agents || [];
+  makeMeshes(Math.ceil(res.agents.length * T.capHead) + 16);
+  connected = true; fill(res.agents); curAgents = res.agents; header(res); frameAll(true);
+  town.ready = true; town.firstPaintMs = Math.round(performance.now()); revealUI(); initTeach(); syncGlow();
+  if (res.source === "relay") { wasLive = true; goodAt = res.fetched_at; }
+  loadReceipts().then(autoTour);
+  const relay = relayUrl || (await probing);
+  if (relay) { relayUrl = relay; pinRelay(relay); refresh(); } else { pinRelay("off"); schedule(false); }
+}
+
+/* ---------- drop or paste a run file ---------- */
+async function takeRun(text, name) {
+  let run; try { run = JSON.parse(text); } catch (e) { return toast(`${name} is not JSON, so there is nothing to check.`); }
+  let got; try { got = await addRun(run, name); } catch (e) { return toast(`${name} looks like a run file but could not be checked: ${e.message || e}`); }
+  if (!got) return toast(`${name} is not a market job record (it has no job_ref), so nothing was added.`);
+  if (got.dup) return toast(`That receipt (${got.dup.id}) is already on the map.`);
+  const rd = got.rd; EXTRA.push(URL.createObjectURL(new Blob([text], { type: "application/json" })));
+  rd.reveal = 0; drawReceipt(rd); receiptsChanged();
+  const e = RC.find((x) => x.src === rd), verdict = counted(rd.rc) ? "counts as proof" : rd.rc.self_hire ? "is a self-hire, so it earns 0" : !rd.rc.reproduced ? "did not reproduce its stored seal" : rd.rc.outcome !== "pass" ? `was judged ${rd.rc.outcome}` : "does not count (no two different owners)";
+  if (!e) { rd.reveal = 1; return toast(`Checked ${name}: ${rd.rc.seller_handle || "its seller"} is not a building on this map, and the receipt ${verdict}.`); }
+  skipTour("drop"); select(null); closeAnalysis(); rd.reveal = 0;
+  const run2 = ++tourRun; await playOne(e, () => run2 === tourRun); if (run2 !== tourRun) return;
+  rd.reveal = 1; tour.step = null; refreshSeals(); nameLabels();
+  toast(`Checked ${name}: the receipt ${verdict}.`);
+}
+const hasFiles = (e) => e.dataTransfer && [...(e.dataTransfer.types || [])].includes("Files");
+addEventListener("dragenter", (e) => { if (hasFiles(e)) { e.preventDefault(); document.body.classList.add("dropping"); } });
+addEventListener("dragover", (e) => { if (hasFiles(e)) { e.preventDefault(); document.body.classList.add("dropping"); } });
+addEventListener("dragleave", (e) => { if (!e.relatedTarget) document.body.classList.remove("dropping"); });
+addEventListener("drop", async (e) => {
+  document.body.classList.remove("dropping"); if (!e.dataTransfer) return; e.preventDefault();
+  const files = [...(e.dataTransfer.files || [])];
+  if (files.length) for (const f of files) await takeRun(await f.text(), f.name); else { const t = e.dataTransfer.getData("text"); if (t) await takeRun(t, "Dropped text"); }
+});
+addEventListener("paste", (e) => {
+  if (e.target.closest && e.target.closest("input,textarea,[contenteditable]")) return;
+  const t = e.clipboardData && e.clipboardData.getData("text"); if (t && t.trim().startsWith("{")) { e.preventDefault(); takeRun(t, "Pasted text"); }
+});
+
+/* ---------- data panel (slice 2's AgentProofAnalysis) ---------- */
+const anEl = $("analysis");
+const priceOf = (run) => { const v = Number(run && run.job_ref && run.job_ref.hire && run.job_ref.hire.amount); return Number.isFinite(v) ? v : undefined; };
+function refreshAnalysis() {
+  if (anEl.hidden || !window.AgentProofAnalysis) return;
+  const stale = town.source === "stale";
+  window.AgentProofAnalysis.render(anEl, {
+    agents: curAgents, source: stale ? "relay" : town.source, fetched_at: stale ? goodAt : town.fetched_at,
+    receipts: RD.map((r) => { const b = buyerOf(r.run); return { ...r.rc, file: r.file, buyer_handle: b ? b.handle : null, price_usdc: priceOf(r.run) }; }),
+  });
+}
+function openAnalysis() { if (!window.AgentProofAnalysis) return; select(null); anEl.hidden = false; document.body.classList.add("analysis-open"); $("analysisBtn").setAttribute("aria-pressed", "true"); refreshAnalysis(); }
+function closeAnalysis() { if (anEl.hidden) return; anEl.hidden = true; document.body.classList.remove("analysis-open"); $("analysisBtn").setAttribute("aria-pressed", "false"); }
+$("analysisBtn").addEventListener("click", () => (anEl.hidden ? openAnalysis() : closeAnalysis()));
+anEl.addEventListener("analysis:close", () => { anEl.hidden = true; document.body.classList.remove("analysis-open"); $("analysisBtn").setAttribute("aria-pressed", "false"); });
+
+/* ---------- teach (slice 2's AgentProofTeach): the app owns the 3D for each step ---------- */
+let teachUI = null, teachSaved = null;
+const d8 = (x) => (x == null ? "?" : String(x).slice(0, 8));
+const hero = () => { const v = RC.find((x) => x.kind === "arc" && x.loop === "verified"); return { buyer: (v && v.buyer) || "ceoclaw-web", seller: (v && v.seller) || "ohwow-agent" }; };
+function teachBegin() { skipTour("teach"); select(null); closeAnalysis(); if (!teachSaved) teachSaved = { lens }; setTag(null, ""); haloAt = null; clearHL(); unhide(); }
+const focusOn = (hs, dur) => { const pts = hs.map((h) => BY.has(h) && S[BY.get(h)]).filter(Boolean); return pts.length ? frameOn(pts, REDUCED ? 1 : dur) : Promise.resolve(); };
+const teachHooks = {
+  step1() { teachBegin(); const { buyer, seller } = hero(); frameAll(false, REDUCED ? 1 : T.flyHome); highlight([buyer], T.blue); highlight([seller], T.green, true); let n = 0; const go = () => { pulse(buyer); pulse(seller); }; go(); pTimer = setInterval(() => (++n >= 3 ? clearInterval(pTimer) : go()), 900); },
+  step2() { teachBegin(); setLens("market"); frameAll(false, REDUCED ? 1 : T.flyHome); const top = [...BY.values()].map((i) => S[i]).filter((s) => s.kind !== "sink").sort((p, q2) => (q2.agent.delivered_jobs || 0) - (p.agent.delivered_jobs || 0) || (p.handle < q2.handle ? -1 : 1)).slice(0, 5).map((s) => s.handle); highlight(top, T.blue); top.forEach(pulse); },
+  async step3() {
+    teachBegin(); await receiptsReady; const { seller } = hero(), rd = RD.find((x) => counted(x.rc) && x.rc.seller_handle === seller) || RD.find((x) => counted(x.rc));
+    for (const r of RD) r.reveal = 1; refreshSeals(); nameLabels();
+    await focusOn([seller], T.tourFly); highlight([seller], T.green);
+    if (!rd) return { stored: null, recomputed: null, match: false };
+    setTag(seller, "re-checking...", ""); const rc2 = await P.checkReceipt(rd.run, C);
+    setTag(seller, rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} matches` : `seal ${d8(rc2.recomputed_digest)} does not match`, rc2.reproduced ? "ok" : "bad");
+    return { stored: rc2.stored_digest, recomputed: rc2.recomputed_digest, match: !!rc2.reproduced };
+  },
+  async step4() {
+    teachBegin(); setLens("proof"); for (const r of RD) r.reveal = 1; for (const x of RC) if (x.kind === "arc") x.hide = true; refreshSeals(); nameLabels();
+    const self = RC.find((x) => x.kind === "self"); if (!self) return; await focusOn([self.seller], T.tourFly); highlight([self.seller], T.pink);
+    setTag(self.seller, "checker passed, but hiring yourself\nearns 0 reputation: same owner", "self");
+  },
+  done() { clearHL(); setTag(null, ""); haloAt = null; unhide(); const back = teachSaved; teachSaved = null; if (back) setLens(back.lens); frameAll(false, REDUCED ? 1 : T.flyHome); },
+};
+function initTeach() {
+  const Tc = window.AgentProofTeach; if (!Tc) return;
+  Tc.bindGlossary(); teachUI = Tc.mount({ hooks: teachHooks }); $("teachBtn").hidden = false;
+  $("teachBtn").addEventListener("click", () => (teachUI.isOpen() ? teachUI.close() : teachUI.open(0)));
+  Tc.hint({ onOpen: () => teachUI.open(0) });
+}
+
+window.__refresh = () => refresh(); // test hook: one refresh now
 window.__town.cam = () => camera.position.toArray().map((v) => v.toFixed(3)).join(); // test hook: reduced motion must never move it
+// test hook: live buildings whose cell lies outside their district pad, plus pad/label counts
 window.__town.audit = () => { let out = 0, live = 0; for (const i of BY.values()) { const s = S[i]; if (s.kind === "sink" || s.ghost) continue; live++; const d = s.d; if (D.get(d.cat) !== d || s.x < d.x0 || s.x > d.x0 + d.size || s.z < d.z0 || s.z > d.z0 + d.size) out++; } return { live, out, pads: D.size, labels: [...LABELS].filter((L) => L.el.classList.contains("place")).length, rcLoops: RC.length }; };
-$("connect").addEventListener("click", () => connect(false));
+Object.assign(window.__town, {
+  setLens, select: (h) => select(h), goTo, find: (t) => findAgents(t).map((x) => x[2]),
+  heights: (h) => (BY.has(h) ? { cur: S[BY.get(h)].cur, to: S[BY.get(h)].to } : null),
+  feed: (agents) => applyLive({ source: "relay", fetched_at: new Date().toISOString(), agents }), // test hook: run the live path with agents of your choosing
+  openAnalysis, closeAnalysis,
+});
 $("replayBtn").addEventListener("click", () => playTour());
-{ const relay = M.resolveRelay();
-  // A dead relay is remembered for this page so Connect and the portfolio card do not each log a refused request.
-  if (relay) M.probeRelay(relay).then((up) => { if (!up) document.documentElement.dataset.relay = "off"; if (up && !connected) { $("note").textContent = "connecting via relay"; $("connect").disabled = true; setTimeout(() => !connected && connect(true), T.autoDelay); } else if (DEMO) setTimeout(() => connect(false), T.autoDelay); });
-  else if (DEMO) setTimeout(() => connect(false), T.autoDelay); } // a recording with no relay still runs, from the labelled snapshot
 
 /* ---------- loop ---------- */
 function resize() { const w = innerWidth, h = innerHeight, v = camera.view; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w < 600 ? 52 : 38;
   if (v && v.enabled) camera.setViewOffset(w, h, v.offsetX, v.offsetY, w, h); else camera.updateProjectionMatrix(); }
-addEventListener("resize", resize); resize();
+addEventListener("resize", () => { resize(); layoutPhone(); }); resize();
 let last = performance.now(), frames = 0, fpsAt = last;
 const easeIO = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 // With the card open, shift the picture so the town centres in the space the panel leaves.
 const panelEl = $("panel"); let vx = 0, vy = 0;
 function viewOffset(dt) {
-  const open = !panelEl.hidden, wide = innerWidth > 700, tx = open && wide ? Math.min(400, innerWidth) / 2 : 0, ty = open && !wide ? innerHeight * .3 : 0;
+  const open = !panelEl.hidden, wide = innerWidth > 700, tx = sideW() / 2, ty = open && !wide ? innerHeight * .26 : !wide ? (dockH - topH) / 2 : 0; // phone: centre the town between header and dock
   const k = REDUCED ? 1 : Math.min(1, dt / 180), nx = vx + (tx - vx) * k, ny = vy + (ty - vy) * k;
   if (Math.abs(nx - vx) < .05 && Math.abs(ny - vy) < .05 && (camera.view ? camera.view.enabled : false) === !!(tx || ty)) return;
   vx = Math.abs(nx - tx) < .5 ? tx : nx; vy = Math.abs(ny - ty) < .5 ? ty : ny;
@@ -653,12 +927,18 @@ function frame() {
   if (fly) { const t = Math.min(1, (now - fly.t0) / (fly.dur || T.fly)), k = fly.io ? easeIO(t) : ease(t); controls.target.lerpVectors(fly.from, fly.to, k); camera.position.lerpVectors(fly.fromP, fly.toP, k); if (t >= 1) fly = null; }
   // A slow drift while the demo holds on the overview; never during a flight or a receipt.
   controls.autoRotate = DEMO && !REDUCED && !fly && tour.step == null && connected; controls.autoRotateSpeed = .35;
-  viewOffset(now - last); last = now;
+  const dt = now - last; viewOffset(dt); last = now;
+  if (!REDUCED) { if (bodyShader) bodyShader.uniforms.uTime.value = now / 1000; lampMat.emissiveIntensity = 1.7 + .35 * Math.sin(now / 1000 * T.breathe); } // ambient: every lit window breathes from one uniform
   if (bodies) {
     tick(now); hover();
     for (const r of RC) { const si = BY.get(r.seller); if (si == null) continue;
       if (r.kind === "self") { const s = S[si], shown = Math.round(r.src.reveal * 18); r.g.position.set(s.x, s.cur + .35, s.z); if (!REDUCED) r.g.rotation.y = now / 4000; r.g.children.forEach((c, k) => (c.visible = k < shown)); } else arcOf(r); }
     for (const [h, o] of SEALS) { const i = BY.get(h); if (i == null) continue; const s = S[i], k = REDUCED ? 1 : back(Math.min(1, (now - o.t0) / 520)); o.g.position.set(s.x, s.cur + .62, s.z); o.g.scale.setScalar(Math.max(k, .001)); if (!REDUCED) o.g.rotation.y = now / 1400; }
+    lensK += ((lens === "proof" ? 1 : 0) - lensK) * (REDUCED ? 1 : Math.min(1, dt / 220));
+    beamMat.opacity = .2 * lensK * (REDUCED ? 1 : .85 + .15 * Math.sin(now / 420)); glowRingMat.opacity = .95 * lensK;
+    const gk = Math.min(5, Math.max(1, camera.position.distanceTo(controls.target) / 16)); // the glow stays findable from the overview
+    for (const [h, g] of GLOW) { const i = BY.get(h); g.visible = lensK > .01 && i != null; if (g.visible) { g.position.set(S[i].x, 0, S[i].z); g.scale.setScalar(gk); } }
+    for (const o of HL) { const i = BY.get(o.h); o.m.visible = i != null; if (i != null) { o.m.position.set(S[i].x, .12, S[i].z); o.m.scale.setScalar(gk * (REDUCED ? 1 : 1 + .12 * Math.sin(now / 240))); } }
     const hp = haloAt && haloAt(); halo.visible = !!hp; if (hp) { halo.position.set(hp.x, .1, hp.z); halo.scale.setScalar(REDUCED ? 1.1 : 1.05 + .12 * Math.sin(now / 220)); }
     spark.visible = !!(sparkE && sparkE.curve); if (spark.visible) spark.position.copy(sparkE.curve.getPoint(sparkE.src.reveal));
     if (selH != null && BY.has(selH)) { const s = S[BY.get(selH)]; marker.position.set(s.x, 0, s.z); const pin = marker.getObjectByName("pin"); pin.position.y = s.cur + (SEALS.has(selH) ? 1.45 : .9) + Math.sin(now / 300) * .08; }
@@ -668,3 +948,4 @@ function frame() {
 // Steps the same work as the rAF loop, for headless tests that never get a paint.
 window.__forceFrame = () => { tick(nowT()); controls.update(); renderer.render(scene, camera); placeLabels(); };
 requestAnimationFrame(frame);
+boot();

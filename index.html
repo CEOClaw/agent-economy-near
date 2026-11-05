@@ -10,12 +10,12 @@
 <style>
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0}
-/* Same light clay look as replay.html. The town is empty until data connects. */
+/* Same light clay look as replay.html. The town fills from the bundled snapshot at once, then upgrades to live. */
 :root{
   --sky1:#dde8ef; --sky2:#fbfcfc; --ink:#1c2128; --dim:#5b6570; --faint:#8b949e; --card:#ffffff; --line:#e1e5ea; --wash:#f3f5f7;
   --request:#3b78de; --rep:#cf4870; --ok:#169c5f; --fail:#d6423a;
   --display:"Fredoka",ui-rounded,system-ui,sans-serif; --body:"Nunito Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
-  --panel-w:400px; --gold:#c9971f; --tag:#ffffff;
+  --panel-w:400px; --analysis-w:720px; --gold:#c9971f; --tag:#ffffff;
   color-scheme:light;
 }
 /* Light is the default; ?theme=dark switches every token, the scene reads the same flag. */
@@ -32,15 +32,17 @@ body{background:radial-gradient(120% 90% at 50% 20%,var(--sky2),var(--sky1));col
 .place,.chiplab,.nm,.tag{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform}
 .place{font:700 12.5px/1 var(--body);color:#fff;background:#8b949e;padding:5px 9px;border-radius:8px;letter-spacing:.02em;box-shadow:0 2px 8px rgba(30,40,50,.14)}
 .nm{font:600 11.5px/1 var(--mono);color:var(--ink);background:var(--card);padding:4px 7px;border-radius:7px;box-shadow:0 2px 8px rgba(30,40,50,.16);border-left:3px solid var(--faint)}
-.tag{font:600 12.5px/1 var(--mono);color:var(--ink);background:var(--tag);padding:7px 10px;border-radius:9px;box-shadow:0 6px 20px rgba(30,40,50,.22);border:1.5px solid var(--line)}
+.tag{white-space:pre;line-height:1.35;font:600 12.5px/1.35 var(--mono);color:var(--ink);background:var(--tag);padding:7px 10px;border-radius:9px;box-shadow:0 6px 20px rgba(30,40,50,.22);border:1.5px solid var(--line)}
 .tag.ok{border-color:var(--ok);color:var(--ok)}
 .tag.bad{border-color:var(--fail);color:var(--fail)}
-.tag.self{border-color:var(--rep);color:var(--rep)}
+.tag.self{border-color:var(--rep);color:var(--ink)}
+.tag .ok{color:var(--ok)}
+.tag .self{color:var(--rep)}
 .chiplab{font:500 11.5px/1 var(--mono);color:#fff;padding:4px 7px;border-radius:7px;box-shadow:0 2px 8px rgba(30,40,50,.18)}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:2px solid var(--request);outline-offset:2px}
 [hidden]{display:none!important}
-#top{position:fixed;z-index:5;top:0;left:0;right:0;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px));display:flex;flex-wrap:wrap;gap:8px;align-items:center;pointer-events:none}
+#top{position:fixed;z-index:9;top:0;left:0;right:0;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px));display:flex;flex-wrap:wrap;gap:8px;align-items:center;pointer-events:none}
 #top>*{pointer-events:auto}
 .brand{font:700 19px/1 var(--display);white-space:nowrap;margin-right:4px}
 .chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font:600 12.5px/1.1 var(--body);box-shadow:0 2px 10px rgba(30,40,50,.08);white-space:nowrap}
@@ -49,27 +51,55 @@ button{font:inherit;color:inherit;cursor:pointer}
 .chip.proof{color:var(--ok)}
 button.chip{color:var(--request)}
 .spacer{flex:1}
-#search{flex:0 1 190px;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 12px;font:600 13px/1.1 var(--body);box-shadow:0 2px 10px rgba(30,40,50,.08)}
-.replay{font:700 12.5px/1 var(--body);color:var(--request);text-decoration:none;padding:7px 4px}
+.finder{position:relative;flex:0 1 300px;min-width:0}
+#search{display:block;width:100%;border:1.5px solid var(--request);background:var(--card);border-radius:999px;padding:8px 14px;font:600 13.5px/1.1 var(--body);box-shadow:0 2px 12px rgba(59,120,222,.18)}
+#search:focus{outline:2px solid var(--request);outline-offset:1px}
+#results{position:absolute;top:calc(100% + 6px);left:0;right:0;margin:0;padding:4px;list-style:none;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(30,40,50,.22)}
+#results li{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:8px 10px;border-radius:9px;font:600 12.5px/1.2 var(--body);cursor:pointer}
+#results li[aria-selected="true"],#results li:hover{background:var(--wash)}
+#results li small{color:var(--faint);font:500 11px/1.2 var(--mono);white-space:nowrap}
+#results li.none{color:var(--dim);cursor:default;font-weight:600}
+#results li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.lens{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:0 2px 10px rgba(30,40,50,.08)}
+.lens button{border:0;background:transparent;border-radius:999px;padding:5px 11px;font:700 12.5px/1.1 var(--body);color:var(--dim);white-space:nowrap}
+.lens button[aria-pressed="true"]{background:var(--request);color:#fff}
+.lens button[data-lens="proof"][aria-pressed="true"]{background:var(--ok)}
+#tools{display:contents}
+#tally{font-variant-numeric:tabular-nums}
+.chip.calm i{background:var(--faint)}
+.chip.stale i{background:var(--gold)}
+#srcLine,#srcShort{display:none}
+.replay{font:700 12.5px/1 var(--body);color:var(--request);text-decoration:none;padding:7px 4px;white-space:nowrap}
 .replay:hover{text-decoration:underline}
-/* the one action on the empty town */
-#empty{position:fixed;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;width:min(360px,calc(100% - 32px))}
-.btn{border:1px solid var(--ink);background:var(--ink);color:var(--card);border-radius:14px;padding:14px 22px;font:700 16px/1 var(--body);box-shadow:0 8px 28px rgba(30,40,50,.22)}
-.btn:disabled{opacity:.5;cursor:default}
+button.chip[aria-pressed="true"]{background:var(--wash);border-color:var(--request)}
 #note{margin:0;color:var(--dim);font:600 13.5px/1.4 var(--body)}
 #note.err{color:var(--fail)}
+#empty{position:fixed;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:min(360px,calc(100% - 32px))}
 #tip{position:fixed;z-index:6;pointer-events:none;background:var(--card);border-radius:12px;padding:8px 11px;box-shadow:0 6px 22px rgba(30,40,50,.2);font:600 12.5px/1.35 var(--body);max-width:240px}
 #tip b{display:block;font:600 14px/1.2 var(--display)}
 #tip span{color:var(--dim);font-weight:400}
+#toast{position:fixed;z-index:10;left:50%;top:112px;transform:translateX(-50%);max-width:min(460px,calc(100% - 24px));background:var(--ink);color:var(--card);border-radius:12px;padding:10px 14px;font:600 13px/1.4 var(--body);box-shadow:0 8px 28px rgba(30,40,50,.3)}
+body.dropping::after{content:"Drop a run file to add it to the map";position:fixed;inset:10px;z-index:11;display:flex;align-items:center;justify-content:center;border:3px dashed var(--request);border-radius:22px;background:rgba(59,120,222,.1);color:var(--request);font:700 20px var(--display);pointer-events:none}
+/* change ticker: only real differences between two refreshes */
+#ticker{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;align-items:flex-end;max-width:300px;pointer-events:none}
+#ticker li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:5px 9px;font:600 11.5px/1.25 var(--mono);color:var(--dim);box-shadow:0 2px 8px rgba(30,40,50,.1);animation:tin .4s both}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}}
+body.panel-open #dock{right:calc(var(--panel-w) + 12px)}body.analysis-open #dock{right:calc(var(--analysis-w) + 12px);max-width:calc(100% - var(--analysis-w) - 12px)}
 /* side panel on wide screens, bottom sheet on narrow */
 #panel{position:fixed;z-index:7;top:0;right:0;bottom:0;width:min(var(--panel-w),100%);background:var(--card);box-shadow:-10px 0 40px rgba(30,40,50,.16);display:flex;flex-direction:column;transform:translateX(0);transition:transform .25s}
 #panel[hidden]{display:flex!important;transform:translateX(105%);visibility:hidden;transition:transform .25s,visibility 0s .25s}
 #panel header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
-#panel header a{font:700 13px var(--body);color:var(--request);text-decoration:none}
+#panel header .acts{display:flex;gap:6px;align-items:center}
+#panel header .x{padding:7px 10px;font-size:12.5px;white-space:nowrap}
+#panel header .x:disabled{opacity:.5;cursor:default}
+#panel header a{white-space:nowrap;font:700 13px var(--body);color:var(--request);text-decoration:none}
 #panel header a:hover{text-decoration:underline}
 #panelBody{flex:1;overflow:auto;padding:14px;min-width:0}
 /* legend: one slim strip, bottom left, wraps on a phone */
-#legend{position:fixed;z-index:4;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 24px);display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px;font:600 12px/1.3 var(--body);color:var(--dim);box-shadow:0 2px 10px rgba(30,40,50,.08)}
+/* bottom right: the teach card and its hint own the bottom left */
+#dock{position:fixed;z-index:4;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 392px);display:flex;flex-direction:column;gap:6px;align-items:flex-end;pointer-events:none}
+#dock>*{pointer-events:auto}
+#legend{max-width:100%;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px;font:600 12px/1.3 var(--body);color:var(--dim);box-shadow:0 2px 10px rgba(30,40,50,.08)}
 #legend span{white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 #legend i{display:inline-block;flex:none}
 .lg-h{width:6px;height:13px;border-radius:2px 2px 0 0;background:var(--faint);box-shadow:-8px 5px 0 -1px var(--line)}
@@ -78,17 +108,34 @@ button.chip{color:var(--request)}
 .lg-a{width:18px;height:0;border-top:3px solid var(--ok);border-radius:3px}
 .lg-a.self{border-top-style:dashed;border-color:var(--rep)}
 .lg-a.bad{border-color:var(--fail)}
+[data-term]{cursor:help}
 /* ?demo=1: a clean frame for recording */
-.demo #search,.demo .replay,.demo #replayBtn{display:none!important}
+.demo .finder,.demo .replay,.demo #replayBtn,.demo #analysisBtn,.demo #teachBtn,.demo #soundBtn,.demo #ticker{display:none!important}
 .x{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;font:700 13px/1 var(--body)}
 /* the open card must not cover the header controls */
-@media (min-width:701px){body.panel-open #top{padding-right:calc(var(--panel-w) + 12px)}body.panel-open .replay{display:none}}
+@media (min-width:701px){body.panel-open #top{padding-right:calc(var(--panel-w) + 12px)}body.analysis-open #top{padding-right:calc(var(--analysis-w) + 12px)}body.panel-open .replay,body.analysis-open .replay{display:none}}
 @media (max-width:700px){
-  #panel{top:auto;left:0;right:0;width:auto;height:62vh;border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(30,40,50,.2)}
+  #panel{top:auto;left:0;right:0;width:auto;height:44vh;max-height:44vh;border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(30,40,50,.2)}
   #panel[hidden]{transform:translateY(105%)}
-  #search{flex:1 1 140px}
+  /* one header row: brand, source, lens, search. Counts and buttons move to the dock (app.js). */
+  #top{flex-wrap:nowrap;gap:6px}
+  .brand{font-size:14.5px;margin-right:0}
+  .lv,#countChip,#rcptChip,#soundBtn{display:none}
+  #srcChip{padding:6px 9px}
+  #srcText{display:none}#srcShort{display:inline;position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  #srcChip i{margin-right:0}#srcChip{padding:8px 10px}
+  #srcLine{display:block;font:600 11px/1.3 var(--body);color:var(--dim);padding:0 2px}
+  .lens button{padding:5px 8px;font-size:12px}
+  .finder{flex:1 1 80px}
+  #search{padding:7px 10px;font-size:13px;text-overflow:ellipsis}
   .spacer{display:none}
-  #legend{font-size:11px;gap:3px 10px;padding:6px 10px}
+  #dock #tools{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+  #dock .chip{padding:5px 9px;font-size:11.5px}
+  #dock{left:0;right:0;max-width:none;padding:0 12px;align-items:flex-start;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  body.panel-open #dock,body.analysis-open #dock{right:0;max-width:none}
+  #ticker{max-width:none;align-items:flex-start;flex-direction:row;flex-wrap:wrap}
+  #legend{font-size:10.5px;gap:2px 9px;padding:5px 9px}
+  #toast{top:64px}
 }
 @media (prefers-reduced-motion:reduce){#panel,#panel[hidden]{transition:none}}
 </style>
@@ -101,40 +148,58 @@ button.chip{color:var(--request)}
 
 <div id="top">
   <div class="brand">Market Town</div>
-  <span class="chip" id="srcChip"><i></i><span id="srcText">not connected</span></span>
-  <span class="chip" id="countChip" hidden></span>
-  <span class="chip" id="rcptChip" hidden>receipts checked: 0</span>
-  <span class="chip proof" id="crossChip" hidden>verified cross-owner: 0</span>
-  <div class="spacer"></div>
-  <input id="search" type="search" list="handles" placeholder="Find an agent" aria-label="Find an agent" autocomplete="off" hidden>
-  <datalist id="handles"></datalist>
-  <button class="chip" id="replayBtn" type="button" hidden>Replay receipts</button>
-  <a class="replay" href="replay.html">guided replay</a>
+  <span class="chip calm" id="srcChip"><i></i><span id="srcText">loading the snapshot</span><span id="srcShort">snapshot</span></span>
+  <div class="lens" role="group" aria-label="Height shows">
+    <button type="button" id="lensMarket" data-lens="market" aria-pressed="true" data-term="delivered">Market<span class="lv"> view</span></button>
+    <button type="button" id="lensProof" data-lens="proof" aria-pressed="false" data-term="proof-backed">Proof<span class="lv"> view</span></button>
+  </div>
+  <div class="finder">
+    <input id="search" type="search" placeholder="Find an agent by handle or name" aria-label="Find an agent by handle or name" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list" enterkeyhint="go">
+    <ul id="results" role="listbox" aria-label="Matching agents" hidden></ul>
+  </div>
+  <div id="tools">
+    <span class="chip" id="tally" aria-live="polite" hidden></span>
+    <span class="chip" id="countChip" hidden></span>
+    <span class="chip" id="rcptChip" hidden>receipts checked: 0</span>
+    <span class="chip proof" id="crossChip" hidden data-term="cross-owner">verified cross-owner: 0</span>
+    <button class="chip" id="analysisBtn" type="button" aria-pressed="false" aria-controls="analysis" hidden>Data</button>
+    <button class="chip" id="teachBtn" type="button" hidden>How this works</button>
+    <button class="chip" id="soundBtn" type="button" aria-pressed="false" hidden>Sound off</button>
+    <button class="chip" id="replayBtn" type="button" hidden>Replay receipts</button>
+    <a class="replay" href="replay.html">older guided replay</a>
+    <span id="srcLine"></span>
+  </div>
 </div>
 
-<div id="empty">
-  <button class="btn" id="connect">Connect market.near.ai</button>
-  <p id="note" aria-live="polite"></p>
-</div>
+<div id="empty" hidden><p id="note" aria-live="polite"></p></div>
 <div id="tip" hidden></div>
-<div id="legend" hidden aria-label="Legend">
-  <span><i class="lg-h"></i>height = delivered jobs</span>
-  <span><i class="lg-l"></i>lit = available now</span>
-  <span><i class="lg-s"></i>seal = proof-backed</span>
-  <span><i class="lg-a"></i>verified, two owners</span>
-  <span><i class="lg-a self"></i>self-hire</span>
-  <span><i class="lg-a bad"></i>failed check</span>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<div id="dock">
+  <ul id="ticker" aria-label="Recent changes" hidden></ul>
+  <div id="legend" hidden aria-label="Legend">
+    <span><i class="lg-h"></i><span id="lgHeight" data-term="delivered">height = delivered jobs</span></span>
+    <span><i class="lg-l"></i>lit = available now</span>
+    <span data-term="seal"><i class="lg-s"></i>seal = proof-backed</span>
+    <span data-term="cross-owner"><i class="lg-a"></i>verified, two owners</span>
+    <span data-term="self-hire"><i class="lg-a self"></i>self-hire</span>
+    <span data-term="checker"><i class="lg-a bad"></i>failed check</span>
+  </div>
 </div>
 
 <aside id="panel" hidden aria-label="Agent portfolio">
-  <header><a id="panelLink" href="portfolio.html">open portfolio page</a><button class="x" id="panelClose" aria-label="Close panel">Close</button></header>
+  <header><a id="panelLink" href="portfolio.html">open portfolio page</a><span class="acts"><button class="x" id="saveBtn" type="button" disabled>Save image</button><button class="x" id="copyBtn" type="button">Copy link</button><button class="x" id="panelClose" aria-label="Close panel">Close</button></span></header>
   <div id="panelBody"></div>
 </aside>
+
+<aside id="analysis" hidden aria-label="Market data"></aside>
 
 <script src="src/checker.js"></script>
 <script src="src/market.js"></script>
 <script src="src/portfolio.js"></script>
 <script src="src/components.js"></script>
+<script src="src/analysis.js"></script>
+<script src="src/teach.js"></script>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module" src="src/app.js"></script>
 </body>
