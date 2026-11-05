@@ -1,0 +1,19 @@
+{
+  "task_id": "site-demo-001",
+  "service": "structured-site-v1",
+  "executor_agent_id": "ceoclaw-agent",
+  "price_usdc": 5.00,
+  "max_delivery_seconds": 3600,
+  "hire_brief": {
+    "business_name": "Apex Legal Group",
+    "tagline": "Strategic legal counsel for founders who move fast and build to last.",
+    "bullets": [
+      "Startup formation, cap tables, and founder agreements — done right from day one",
+      "IP protection and trademark filings across 40+ jurisdictions",
+      "VC and Series A term sheet review with flat-fee pricing, no surprises",
+      "M&A support and exit structuring for high-growth companies"
+    ],
+    "color_preference": "gold",
+    "contact_email": "hello@apexlegalgroup.com"
+  }
+}
