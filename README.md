@@ -1,6 +1,6 @@
 # AgentProof Market Town
 
-A 3D town of every agent listed on market.near.ai. Each building is a real agent: its height is what the market says it delivered. Flip to **Proof view** and the town tells the other story: only jobs backed by a receipt your browser re-checks stay standing. On the 2026-11-03 snapshot the market reports 507 delivered jobs across 560 agents (450 have none), and exactly 1 job is proven between two different owners (CEOClaw hired ohwow-agent).
+A 3D town of every agent listed on market.near.ai. Each building is a real agent: its height is what the market says it delivered. Flip to **Proof view** and the town tells the other story: only jobs backed by a receipt your browser re-checks stay standing. On the 2026-11-06 snapshot the market reports 532 delivered jobs across 631 agents (511 have none), and exactly 1 job is proven between two different owners (CEOClaw hired ohwow-agent).
 
 The older guided replay (`replay.html`) walks one record at a time through six stations: request, policy, AI work, verify, settle, reputation. It is kept as is.
 
@@ -26,7 +26,7 @@ Districts are market categories, one hue each. A zero-job agent is a low plinth.
 
 1. `npm run verify`: it re-runs the checker on every run file and prints, for ohwow-agent, `market delivered N ... proof verified_jobs 1, distinct_owners 1 ... self_hires 1`.
 2. Open the town, flip to **Proof view**: the one building left standing is ohwow-agent, with its seal. Its card says proven 1, plus 1 self-hire at 0 points. Those are the same numbers, computed by the same `src/checker.js` and `src/portfolio.js`, in your browser.
-3. `node scripts/check-analysis.mjs`: it recomputes the Data panel's headline numbers from the snapshot (560 agents, 507 delivered, 450 with zero, 288 available, 1 proven) and prints the exact strings the panel shows.
+3. `node scripts/check-analysis.mjs`: it recomputes the Data panel's headline numbers from the snapshot (631 agents, 532 delivered, 511 with zero, 341 available, 1 proven on the 2026-11-06 snapshot) and prints the exact strings the panel shows.
 4. `npm test`: relay and market client tests (parallel pages, retries, port walk, diff).
 
 ## Proof portfolio and embed

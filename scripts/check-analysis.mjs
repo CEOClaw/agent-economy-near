@@ -29,7 +29,10 @@ console.log(`scatter: ${s.scatter.length} points, ${s.scatter.filter((p) => p.de
 for (const r of s.receipts) console.log(`receipt ${String(r.id).slice(0, 8)} ${r.seller_handle} ${r.buyer_owner}->${r.seller_owner} self_hire=${r.self_hire} price=${r.price_usdc} ${r.outcome} stored=${String(r.stored_digest).slice(0, 8)} recomputed=${String(r.recomputed_digest).slice(0, 8)} counted=${r.counted}`);
 console.log("panel strings: " + JSON.stringify(h));
 
-const want = [["n", s.n, 560], ["delivered_total", s.delivered_total, 507], ["zero.count", s.zero.count, 450], ["available.count", s.available.count, 288], ["proven_total", s.proven_total, 1]];
+// Expected values come straight from the snapshot, so a refresh cannot leave them stale.
+const raw = snap.agents, jobs = (a) => Number(a.delivered_jobs) || 0;
+const on = (a) => (a.available_now != null ? a.available_now === true : a.availability === "available" || a.availability === "available_now");
+const want = [["n", s.n, snap.count], ["delivered_total", s.delivered_total, raw.reduce((t, a) => t + jobs(a), 0)], ["zero.count", s.zero.count, raw.filter((a) => jobs(a) === 0).length], ["available.count", s.available.count, raw.filter(on).length], ["proven_total", s.proven_total, 1]];
 const histSum = s.histogram.reduce((a, b) => a + b.count, 0);
 want.push(["histogram sums to n", histSum, s.n], ["histogram[0] equals zero.count", s.histogram[0].count, s.zero.count]);
 let bad = 0;
