@@ -21,13 +21,15 @@ const css = `
 .ap-packs h2{font-size:18px}.ap-packs h3{font-size:15px}.ap-packs h4{font-size:13px}
 .ap-packs code,.ap-packs .mono{font-family:var(--mono,ui-monospace,monospace);font-size:12px}
 .ap-packs .dim{color:var(--dim)}
-.ap-mock{background:var(--warn-bg);color:var(--warn-ink);border:2px solid var(--warn-ink);border-radius:9px;padding:8px 11px;font-weight:700}
+.ap-mock{position:sticky;top:0;z-index:3;background:var(--warn-bg);color:var(--warn-ink);border:2px solid var(--warn-ink);border-radius:9px;padding:8px 11px;font-weight:700}
+.ap-body>.ap-mock{margin-top:12px}
+.ap-mock.ap-tampered{position:static}
 .ap-mock small{display:block;font-weight:400;margin-top:2px}
 .ap-tag{display:inline-block;background:var(--warn-bg);color:var(--warn-ink);border:1.5px solid var(--warn-ink);border-radius:6px;padding:1px 6px;font:700 11px/1.4 var(--mono,monospace);letter-spacing:.04em;white-space:nowrap}
 .ap-panel{position:fixed;z-index:70;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--bg);border-left:1px solid var(--line);box-shadow:-12px 0 40px rgba(30,40,50,.25);display:flex;flex-direction:column}
 .ap-panel[hidden]{display:none}
 .ap-head{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;border-bottom:1px solid var(--line)}
-.ap-body{flex:1;overflow:auto;overscroll-behavior:contain;padding:12px 14px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;align-content:start}
+.ap-body{flex:1;overflow:auto;overscroll-behavior:contain;padding:0 14px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;align-content:start}
 .ap-box{border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;background:var(--bg);display:grid;gap:8px}
 .ap-box.rep{border-left:5px solid var(--accent)}.ap-box.rc{border-left:5px solid var(--ok)}.ap-box.jd{border-left:5px solid var(--accent);border-left-style:dashed}.ap-box.wt{border-left:5px dotted var(--dim)}
 .ap-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -151,17 +153,21 @@ function receiptHtml(id) {
   const s = state.recs.get(id); if (!s || !s.r) return `${MOCKBOX()}<div class="ap-box" role="alert">Receipt ${esc(id)} could not be loaded: ${esc(s && s.err)}</div><div class="ap-acts"><button type="button" data-act="back">Back to the list</button></div>`;
   const st = rstate(id), r = st.cur, res = st.res, rep = r.criteria.filter((c) => c.type === "program" || c.type === "source_replay"), jd = r.criteria.filter((c) => c.type === "rubric"), wt = r.criteria.filter((c) => c.type === "witness"), t = r.trust || {}, c = r.commitment || {};
   let integ = `<span class="ap-int">NOT RE-CHECKED YET</span><span class="dim">Press Re-check to recompute it here.</span>`;
+  if (st.reset && !st.res && !st.tamper) integ = `<span class="ap-int">NOT RE-CHECKED YET</span><span class="dim">Reset to the stored receipt, no tamper applied. Integrity is unknown until you press Re-check.</span>`;
   if (st.busy) integ = `<span class="ap-int" aria-busy="true">Re-checking...</span>`;
   else if (res) { const n = res.recomputed.length, okn = res.recomputed.filter((x) => x.ok).length; integ = res.ok ? `<span class="ap-int ok">INTACT</span><span class="dim">${okn} of ${n} recomputed checks match.</span>` : `<span class="ap-int bad">BROKEN: ${n - okn} of ${n} do not match</span><span class="dim">The receipt no longer matches its own files.</span>`; }
-  const j = t.judged || {};
+  const j = t.judged || {}, scored = jd.some((x) => x.status !== "not_run" && x.status !== "not_applicable"), notRun = jd.find((x) => x.status === "not_run"), gated = jd.some((x) => x.gate && typeof x.gate === "object");
+  const caveats = [!scored && notRun ? `<span class="ap-st bad">No judge score is behind this verdict.</span> ${esc(notRun.detail || "No judge scored.")}` : "",
+    !gated ? "No rubric gates this pack: the verdict rests on program checks alone." : "",
+    r.injection && r.injection.flagged ? `<span class="ap-st bad">Injection flagged</span> in the delivery by the program scan (${(r.injection.matches || []).length} pattern${(r.injection.matches || []).length === 1 ? "" : "s"}); judges that reported it: ${esc(r.injection.judges_flagged ?? 0)}. Details below. The flag does not change the verdict.` : ""].filter(Boolean);
   return `${MOCKBOX((r.evidence_note || "").replace(/^Mock backtest\. Not market evidence\.\s*/, ""))}
   <div><h3>${esc(r.id)} <span class="ap-tag">${esc(originLabel(r.input_origin))}</span></h3><div class="dim">agent ${esc(r.agent.label)}${r.agent.handle ? ` (${esc(r.agent.handle)})` : ""}, buyer ${esc(r.buyer_label)}, pack <code>${esc(r.pack.id)}</code> v${esc(r.pack.version)}</div></div>
   <div class="ap-two" role="group" aria-label="Integrity and verdict, two separate things"><div><span class="cap">Receipt integrity</span><div aria-live="polite">${integ}</div><span class="dim">Do the hashes and recomputed checks match.</span></div>
-  <div><span class="cap">Verdict on the work</span><span class="ap-pill" style="width:fit-content">${esc(r.verdict)}</span><span class="dim">${esc(r.verdict_reason || VERDICT_NOTE[r.verdict] || "")}</span><span class="dim">A fail can be fully intact.</span></div></div>
-  ${st.tamper ? `<div class="ap-mock" role="status">Tampered copy, in memory only: ${esc(st.tamper)}. Files on disk are unchanged.</div>` : ""}
+  <div><span class="cap">Verdict on the work</span><span class="ap-pill" style="width:fit-content">${esc(r.verdict)}</span><span class="dim">${esc(r.verdict_reason || VERDICT_NOTE[r.verdict] || "")}</span>${caveats.map((x) => `<span class="dim ap-cav">${x}</span>`).join("")}<span class="dim">A fail can be fully intact.</span></div></div>
+  ${st.tamper ? `<div class="ap-mock ap-tampered" role="status">Tampered copy, in memory only: ${esc(st.tamper)}. Files on disk are unchanged.</div>` : ""}
   <section class="ap-box" aria-label="Commitment"><h4>Commitment</h4><dl><dt>Before delivery</dt><dd><strong>${c.before_delivery ? "yes" : "NO"}</strong></dd><dt>Note</dt><dd>${esc(c.note)}</dd><dt>Committed</dt><dd>${esc(c.committed_at)} (self-asserted)</dd><dt>Delivered</dt><dd>${esc(c.delivered_at || "not on record")}</dd></dl><span class="dim">Nothing here is anchored outside this file. Someone who rewrote every hash at once would not be caught.</span></section>
   <section class="ap-box rc" aria-label="Reproduced"><h4>Reproduced <span class="dim">program and source checks, same answer for anyone</span></h4><div class="mono">${t.reproduced ? `${t.reproduced.passed} of ${t.reproduced.total} passed${t.reproduced.hard_failed && t.reproduced.hard_failed.length ? `, hard gate failed: ${t.reproduced.hard_failed.map(esc).join(", ")}` : ""}` : ""}</div>${rep.map(critHtml).join("") || '<span class="dim">No reproduced checks.</span>'}</section>
-  <section class="ap-box jd" aria-label="Judged"><h4>Judged <span class="dim">model opinions against written anchors, stored</span></h4><div class="mono">${j.rated ? `weighted median ${j.weighted_median} over ${j.rated} rated rubric${j.rated === 1 ? "" : "s"} (rubrics only, not an overall score)` : "no rubric rated"}, contested ${j.contested ?? 0}, void scores ${j.void ?? 0}, not run ${j.not_run ?? 0}</div>${jd.map(critHtml).join("") || '<span class="dim">No rubrics.</span>'}${r.panel ? `<span class="dim">Panel: ${r.panel.judges.map((x) => esc(x.label + " " + x.model)).join("; ")}. Prompt ${esc(r.panel.prompt_version)}.</span>` : '<span class="dim">No judge panel ran for this receipt.</span>'}</section>
+  <section class="ap-box jd" aria-label="Judged"><h4>Judged <span class="dim">model opinions against written anchors, stored</span></h4><div class="mono">${j.rated ? `weighted median ${j.weighted_median} over ${j.rated} rated rubric${j.rated === 1 ? "" : "s"}${j.contested ? `, ${j.contested} contested rubric${j.contested === 1 ? " is" : "s are"} excluded from this number` : ""} (rubrics only, not an overall score)` : "no rubric rated"}, contested ${j.contested ?? 0}, void scores ${j.void ?? 0}, not run ${j.not_run ?? 0}</div>${jd.map(critHtml).join("") || '<span class="dim">No rubrics.</span>'}${r.panel && scored ? `<span class="dim">Panel: ${r.panel.judges.map((x) => esc(x.label + " " + x.model)).join("; ")}. Prompt ${esc(r.panel.prompt_version)}.</span>` : `<span class="dim">${r.panel ? "Nothing was scored: the panel returned no usable score." : "No judge panel ran for this receipt."}</span>`}</section>
   <section class="ap-box wt" aria-label="Witnessed"><h4>Witnessed <span class="dim">a person's statement, as given</span></h4>${wt.map(critHtml).join("") || '<span class="dim">No witness statements.</span>'}</section>
   <section class="ap-box" aria-label="Injection scan"><h4>Injection scan</h4>${r.injection && r.injection.flagged ? `<span class="ap-st bad">FLAGGED: instruction-like text in the delivery</span><ul class="ap-list">${(r.injection.matches || []).map((m) => `<li class="mono">${esc(m.pattern)}: ${esc(m.excerpt)}</li>`).join("")}</ul>${r.injection.judges_flagged != null ? `<span class="dim">Judges that also flagged it: ${esc(r.injection.judges_flagged)}.</span>` : ""}` : '<span>Nothing flagged by the program scan.</span>'}</section>
   ${(r.sources || []).length ? `<section class="ap-box" aria-label="Sources"><h4>Sources</h4><ul class="ap-list">${r.sources.map((x) => `<li class="mono">${esc(x.id)} ${esc(x.url)}<br><span class="dim">origin ${esc(x.origin)}, HTTP ${esc(x.http_status ?? "none")}, ${x.archive_file ? "archived" : "NO archive record"}</span></li>`).join("")}</ul></section>` : ""}
@@ -185,7 +191,7 @@ const flip = (b, from) => { const o = new Uint8Array(b); let i = Math.floor(o.le
 async function runRecheck(id) {
   const st = rstate(id); st.busy = true; render(); const mutate = st.tamper && st.tamperFile;
   const load = async (p) => { const b = await loadBytes(p); return mutate && p === st.tamperFile ? flip(b, .5) : b; };
-  try { st.res = await window.AgentProofPacks.recheck(st.cur, load); } catch (x) { st.res = { ok: false, recomputed: [{ id: "recheck-error", label: "Re-check could not run", ok: false, detail: String(x.message || x) }], not_recomputed: [], opinions: [] }; }
+  try { st.res = await window.AgentProofPacks.recheck(st.cur, load); if (rs.get(id) !== st) return; } catch (x) { st.res = { ok: false, recomputed: [{ id: "recheck-error", label: "Re-check could not run", ok: false, detail: String(x.message || x) }], not_recomputed: [], opinions: [] }; }
   st.busy = false; render();
 }
 function tamper(id, kind) {
@@ -204,7 +210,7 @@ function onClick(e) {
   else if (a === "open") { view = { name: "receipt", id: b.dataset.id, agent: view.agent }; render(true); }
   else if (a === "back") { view = { name: "list", agent: view.agent }; render(true); }
   else if (a === "recheck") runRecheck(id);
-  else if (a === "reset") { rs.delete(id); render(); }
+  else if (a === "reset") { rs.delete(id); rstate(id).reset = true; render(); }
   else if (a.startsWith("t-")) tamper(id, a.slice(2));
 }
 
