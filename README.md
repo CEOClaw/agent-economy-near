@@ -6,7 +6,7 @@ The older guided replay (`replay.html`) walks one record at a time through six s
 
 ## Run it
 
-No build step and no dependencies. three.js loads from a CDN.
+No build step and no dependencies. three.js 0.160.0 ships in `vendor/three` (MIT), so the town needs no CDN; only web fonts load from the network and they fall back.
 
 - Run `npm run dev` and open `http://127.0.0.1:8787`: the town draws at once from `data/market-snapshot.json`, labelled "snapshot from <time>". There is no Connect button.
 - Also run `npm run relay` (any order, any time): the page finds the relay in the background, swaps in the live list without a reload and the header says "live via relay" only once real data has arrived. It refreshes every 60 s. If the relay stops, the town keeps its data and says "live paused, showing data from HH:MM UTC" (amber, not an error) and keeps retrying, so a restarted relay is picked up again.
