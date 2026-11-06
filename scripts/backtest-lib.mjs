@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { runFixture, DATA } from "./pack-run.mjs";
 
 export const readJson = (p) => JSON.parse(readFileSync(p, "utf8"));
-// labels.json is frozen; labels-addendum.json (if present) only adds fixtures and pairs and is dated after the first run.
+// labels.json is frozen; labels-addendum.json (if present) only adds fixtures and pairs and is dated after the initial run.
 export const labels = () => {
   const L = readJson(join(DATA, "backtest/labels.json")), ap = join(DATA, "backtest/labels-addendum.json");
   if (!existsSync(ap)) return L;

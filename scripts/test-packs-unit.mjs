@@ -173,14 +173,14 @@ await t("injection scan flags visible, hidden and comment instructions; clean si
 
 // ---- receipts: sample on disk, merge from a stored judge run, tamper, reputation ----
 const fx = join(DATA, "backtest/fixtures/site-v3"), v3 = new Uint8Array(readFileSync(join(fx, "deliverable.html")));
-await t("sample receipt site-v3: on disk, mock, real input, rubrics not_run, re-checks green, equals a fresh run", async () => {
+await t("stored receipt site-v3: on disk, mock, real input, merges judge run-1, re-checks green, equals a fresh run", async () => {
   const r = JSON.parse(readFileSync(join(DATA, "backtest/receipts/site-v3.json"), "utf8"));
   assert(r.mock === true && r.input_origin === "real" && r.commitment.before_delivery === false && /Not market evidence/.test(r.evidence_note));
-  eq(r.criteria.filter((c) => c.type === "rubric").map((c) => c.status), ["not_run", "not_run", "not_run"]);
-  eq(r.verdict, "incomplete"); eq(r.trust.reproduced.hard_failed, []);
+  assert(r.panel && r.panel.run === "backtest/judge-runs/site-v3/run-1.json" && r.criteria.filter((c) => c.type === "rubric").every((c) => c.status !== "not_run"), "run-1 not merged");
+  eq(r.trust.reproduced.hard_failed, []);
   eq(JSON.parse(readFileSync(join(DATA, "backtest/index.json"), "utf8")).receipts.find((x) => x.id === r.id).receipt_hash, r.receipt_hash, "index.json is stale");
   const rc = await P.recheck(r, loadFromData); assert(rc.ok, JSON.stringify(rc.recomputed.filter((x) => !x.ok)));
-  eq(JSON.stringify(await runFixture(fx)), JSON.stringify(r), "fresh run differs from the committed receipt");
+  eq(JSON.stringify(await runFixture(fx, { judgeRunPath: join(DATA, "backtest/judge-runs/site-v3/run-1.json") })), JSON.stringify(r), "fresh run differs from the committed receipt");
 });
 // TEST DOUBLE: a hand-written stand-in for pack-judge output. Not a model's opinion, never stored under data/backtest/.
 const double = (o = {}) => ({ schema: P.JUDGE_RUN_SCHEMA, job: "site-v3", prompt_version: "test-double", judges: [
