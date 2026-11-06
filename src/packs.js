@@ -476,8 +476,10 @@
       pass("deliverable-hash", "Deliverable bytes", bytes && (await sha256(bytes)) === r.deliverable.sha256 && bytes.length === r.deliverable.bytes, bytes ? `${bytes.length} bytes` : "deliverable could not be loaded");
       const sources = [];
       for (const s of r.sources || []) {
-        const b = await get(s.archive_file);
-        pass("archive:" + s.id, `Archived page ${s.id}`, b && (await sha256(b)) === s.sha256, b ? `${b.length} bytes archived` : "archive file could not be loaded");
+        // A URL with no archive record is a recorded fact (urls-resolve fails on it by program), not a missing file.
+        const b = s.archive_file ? await get(s.archive_file) : null;
+        if (!s.archive_file) pass("archive:" + s.id, `Archived page ${s.id}`, s.sha256 == null, "no archive record for this URL, as recorded");
+        else pass("archive:" + s.id, `Archived page ${s.id}`, b && (await sha256(b)) === s.sha256, b ? `${b.length} bytes archived` : "archive file could not be loaded");
         sources.push({ ...s, bytes: b });
         not.push({ id: "fetch:" + s.id, label: `URL ${s.id} resolved at fetch time`, detail: `recorded fact: HTTP ${s.http_status}, origin ${s.origin}` });
       }
