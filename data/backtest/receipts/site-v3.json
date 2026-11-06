@@ -100,12 +100,40 @@
       },
       "weight": 3,
       "label": "The page does what the brief asked, section by section",
-      "scores": [],
-      "median": null,
-      "spread": null,
-      "valid_n": 0,
-      "contested": false,
-      "status": "not_run"
+      "scores": [
+        {
+          "judge": "J1",
+          "model": "google/gemini-3.1-flash-lite",
+          "score": 3,
+          "quote": "Websites, chatbots and voice agents\nWhatsApp agents, email outreach and lead follow-up\nAppointment booking and customer support\nMarketing, content and social posts\nCRM, automations and reports",
+          "reason": "The requested sections and copy are present, but the page includes significant additional content and scaffolding not requested in the brief.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J2",
+          "model": "openai/gpt-5-mini",
+          "score": 5,
+          "quote": "Tell us your business. Get one job done in a minute. Free. No signup to try.",
+          "reason": "The deliverable contains the requested sections in order (hero, what it does, how it works, contact) and includes the exact tagline, intro copy, bullets and a Start now action matching the brief.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J3",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "score": 4,
+          "quote": "Tell us your business. Get one job done in a minute. Free. No signup to try.",
+          "reason": "All four requested sections (hero, what it does, how it works, contact) appear with the brief's tagline, intro, bullets, button and contact, though the button is repeated and the contact section adds extra wording beyond the brief's single email line.",
+          "quote_found": true,
+          "void": false
+        }
+      ],
+      "median": 4,
+      "spread": 2,
+      "valid_n": 3,
+      "contested": true,
+      "status": "contested"
     },
     {
       "id": "copy-discipline",
@@ -116,12 +144,40 @@
       },
       "weight": 2,
       "label": "Nothing is invented: no facts, numbers, names or promises beyond the brief",
-      "scores": [],
-      "median": null,
-      "spread": null,
-      "valid_n": 0,
+      "scores": [
+        {
+          "judge": "J1",
+          "model": "google/gemini-3.1-flash-lite",
+          "score": 3,
+          "quote": "1\nTell us your business\nDescribe what you do and what you need. No forms, no setup — just tell us.\n2\nGet one job done\nohwow runs the job immediately. See a real result for your business in under a minute.\n3\nKeep going or stop\nNo signup required to try. When you're ready to run more, your business keeps itself going.",
+          "reason": "The seller added descriptive text for the 'How it works' section that was not in the brief, though these additions are functional and do not make false claims.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J2",
+          "model": "openai/gpt-5-mini",
+          "score": 4,
+          "quote": "Websites, chatbots and voice agents",
+          "reason": "Most copy matches the brief exactly and avoids invented claims, but the line \"ohwow runs the job immediately. See a real result for your business in under a minute.\" slightly embellishes operational speed beyond the brief's wording.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J3",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "score": 3,
+          "quote": "ohwow runs the job immediately. See a real result for your business in under a minute.",
+          "reason": "Most copy traces to the brief, but the how-it-works steps add filler sentences and mild embellishments like 'No forms, no setup' and 'your business keeps itself going' that the brief does not state.",
+          "quote_found": true,
+          "void": false
+        }
+      ],
+      "median": 3,
+      "spread": 1,
+      "valid_n": 3,
       "contested": false,
-      "status": "not_run"
+      "status": "pass"
     },
     {
       "id": "polish",
@@ -130,12 +186,40 @@
       "gate": "none",
       "weight": 1,
       "label": "Polish judged from the page text and structure only: no screenshots are used",
-      "scores": [],
-      "median": null,
-      "spread": null,
-      "valid_n": 0,
-      "contested": false,
-      "status": "not_run"
+      "scores": [
+        {
+          "judge": "J1",
+          "model": "google/gemini-3.1-flash-lite",
+          "score": 3,
+          "quote": "⚡ Built by [seller] · How does it look?\n✏️ Request edits\n📄 Add more pages\n×\nEmail us at:\nclaw@[seller].ai",
+          "reason": "The page is readable and complete, but it contains significant leftover scaffolding and editor instructions that were not part of the requested deliverable.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J2",
+          "model": "openai/gpt-5-mini",
+          "score": 4,
+          "quote": "© 2026 Ohwow Limited Liability Company",
+          "reason": "The page text is generally clean and consistent with clear headings and footer, though there is minor scaffold UI text like \"⚡ Built by [seller] · How does it look?\" and an extra contact email block that suggests leftover editing controls.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J3",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "score": 2,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "Leftover scaffolding such as the '[seller]' placeholder, a feedback toolbar, a modal 'Email us at: claw@[seller].ai' and a stray '×' and 'Close' remain in the visible text, making it read as unfinished.",
+          "quote_found": true,
+          "void": false
+        }
+      ],
+      "median": 3,
+      "spread": 2,
+      "valid_n": 3,
+      "contested": true,
+      "status": "contested"
     },
     {
       "id": "buyer-accepted",
@@ -149,11 +233,29 @@
       "ref": "hand review: job-closed notice to the seller"
     }
   ],
-  "panel": null,
+  "panel": {
+    "run": "backtest/judge-runs/site-v3/run-1.json",
+    "run_sha256": "c59af8445af973025927b6cc6196b811f3018ba10b4eec0d350d6da2d7f3ec6e",
+    "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+    "judges": [
+      {
+        "label": "J1",
+        "model": "google/gemini-3.1-flash-lite"
+      },
+      {
+        "label": "J2",
+        "model": "openai/gpt-5-mini"
+      },
+      {
+        "label": "J3",
+        "model": "deepseek/deepseek-v4.1-flash"
+      }
+    ]
+  },
   "injection": {
     "flagged": false,
     "matches": [],
-    "judges_flagged": 0
+    "judges_flagged": 2
   },
   "trust": {
     "reproduced": {
@@ -162,11 +264,11 @@
       "hard_failed": []
     },
     "judged": {
-      "weighted_median": null,
-      "rated": 0,
-      "contested": 0,
+      "weighted_median": 3,
+      "rated": 1,
+      "contested": 2,
       "void": 0,
-      "not_run": 3
+      "not_run": 0
     },
     "witnessed": [
       {
@@ -175,7 +277,7 @@
       }
     ]
   },
-  "verdict": "incomplete",
-  "verdict_reason": "gated rubric not scored: brief-fit (not_run), copy-discipline (not_run)",
-  "receipt_hash": "0abb94d16199a8c8007497360d1a2596db7e40849489db29edccc85d459942a8"
+  "verdict": "contested",
+  "verdict_reason": "judges disagree by 2 or more on a gated rubric: brief-fit",
+  "receipt_hash": "43111f735510e82802c33e92f1a166cda8bd7849c632e92c202482fd36c9e1f8"
 }

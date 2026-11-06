@@ -1,0 +1,129 @@
+{
+  "schema": "agentproof-pack-receipt-v1",
+  "id": "pdf-page-dropped",
+  "mock": true,
+  "input_origin": "synthetic",
+  "evidence_note": "Mock backtest. Not market evidence. Synthetic input built by the pack author to test one failure mode.",
+  "agent": {
+    "label": "synthetic-files",
+    "handle": null
+  },
+  "buyer_label": "synthetic-buyer",
+  "pack": {
+    "id": "file-transform-v1",
+    "version": "1.0.0",
+    "file": "packs/file-transform-v1.json",
+    "hash": "ff5cb08e9f8b1cc30315c236421604a57c9c92d6079a118c025df4e27d27946c"
+  },
+  "job": {
+    "file": "backtest/fixtures/pdf-page-dropped/job.json",
+    "hash": "cc8994c4b326f40c905a6d13dd01e40ec4cae0e3b1e56d673681f29b583a4917"
+  },
+  "commitment": {
+    "pack_hash": "ff5cb08e9f8b1cc30315c236421604a57c9c92d6079a118c025df4e27d27946c",
+    "job_hash": "cc8994c4b326f40c905a6d13dd01e40ec4cae0e3b1e56d673681f29b583a4917",
+    "rubric_hash": "333e4e6c8ee673aaab3b493863941cfbe9c84c4cb774a7a65f42efd03e331119",
+    "committed_at": "2026-11-06T21:44:52Z",
+    "delivered_at": null,
+    "before_delivery": false,
+    "note": "Synthetic deliverable written by the pack author after the pack: post-hoc backtest, not blind for the pack author. Judges are blind.",
+    "hash": "84c799584c93134c9661be81d6879a2e212cfd314bdfaf7ea25307413919f93f"
+  },
+  "deliverable": {
+    "file": "backtest/fixtures/pdf-page-dropped/deliverable.pdf",
+    "sha256": "6e656c2949df15ae4895671759382986a853854a7b577ea5414e70c096f1a7eb",
+    "bytes": 582,
+    "media_type": "application/pdf"
+  },
+  "sources": [],
+  "criteria": [
+    {
+      "id": "output-format",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The output is a well-formed file of the requested format",
+      "status": "fail",
+      "detail": "PDF has 1 pages, expected 2"
+    },
+    {
+      "id": "size-target",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The output is within the size target (not applicable when no target is set)",
+      "status": "not_applicable",
+      "detail": "no size target in job params"
+    },
+    {
+      "id": "content-preserved",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The content of the input survives: pixels, rows and fields, page text, or the structured-field checker's digest",
+      "status": "fail",
+      "detail": "page text differs from the requested input pages"
+    },
+    {
+      "id": "metadata-clean",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "No metadata is left where the transform promises to strip it (not applicable otherwise)",
+      "status": "pass",
+      "detail": "no Author, Creator, Producer, Title, Subject, Keywords, dates or XMP"
+    },
+    {
+      "id": "fit-for-use",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": "none",
+      "weight": 1,
+      "label": "Text renditions only: the output is usable for its stated purpose. Binary outputs are not applicable and no judge is called",
+      "scores": [],
+      "median": null,
+      "spread": null,
+      "valid_n": 0,
+      "contested": false,
+      "status": "not_applicable"
+    },
+    {
+      "id": "buyer-accepted",
+      "type": "witness",
+      "trust": "Witnessed",
+      "gate": "none",
+      "label": "The buyer states whether the work was accepted",
+      "statement": null,
+      "by": null,
+      "at": null,
+      "ref": null
+    }
+  ],
+  "panel": null,
+  "injection": {
+    "flagged": false,
+    "matches": [],
+    "judges_flagged": 0
+  },
+  "trust": {
+    "reproduced": {
+      "passed": 1,
+      "total": 3,
+      "hard_failed": [
+        "output-format",
+        "content-preserved"
+      ]
+    },
+    "judged": {
+      "weighted_median": null,
+      "rated": 0,
+      "contested": 0,
+      "void": 0,
+      "not_run": 0
+    },
+    "witnessed": []
+  },
+  "verdict": "fail",
+  "verdict_reason": "hard gate failed: output-format, content-preserved",
+  "receipt_hash": "826fab150974c0debaa5477f47a593f8e13e50dbfdb81ed2f9b896909980d9f8"
+}

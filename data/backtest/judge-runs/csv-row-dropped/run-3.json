@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "csv-row-dropped",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 3,
+  "judged_at": "2026-11-06T21:49:34.768Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\"",
+          "reason": "The output preserves all field names, row order, and original string formatting including leading zeros as requested."
+        }
+      ],
+      "prompt_sha256": "db3398de8c9197f8b5195d06dc28619e3fce1988065aac287f067f45644386be",
+      "usd": 0.00031375,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001772-VJD3udrmJFgg7V2g5zHS",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\"\",\"reason\":\"The output preserves all field names, row order, and original string formatting including leading zeros as requested.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 907,
+            "completion_tokens": 58,
+            "cost": 0.00031375
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "Convert the attached customer CSV to a JSON array with one object per row. Keep the field names, the row order and every value exactly as in the CSV, all values as strings.",
+          "reason": "The deliverable is a JSON array with one object per row preserving field names, row order, and values as strings (including leading zeros like \"00501\")."
+        }
+      ],
+      "prompt_sha256": "46cd69d1176e464b00219f5c835ef70860815a455a5deb9a39389b6bf0badb18",
+      "usd": 0.00043225,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001773-Y3j7P4T6RjZ7tkMblKBZ",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"Convert the attached customer CSV to a JSON array with one object per row. Keep the field names, the row order and every value exactly as in the CSV, all values as strings.\",\"reason\":\"The deliverable is a JSON array with one object per row preserving field names, row order, and values as strings (including leading zeros like \\\"00501\\\").\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 817,
+            "completion_tokens": 114,
+            "cost": 0.00043225
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 3,
+          "quote": "\"id\": \"6\",",
+          "reason": "Field names, string values, and leading zeros are preserved, but the row order skips id 5, so a person would need to fix the missing/renumbered row before the output matches the CSV."
+        }
+      ],
+      "prompt_sha256": "c2f46ec9ac76d8adc5375446199f394ba3193fc37e98f204188a181aa97215d1",
+      "usd": 0.0003435,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001773-qnGAVVgetE2rgXbGWKDG",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":3,\"quote\":\"\\\"id\\\": \\\"6\\\",\",\"reason\":\"Field names, string values, and leading zeros are preserved, but the row order skips id 5, so a person would need to fix the missing/renumbered row before the output matches the CSV.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 825,
+            "completion_tokens": 80,
+            "cost": 0.0003435
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

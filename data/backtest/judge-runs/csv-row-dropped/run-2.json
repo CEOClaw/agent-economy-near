@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "csv-row-dropped",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 2,
+  "judged_at": "2026-11-06T21:49:13.040Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"00501\",",
+          "reason": "The output correctly preserves the leading zeros in the zip code field and maintains the requested JSON array format with all original data intact."
+        }
+      ],
+      "prompt_sha256": "cb112c235f763ce9381ebfb073c2bb592b4cb791f8f909da00ce61f1dc5d539d",
+      "usd": 0.00032275,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001750-xp617Xv69pXmTFwxlAG5",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"00501\\\",\",\"reason\":\"The output correctly preserves the leading zeros in the zip code field and maintains the requested JSON array format with all original data intact.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 913,
+            "completion_tokens": 63,
+            "cost": 0.00032275
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "Keep the field names, the row order and every value exactly as in the CSV, all values as strings.",
+          "reason": "The JSON preserves field names, row order, and values as strings including leading zeros (e.g., \"zip\": \"00501\") which matches the requested deliverable."
+        }
+      ],
+      "prompt_sha256": "d5d3ed765c68773e4d688d32a77fe27c5bcc59d5dfef381278450508e4c15a03",
+      "usd": 0.00040525,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001750-Ki7k3cMkbPILqy2lbk5p",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"Keep the field names, the row order and every value exactly as in the CSV, all values as strings.\",\"reason\":\"The JSON preserves field names, row order, and values as strings including leading zeros (e.g., \\\"zip\\\": \\\"00501\\\") which matches the requested deliverable.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 821,
+            "completion_tokens": 100,
+            "cost": 0.00040525
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\"",
+          "reason": "Field names are preserved, rows keep their order, and leading zeros in zip values survive as strings, making the output usable as delivered."
+        }
+      ],
+      "prompt_sha256": "e06c8a3136f40d9526d7178466d9e389a4bdbfc14f612f17742b3c739c70ad22",
+      "usd": 0.0002268,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001751-qvhQsCq0mPq9X3ibB9w0",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\"\",\"reason\":\"Field names are preserved, rows keep their order, and leading zeros in zip values survive as strings, making the output usable as delivered.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 820,
+            "completion_tokens": 65,
+            "cost": 0.0002268
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

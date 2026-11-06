@@ -1,0 +1,126 @@
+{
+  "schema": "agentproof-pack-receipt-v1",
+  "id": "png-good",
+  "mock": true,
+  "input_origin": "synthetic",
+  "evidence_note": "Mock backtest. Not market evidence. Synthetic input built by the pack author to test one failure mode.",
+  "agent": {
+    "label": "synthetic-files",
+    "handle": null
+  },
+  "buyer_label": "synthetic-buyer",
+  "pack": {
+    "id": "file-transform-v1",
+    "version": "1.0.0",
+    "file": "packs/file-transform-v1.json",
+    "hash": "ff5cb08e9f8b1cc30315c236421604a57c9c92d6079a118c025df4e27d27946c"
+  },
+  "job": {
+    "file": "backtest/fixtures/png-good/job.json",
+    "hash": "d2e34d09554a8e356d69c6f0e36cac070c9a2ac58a12524a406bcb8d046f095c"
+  },
+  "commitment": {
+    "pack_hash": "ff5cb08e9f8b1cc30315c236421604a57c9c92d6079a118c025df4e27d27946c",
+    "job_hash": "d2e34d09554a8e356d69c6f0e36cac070c9a2ac58a12524a406bcb8d046f095c",
+    "rubric_hash": "333e4e6c8ee673aaab3b493863941cfbe9c84c4cb774a7a65f42efd03e331119",
+    "committed_at": "2026-11-06T21:44:52Z",
+    "delivered_at": null,
+    "before_delivery": false,
+    "note": "Synthetic deliverable written by the pack author after the pack: post-hoc backtest, not blind for the pack author. Judges are blind.",
+    "hash": "ca9a8628f6c45a52e898ae2b0c31c952b846231e0aaf070ad8939ac91982f8bc"
+  },
+  "deliverable": {
+    "file": "backtest/fixtures/png-good/deliverable.png",
+    "sha256": "c3af62182f738ada428a370cf8b520ddf917908d6f99e1f87a13087951b10ac8",
+    "bytes": 1260,
+    "media_type": "image/png"
+  },
+  "sources": [],
+  "criteria": [
+    {
+      "id": "output-format",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The output is a well-formed file of the requested format",
+      "status": "pass",
+      "detail": "valid PNG, 3 chunks, CRCs good"
+    },
+    {
+      "id": "size-target",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The output is within the size target (not applicable when no target is set)",
+      "status": "pass",
+      "detail": "1260 bytes <= 2000"
+    },
+    {
+      "id": "content-preserved",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The content of the input survives: pixels, rows and fields, page text, or the structured-field checker's digest",
+      "status": "pass",
+      "detail": "inflated pixel data identical (1752 bytes)"
+    },
+    {
+      "id": "metadata-clean",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "No metadata is left where the transform promises to strip it (not applicable otherwise)",
+      "status": "pass",
+      "detail": "no tEXt, iTXt, zTXt, eXIf or tIME chunk"
+    },
+    {
+      "id": "fit-for-use",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": "none",
+      "weight": 1,
+      "label": "Text renditions only: the output is usable for its stated purpose. Binary outputs are not applicable and no judge is called",
+      "scores": [],
+      "median": null,
+      "spread": null,
+      "valid_n": 0,
+      "contested": false,
+      "status": "not_applicable"
+    },
+    {
+      "id": "buyer-accepted",
+      "type": "witness",
+      "trust": "Witnessed",
+      "gate": "none",
+      "label": "The buyer states whether the work was accepted",
+      "statement": null,
+      "by": null,
+      "at": null,
+      "ref": null
+    }
+  ],
+  "panel": null,
+  "injection": {
+    "flagged": false,
+    "matches": [],
+    "judges_flagged": 0
+  },
+  "trust": {
+    "reproduced": {
+      "passed": 4,
+      "total": 4,
+      "hard_failed": []
+    },
+    "judged": {
+      "weighted_median": null,
+      "rated": 0,
+      "contested": 0,
+      "void": 0,
+      "not_run": 0
+    },
+    "witnessed": []
+  },
+  "verdict": "pass",
+  "verdict_reason": "every hard gate passed and every gated rubric met its minimum",
+  "receipt_hash": "4009880ce41fb3066e9e94d16fd0dedb004a1022b3a10a7ec00b328e5dcfe5fd"
+}

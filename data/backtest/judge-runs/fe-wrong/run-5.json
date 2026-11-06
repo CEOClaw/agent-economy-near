@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "fe-wrong",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 5,
+  "judged_at": "2026-11-06T21:50:31.011Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 3,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "The output is mostly usable but contains a significant data error in the contact email field that requires correction."
+        }
+      ],
+      "prompt_sha256": "a613004a38ff75b7eb710bcbf2c278414902a0ce17b295014c4919fd9570f805",
+      "usd": 0.0003165,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001828-NiA2PVv0LTwM8RBhxOnI",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":3,\"quote\":\"\\\"CONTACT_EMAIL\\\": \\\"ops@WRONG-DOMAIN.com\\\"\",\"reason\":\"The output is mostly usable but contains a significant data error in the contact email field that requires correction.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 888,
+            "completion_tokens": 63,
+            "cost": 0.0003165
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 3,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "One field (CONTACT_EMAIL) does not match the provided input, so small fix needed to correct the email domain."
+        }
+      ],
+      "prompt_sha256": "7bda0c935dd8048d159dbaa5a66deeb7b0c00e303ea7d13d8a0343b7baec9e3e",
+      "usd": 0.0003665,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001829-fKcdrw7JX8VJzm7YUiO6",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":3,\"quote\":\"\\\"CONTACT_EMAIL\\\": \\\"ops@WRONG-DOMAIN.com\\\"\",\"reason\":\"One field (CONTACT_EMAIL) does not match the provided input, so small fix needed to correct the email domain.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 810,
+            "completion_tokens": 82,
+            "cost": 0.0003665
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 2,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "The CONTACT_EMAIL value was altered from ops@ohwow.ai to a wrong domain, so the extraction is not usable without correcting that field, though all other names, order, and formats match the input."
+        }
+      ],
+      "prompt_sha256": "bc755e89a20d00f2681ec854fb9f4803c58af6bc35d2388e0b280c7ece70122a",
+      "usd": 0.00005499,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001829-2TtOnpqjyGYfV6W1eZsP",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":2,\"quote\":\"\\\"CONTACT_EMAIL\\\": \\\"ops@WRONG-DOMAIN.com\\\"\",\"reason\":\"The CONTACT_EMAIL value was altered from ops@ohwow.ai to a wrong domain, so the extraction is not usable without correcting that field, though all other names, order, and formats match the input.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 830,
+            "completion_tokens": 91,
+            "cost": 0.00005499
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

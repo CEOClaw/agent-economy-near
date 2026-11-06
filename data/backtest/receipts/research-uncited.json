@@ -1,0 +1,246 @@
+{
+  "schema": "agentproof-pack-receipt-v1",
+  "id": "research-uncited",
+  "mock": true,
+  "input_origin": "synthetic",
+  "evidence_note": "Mock backtest. Not market evidence. Synthetic input built by the pack author to test one failure mode.",
+  "agent": {
+    "label": "synthetic-research",
+    "handle": null
+  },
+  "buyer_label": "synthetic-buyer",
+  "pack": {
+    "id": "research-brief-v1",
+    "version": "1.0.0",
+    "file": "packs/research-brief-v1.json",
+    "hash": "d20e38638071cce9b7e93fdfae731905112bb4d58772fbe22ab33bfb7dc7c534"
+  },
+  "job": {
+    "file": "backtest/fixtures/research-uncited/job.json",
+    "hash": "7d9b0526e670edecf09dea4e0f50f708acd099375dcb13747e56fd26fa74ca13"
+  },
+  "commitment": {
+    "pack_hash": "d20e38638071cce9b7e93fdfae731905112bb4d58772fbe22ab33bfb7dc7c534",
+    "job_hash": "7d9b0526e670edecf09dea4e0f50f708acd099375dcb13747e56fd26fa74ca13",
+    "rubric_hash": "4302570174103ae427b69374116d5b8c480f0b7e11707a60988891e9847d0dd7",
+    "committed_at": "2026-11-06T21:44:52Z",
+    "delivered_at": null,
+    "before_delivery": false,
+    "note": "Synthetic deliverable written by the pack author after the pack: post-hoc backtest, not blind for the pack author. Judges are blind.",
+    "hash": "4bcaf5d4ed6700086b597758a9408442a6cdfbe081ae7ec1fd55fc47296e2122"
+  },
+  "deliverable": {
+    "file": "backtest/fixtures/research-uncited/deliverable.md",
+    "sha256": "2f6b58cdfd6b3c406e6723a875f68b4c4b9e28c23d91b09d46b7b5e5a0e4a973",
+    "bytes": 939,
+    "media_type": "text/markdown"
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://www.rfc-editor.org/rfc/rfc8259.txt",
+      "archive_file": "backtest/archive/61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7.txt",
+      "sha256": "61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7",
+      "fetched_at": "2026-11-06T21:43:21Z",
+      "http_status": 200,
+      "origin": "real-fetch"
+    },
+    {
+      "id": "S2",
+      "url": "https://www.rfc-editor.org/rfc/rfc8259.txt",
+      "archive_file": "backtest/archive/61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7.txt",
+      "sha256": "61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7",
+      "fetched_at": "2026-11-06T21:43:21Z",
+      "http_status": 200,
+      "origin": "real-fetch"
+    },
+    {
+      "id": "S3",
+      "url": "https://www.rfc-editor.org/rfc/rfc8259.txt",
+      "archive_file": "backtest/archive/61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7.txt",
+      "sha256": "61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7",
+      "fetched_at": "2026-11-06T21:43:21Z",
+      "http_status": 200,
+      "origin": "real-fetch"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "required-sections",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "Has a Question section, a Findings section with claims, and a Sources section with [S1] <url> \"quote\" lines",
+      "status": "pass",
+      "detail": "Question, Findings (3 claims), Sources (3) present"
+    },
+    {
+      "id": "every-claim-cited",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "Every claim in Findings ends with a citation that is listed in Sources",
+      "status": "fail",
+      "detail": "1 of 3 claims fail: claim 3 has no citation: \"A parser may ignore a byte order mark it receives \""
+    },
+    {
+      "id": "urls-resolve",
+      "type": "source_replay",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "Every cited URL has an archived record with a 2xx status",
+      "status": "pass",
+      "detail": "all 3 URLs have an archived 2xx record"
+    },
+    {
+      "id": "quotes-in-source",
+      "type": "source_replay",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "Every quoted passage is found in the archived page it is attributed to",
+      "status": "pass",
+      "detail": "all 3 quotes found in their archived pages"
+    },
+    {
+      "id": "answers-question",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": {
+        "min": 3
+      },
+      "weight": 3,
+      "label": "The findings answer the question that was asked",
+      "scores": [
+        {
+          "judge": "J1",
+          "model": "google/gemini-3.1-flash-lite",
+          "score": 5,
+          "quote": "JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.",
+          "reason": "The findings directly address both the required character encoding and the prohibition on byte order marks for networked transmission.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J2",
+          "model": "openai/gpt-5-mini",
+          "score": 5,
+          "quote": "JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.",
+          "reason": "This claim directly and completely states the required encoding for JSON exchanged between systems as asked.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J3",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "score": 5,
+          "quote": "JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8. [S1]",
+          "reason": "Both parts of the question are answered plainly in their own sourced claims: the required encoding (UTF-8) and the prohibition on adding a BOM, with the parser-ignore allowance as a bonus.",
+          "quote_found": true,
+          "void": false
+        }
+      ],
+      "median": 5,
+      "spread": 0,
+      "valid_n": 3,
+      "contested": false,
+      "status": "pass"
+    },
+    {
+      "id": "source-quality",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": "none",
+      "weight": 2,
+      "label": "The sources fit the stakes of the question",
+      "scores": [
+        {
+          "judge": "J1",
+          "model": "google/gemini-3.1-flash-lite",
+          "score": 5,
+          "quote": "JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8",
+          "reason": "The findings are sourced directly from the authoritative RFC 8259 standard.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J2",
+          "model": "openai/gpt-5-mini",
+          "score": 5,
+          "quote": "\"JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8\"",
+          "reason": "The claim is supported by a direct quote from RFC 8259, the authoritative standard for JSON.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J3",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "score": 5,
+          "quote": "[S1] https://www.rfc-editor.org/rfc/rfc8259.txt \"JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8\"",
+          "reason": "Each claim is sourced to RFC 8259, the authoritative standard for JSON, with exact quotes that directly support the claims.",
+          "quote_found": true,
+          "void": false
+        }
+      ],
+      "median": 5,
+      "spread": 0,
+      "valid_n": 3,
+      "contested": false,
+      "status": "pass"
+    },
+    {
+      "id": "buyer-accepted",
+      "type": "witness",
+      "trust": "Witnessed",
+      "gate": "none",
+      "label": "The buyer states whether the work was accepted",
+      "statement": null,
+      "by": null,
+      "at": null,
+      "ref": null
+    }
+  ],
+  "panel": {
+    "run": "backtest/judge-runs/research-uncited/run-1.json",
+    "run_sha256": "9cbeef678672546b35ad7e150a8ee17c613a7946809a6fd17530ecccfe316db9",
+    "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+    "judges": [
+      {
+        "label": "J1",
+        "model": "google/gemini-3.1-flash-lite"
+      },
+      {
+        "label": "J2",
+        "model": "openai/gpt-5-mini"
+      },
+      {
+        "label": "J3",
+        "model": "deepseek/deepseek-v4.1-flash"
+      }
+    ]
+  },
+  "injection": {
+    "flagged": false,
+    "matches": [],
+    "judges_flagged": 0
+  },
+  "trust": {
+    "reproduced": {
+      "passed": 3,
+      "total": 4,
+      "hard_failed": [
+        "every-claim-cited"
+      ]
+    },
+    "judged": {
+      "weighted_median": 5,
+      "rated": 2,
+      "contested": 0,
+      "void": 0,
+      "not_run": 0
+    },
+    "witnessed": []
+  },
+  "verdict": "fail",
+  "verdict_reason": "hard gate failed: every-claim-cited",
+  "receipt_hash": "b321f4cc2781b47a9d2f23856ef664933d636e75d188e81e966b03af4d50a068"
+}

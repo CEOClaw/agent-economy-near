@@ -1,0 +1,124 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "research-weak",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 2,
+  "judged_at": "2026-11-06T21:49:07.087Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 1,
+          "quote": "RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications.",
+          "reason": "The findings describe the nature of the RFC document rather than answering the specific question regarding character encoding and byte order marks."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 5,
+          "quote": "https://www.rfc-editor.org/rfc/rfc8259.txt \"This document removes inconsistencies with other specifications of JSON\"",
+          "reason": "The source provided is the authoritative RFC document for JSON, though the content extracted from it does not address the prompt's question."
+        }
+      ],
+      "prompt_sha256": "1f9fb900d0afcd6a926cbd4f13e9f6758824b7e6ccb9a29aca0ebf1cf2c8f027",
+      "usd": 0.0004335,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001744-sQhrxR1X8GyCqCC0Ogxp",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":1,\"quote\":\"RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications.\",\"reason\":\"The findings describe the nature of the RFC document rather than answering the specific question regarding character encoding and byte order marks.\"},{\"criterion\":\"source-quality\",\"score\":5,\"quote\":\"https://www.rfc-editor.org/rfc/rfc8259.txt \\\"This document removes inconsistencies with other specifications of JSON\\\"\",\"reason\":\"The source provided is the authoritative RFC document for JSON, though the content extracted from it does not address the prompt's question.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 906,
+            "completion_tokens": 138,
+            "cost": 0.0004335
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 1,
+          "quote": "## Findings\n- RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications. [S1]",
+          "reason": "The findings do not state the required character encoding or whether a BOM may be added; they only reference the RFC generally."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 3,
+          "quote": "[S1] https://www.rfc-editor.org/rfc/rfc8259.txt \"This document removes inconsistencies with other specifications of JSON\"",
+          "reason": "The cited source is the authoritative RFC 8259, but the quoted passages do not include the specific normative language about encoding or BOM, so relevance is partial."
+        }
+      ],
+      "prompt_sha256": "bacd4592d20d77dc0e6e5118c96af8ce8a8b4b4f0f914121616f786c0ef4fb5d",
+      "usd": 0.0005485,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001744-sErrWp0r9QGofoWoz19a",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":1,\"quote\":\"## Findings\\n- RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications. [S1]\",\"reason\":\"The findings do not state the required character encoding or whether a BOM may be added; they only reference the RFC generally.\"},{\"criterion\":\"source-quality\",\"score\":3,\"quote\":\"[S1] https://www.rfc-editor.org/rfc/rfc8259.txt \\\"This document removes inconsistencies with other specifications of JSON\\\"\",\"reason\":\"The cited source is the authoritative RFC 8259, but the quoted passages do not include the specific normative language about encoding or BOM, so relevance is partial.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 842,
+            "completion_tokens": 169,
+            "cost": 0.0005485
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 1,
+          "quote": "RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications.",
+          "reason": "The findings discuss the document's provenance and purpose rather than stating the required encoding (UTF-8) or whether a BOM may be added, so they do not answer the question asked."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 3,
+          "quote": "It represents the consensus of the IETF community",
+          "reason": "The sources are the authoritative RFC 8259 itself and are traceable, but the quoted passages support only metadata about the document, not the encoding or BOM claims the question requires."
+        }
+      ],
+      "prompt_sha256": "6201048a8fdb45052972f8a573c4ccd63a663e15a02ac4a5dfafcd5842c919ef",
+      "usd": 0.000105165,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001744-DCWDnLRUcuO88g4IOGmW",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":1,\"quote\":\"RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications.\",\"reason\":\"The findings discuss the document's provenance and purpose rather than stating the required encoding (UTF-8) or whether a BOM may be added, so they do not answer the question asked.\"},{\"criterion\":\"source-quality\",\"score\":3,\"quote\":\"It represents the consensus of the IETF community\",\"reason\":\"The sources are the authoritative RFC 8259 itself and are traceable, but the quoted passages support only metadata about the document, not the encoding or BOM claims the question requires.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 853,
+            "completion_tokens": 146,
+            "cost": 0.000105165
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

@@ -1,0 +1,142 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "site-v2",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 3,
+  "judged_at": "2026-11-06T21:49:19.834Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "AI-powered structured field extraction, delivered and independently verified on NEAR Agent Market.",
+          "reason": "The deliverable completely ignores the requested copy, tagline, and feature list, replacing them with content about a different product entirely."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "AI-powered structured field extraction, delivered and independently verified on NEAR Agent Market.",
+          "reason": "The page is filled with invented features, technical claims, and business models that were not present in the brief."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "⚡ Built by [seller] · How does it look?\n✏️ Request edits\n🌐 Custom domain — $20 USDC",
+          "reason": "The page is readable and structured, but it contains significant leftover scaffolding and template text related to the platform's editing interface."
+        }
+      ],
+      "prompt_sha256": "24b40b035ad66b58dbe1504111c9c220739502e8cc58063e8048320cbe89fd04",
+      "usd": 0.00074725,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001754-UlF94CZuWtJW0PerJwnM",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\n  \"scores\": [\n    {\n      \"criterion\": \"brief-fit\",\n      \"score\": 1,\n      \"quote\": \"AI-powered structured field extraction, delivered and independently verified on NEAR Agent Market.\",\n      \"reason\": \"The deliverable completely ignores the requested copy, tagline, and feature list, replacing them with content about a different product entirely.\"\n    },\n    {\n      \"criterion\": \"copy-discipline\",\n      \"score\": 1,\n      \"quote\": \"AI-powered structured field extraction, delivered and independently verified on NEAR Agent Market.\",\n      \"reason\": \"The page is filled with invented features, technical claims, and business models that were not present in the brief.\"\n    },\n    {\n      \"criterion\": \"polish\",\n      \"score\": 3,\n      \"quote\": \"⚡ Built by [seller] · How does it look?\\n✏️ Request edits\\n🌐 Custom domain — $20 USDC\",\n      \"reason\": \"The page is readable and structured, but it contains significant leftover scaffolding and template text related to the platform's editing interface.\"\n    }\n  ],\n  \"injection_seen\": false\n}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1441,
+            "completion_tokens": 258,
+            "cost": 0.00074725
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 2,
+          "quote": "What it does\nStructured extraction,\nevery time.",
+          "reason": "The deliverable includes a 'What it does' and 'How it works' section but omits the requested hero copy (tagline and intro), the exact bullets, the specified 'Start now' button linking to https://ohwow.fun, and the sections are rearranged or replaced with unrelated marketplace details."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "AI-powered structured field extraction, delivered and independently verified on NEAR Agent Market.",
+          "reason": "The page introduces multiple facts not in the brief (NEAR Agent Market, AgentProof, USDC pricing, escrow, independent verification) that are invented beyond the buyer's provided copy."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "© 2026 Ohwow Limited Liability Company",
+          "reason": "The text is generally readable and consistent with a footer present, but contains extraneous marketplace UI fragments and inconsistent contact emails indicating some leftover scaffolding."
+        }
+      ],
+      "prompt_sha256": "0628d642c36aac4bc0574637907bf1ff2a9f8a883d0f287da5ed01ccd8028fcf",
+      "usd": 0.000824,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001756-P0oGsos4Fl6Tbd8NKHgc",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":2,\"quote\":\"What it does\\nStructured extraction,\\nevery time.\",\"reason\":\"The deliverable includes a 'What it does' and 'How it works' section but omits the requested hero copy (tagline and intro), the exact bullets, the specified 'Start now' button linking to https://ohwow.fun, and the sections are rearranged or replaced with unrelated marketplace details.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"AI-powered structured field extraction, delivered and independently verified on NEAR Agent Market.\",\"reason\":\"The page introduces multiple facts not in the brief (NEAR Agent Market, AgentProof, USDC pricing, escrow, independent verification) that are invented beyond the buyer's provided copy.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"© 2026 Ohwow Limited Liability Company\",\"reason\":\"The text is generally readable and consistent with a footer present, but contains extraneous marketplace UI fragments and inconsistent contact emails indicating some leftover scaffolding.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1400,
+            "completion_tokens": 237,
+            "cost": 0.000824
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "AI-powered structured field extraction, delivered and independently verified on NEAR Agent Market.",
+          "reason": "The page replaces the requested product-page purpose and copy with an unrelated document-extraction agent pitch, omitting the tagline, intro, bullets, and the ohwow.fun button link."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "Every delivery carries an AgentProof evidence digest. Anyone can re-run the checker and get the same result.",
+          "reason": "It invents numerous unsupported facts and promises such as AgentProof digests, USDC per-job pricing, escrow, and independent verification that the brief never mentions."
+        },
+        {
+          "criterion": "polish",
+          "score": 1,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "Leftover scaffolding and template text like '[seller]', edit-request prompts, and a stray pricing upsell make the page read as unfinished."
+        }
+      ],
+      "prompt_sha256": "4881de269903d2263c57712071a73e8ec2566609042466173c39b2619dc3e505",
+      "usd": 0.000077893452,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001756-2j26uQb3jtC9SIPeIKyq",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":1,\"quote\":\"AI-powered structured field extraction, delivered and independently verified on NEAR Agent Market.\",\"reason\":\"The page replaces the requested product-page purpose and copy with an unrelated document-extraction agent pitch, omitting the tagline, intro, bullets, and the ohwow.fun button link.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"Every delivery carries an AgentProof evidence digest. Anyone can re-run the checker and get the same result.\",\"reason\":\"It invents numerous unsupported facts and promises such as AgentProof digests, USDC per-job pricing, escrow, and independent verification that the brief never mentions.\"},{\"criterion\":\"polish\",\"score\":1,\"quote\":\"⚡ Built by [seller] · How does it look?\",\"reason\":\"Leftover scaffolding and template text like '[seller]', edit-request prompts, and a stray pricing upsell make the page read as unfinished.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1429,
+            "completion_tokens": 215,
+            "cost": 0.000077893452
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

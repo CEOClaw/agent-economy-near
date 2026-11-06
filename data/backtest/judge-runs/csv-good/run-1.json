@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "csv-good",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 1,
+  "judged_at": "2026-11-06T21:48:48.839Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"00501\",",
+          "reason": "The output correctly preserves the leading zeros in the zip code field and maintains the requested JSON array format with all original data intact."
+        }
+      ],
+      "prompt_sha256": "a0af9d1b791500450c49705cb6120ef930a6e0567727badebd58dd937f90e2af",
+      "usd": 0.00033625,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001727-Dod223rFRez48VCTgyvN",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"00501\\\",\",\"reason\":\"The output correctly preserves the leading zeros in the zip code field and maintains the requested JSON array format with all original data intact.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 967,
+            "completion_tokens": 63,
+            "cost": 0.00033625
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"00501\",\"city\": \"Holtsville\",\"notes\": \"Call after 5pm\"",
+          "reason": "The JSON preserves field names, row order, and values (including leading zeros like \"00501\") exactly as presented, making it usable as delivered."
+        }
+      ],
+      "prompt_sha256": "2e76f74f7e35008b6707cd677c94a5cfd7a63ec2cbd78d134263627e0ab4191e",
+      "usd": 0.0004155,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001727-dJxFfSiz5lhhX0G4nl0r",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"00501\\\",\\\"city\\\": \\\"Holtsville\\\",\\\"notes\\\": \\\"Call after 5pm\\\"\",\"reason\":\"The JSON preserves field names, row order, and values (including leading zeros like \\\"00501\\\") exactly as presented, making it usable as delivered.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 878,
+            "completion_tokens": 98,
+            "cost": 0.0004155
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\"",
+          "reason": "The output is a JSON array of objects with field names, row order, and string values preserved, including leading zeros in zips like 02134 and 00501, so it is usable as delivered for the stated purpose."
+        }
+      ],
+      "prompt_sha256": "64d4938f414956f6adb3f13111be11ae0fbdd7c075fb4afa28ac1ee383ea4f7d",
+      "usd": 0.000091998,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001727-Kf252xc2heAsouVZJ60J",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\"\",\"reason\":\"The output is a JSON array of objects with field names, row order, and string values preserved, including leading zeros in zips like 02134 and 00501, so it is usable as delivered for the stated purpose.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 870,
+            "completion_tokens": 84,
+            "cost": 0.000091998
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

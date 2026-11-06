@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "csv-good",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 5,
+  "judged_at": "2026-11-06T21:50:27.437Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"00501\",",
+          "reason": "The output correctly preserves all field names, row order, and string formatting including the required leading zeros."
+        }
+      ],
+      "prompt_sha256": "7542c5f733bf772ffffb8f0a49b69d10c95428aafbe884592b47a0634046fa00",
+      "usd": 0.00032825,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001825-wkLbreTvyWE72b7ATctj",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"00501\\\",\",\"reason\":\"The output correctly preserves all field names, row order, and string formatting including the required leading zeros.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 965,
+            "completion_tokens": 58,
+            "cost": 0.00032825
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "Convert the attached customer CSV to a JSON array with one object per row.",
+          "reason": "The deliverable is a JSON array with one object per CSV row, preserving field names, row order, and string values (e.g., \"zip\": \"02134\" preserves leading zeros)."
+        }
+      ],
+      "prompt_sha256": "db5b09ffc2039358f1cbd0461c04a929abfc2df546a01a90fb7ca3693fc9f9f8",
+      "usd": 0.0004145,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001825-MP1A04GFaTdqF9ljvZSs",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"Convert the attached customer CSV to a JSON array with one object per row.\",\"reason\":\"The deliverable is a JSON array with one object per CSV row, preserving field names, row order, and string values (e.g., \\\"zip\\\": \\\"02134\\\" preserves leading zeros).\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 874,
+            "completion_tokens": 98,
+            "cost": 0.0004145
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\"",
+          "reason": "Field names are preserved from the CSV, rows appear in sequential id order 1-8, and string values including leading zeros in zips survive as delivered."
+        }
+      ],
+      "prompt_sha256": "dcd75e5b9e7a5d7360e54530298c5c7b06ca5e40fb715e0772ad1f96dbe867d8",
+      "usd": 0.00025875,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001825-1wHHQ0n1ayMo424COYJF",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\"\",\"reason\":\"Field names are preserved from the CSV, rows appear in sequential id order 1-8, and string values including leading zeros in zips survive as delivered.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 870,
+            "completion_tokens": 70,
+            "cost": 0.00025875
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

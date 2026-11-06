@@ -1,0 +1,126 @@
+{
+  "schema": "agentproof-pack-receipt-v1",
+  "id": "pdf-good",
+  "mock": true,
+  "input_origin": "synthetic",
+  "evidence_note": "Mock backtest. Not market evidence. Synthetic input built by the pack author to test one failure mode.",
+  "agent": {
+    "label": "synthetic-files",
+    "handle": null
+  },
+  "buyer_label": "synthetic-buyer",
+  "pack": {
+    "id": "file-transform-v1",
+    "version": "1.0.0",
+    "file": "packs/file-transform-v1.json",
+    "hash": "ff5cb08e9f8b1cc30315c236421604a57c9c92d6079a118c025df4e27d27946c"
+  },
+  "job": {
+    "file": "backtest/fixtures/pdf-good/job.json",
+    "hash": "40d85a1b35d94c00a017606e95164a05abd16fa050cd2618f2c3c4c257553be2"
+  },
+  "commitment": {
+    "pack_hash": "ff5cb08e9f8b1cc30315c236421604a57c9c92d6079a118c025df4e27d27946c",
+    "job_hash": "40d85a1b35d94c00a017606e95164a05abd16fa050cd2618f2c3c4c257553be2",
+    "rubric_hash": "333e4e6c8ee673aaab3b493863941cfbe9c84c4cb774a7a65f42efd03e331119",
+    "committed_at": "2026-11-06T21:44:52Z",
+    "delivered_at": null,
+    "before_delivery": false,
+    "note": "Synthetic deliverable written by the pack author after the pack: post-hoc backtest, not blind for the pack author. Judges are blind.",
+    "hash": "e308472f7bd7d57fe91b0ff5612760f85c929fece542111c0ad26552e7c35412"
+  },
+  "deliverable": {
+    "file": "backtest/fixtures/pdf-good/deliverable.pdf",
+    "sha256": "c551f116ec57b8a71f21a01b9cb34f22098dda80aec40b3f859f9a0c85b2f97c",
+    "bytes": 918,
+    "media_type": "application/pdf"
+  },
+  "sources": [],
+  "criteria": [
+    {
+      "id": "output-format",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The output is a well-formed file of the requested format",
+      "status": "pass",
+      "detail": "PDF with 2 pages"
+    },
+    {
+      "id": "size-target",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The output is within the size target (not applicable when no target is set)",
+      "status": "not_applicable",
+      "detail": "no size target in job params"
+    },
+    {
+      "id": "content-preserved",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The content of the input survives: pixels, rows and fields, page text, or the structured-field checker's digest",
+      "status": "pass",
+      "detail": "text of 2 extracted pages equals the input pages"
+    },
+    {
+      "id": "metadata-clean",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "No metadata is left where the transform promises to strip it (not applicable otherwise)",
+      "status": "pass",
+      "detail": "no Author, Creator, Producer, Title, Subject, Keywords, dates or XMP"
+    },
+    {
+      "id": "fit-for-use",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": "none",
+      "weight": 1,
+      "label": "Text renditions only: the output is usable for its stated purpose. Binary outputs are not applicable and no judge is called",
+      "scores": [],
+      "median": null,
+      "spread": null,
+      "valid_n": 0,
+      "contested": false,
+      "status": "not_applicable"
+    },
+    {
+      "id": "buyer-accepted",
+      "type": "witness",
+      "trust": "Witnessed",
+      "gate": "none",
+      "label": "The buyer states whether the work was accepted",
+      "statement": null,
+      "by": null,
+      "at": null,
+      "ref": null
+    }
+  ],
+  "panel": null,
+  "injection": {
+    "flagged": false,
+    "matches": [],
+    "judges_flagged": 0
+  },
+  "trust": {
+    "reproduced": {
+      "passed": 3,
+      "total": 3,
+      "hard_failed": []
+    },
+    "judged": {
+      "weighted_median": null,
+      "rated": 0,
+      "contested": 0,
+      "void": 0,
+      "not_run": 0
+    },
+    "witnessed": []
+  },
+  "verdict": "pass",
+  "verdict_reason": "every hard gate passed and every gated rubric met its minimum",
+  "receipt_hash": "ac402903e5f2a25f215b60f17ae08b011852d489e73411cfebd5f2696fb856a7"
+}

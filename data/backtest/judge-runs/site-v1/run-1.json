@@ -1,0 +1,142 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "site-v1",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 1,
+  "judged_at": "2026-11-06T21:48:33.747Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "What We Do\nBuilt for Results. Driven by Excellence.\nWe combine expertise, passion, and precision to deliver outcomes",
+          "reason": "The deliverable ignores the requested copy and structure, replacing them with generic filler content that does not match the brief's requirements."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "Independently Verified\nFast Delivery\nResults Guaranteed\nClient-First Always",
+          "reason": "The deliverable includes multiple invented claims and promises regarding verification and guarantees that were not present in the original brief."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "Built and hosted by [seller] · Verified on NEAR AgentProof\n⚡ Built by [seller] · How does it look?\n✏️ Request edits",
+          "reason": "The page is readable but contains significant leftover scaffolding and template instructions related to the seller's platform."
+        }
+      ],
+      "prompt_sha256": "be4663a8531ba6babf87168d99db2624206b6cc76c16a41591d8c83475890ebd",
+      "usd": 0.00062225,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001709-YisVG02AWx7SRgyIcmmR",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":1,\"quote\":\"What We Do\\nBuilt for Results. Driven by Excellence.\\nWe combine expertise, passion, and precision to deliver outcomes\",\"reason\":\"The deliverable ignores the requested copy and structure, replacing them with generic filler content that does not match the brief's requirements.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"Independently Verified\\nFast Delivery\\nResults Guaranteed\\nClient-First Always\",\"reason\":\"The deliverable includes multiple invented claims and promises regarding verification and guarantees that were not present in the original brief.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"Built and hosted by [seller] · Verified on NEAR AgentProof\\n⚡ Built by [seller] · How does it look?\\n✏️ Request edits\",\"reason\":\"The page is readable but contains significant leftover scaffolding and template instructions related to the seller's platform.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1295,
+            "completion_tokens": 199,
+            "cost": 0.00062225
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 3,
+          "quote": "hero\nwhat it does\nhow it works\ncontact",
+          "reason": "All four requested sections are present but content placement is partial and the requested specific copy (tagline and intro/button) is not fully placed as in the brief."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 2,
+          "quote": "Independently Verified\nFast Delivery\nResults Guaranteed\nClient-First Always",
+          "reason": "The page adds explicit claims like 'Independently Verified' and 'Results Guaranteed' that were not in the brief and constitute invented credentials/guarantees."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "Built and hosted by [seller] · Verified on NEAR AgentProof",
+          "reason": "The text is mostly readable and structured, but includes inconsistent labels and leftover scaffolding (seller placeholders and verification mentions) suggesting uneven polish."
+        }
+      ],
+      "prompt_sha256": "a3dada52dc6fbb6cc80bea910af74f5abc8ad26231b78e928cd9f4851abbbcd9",
+      "usd": 0.00072325,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001710-sUy1TNNhxyRRWLEVGtyx",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":3,\"quote\":\"hero\\nwhat it does\\nhow it works\\ncontact\",\"reason\":\"All four requested sections are present but content placement is partial and the requested specific copy (tagline and intro/button) is not fully placed as in the brief.\"},{\"criterion\":\"copy-discipline\",\"score\":2,\"quote\":\"Independently Verified\\nFast Delivery\\nResults Guaranteed\\nClient-First Always\",\"reason\":\"The page adds explicit claims like 'Independently Verified' and 'Results Guaranteed' that were not in the brief and constitute invented credentials/guarantees.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"Built and hosted by [seller] · Verified on NEAR AgentProof\",\"reason\":\"The text is mostly readable and structured, but includes inconsistent labels and leftover scaffolding (seller placeholders and verification mentions) suggesting uneven polish.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1245,
+            "completion_tokens": 206,
+            "cost": 0.00072325
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "Built for Results. Driven by Excellence.",
+          "reason": "The requested tagline is present but the intro, bullets, button to https://ohwow.fun, and the what-it-does/how-it-works content are replaced by generic agency copy, so most of the brief is ignored."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "Results Guaranteed",
+          "reason": "The page invents claims and credentials such as 'Results Guaranteed', 'Independently Verified', 'Fast Delivery' and 'Verified on NEAR AgentProof' that the brief never supports."
+        },
+        {
+          "criterion": "polish",
+          "score": 1,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "Leftover scaffolding and template text like '[seller]', 'Request edits', 'Custom domain — $20 USDC' and raw section labels 'hero / what it does / how it works / contact' remain visible, making the page read as unfinished."
+        }
+      ],
+      "prompt_sha256": "4d16575f46f6ae6427695d8ed5030971787f4cc71001b5ed2eae7cd4d9089561",
+      "usd": 0.000162525,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001710-tCFUDRVprB5hu7wRfrMw",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":1,\"quote\":\"Built for Results. Driven by Excellence.\",\"reason\":\"The requested tagline is present but the intro, bullets, button to https://ohwow.fun, and the what-it-does/how-it-works content are replaced by generic agency copy, so most of the brief is ignored.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"Results Guaranteed\",\"reason\":\"The page invents claims and credentials such as 'Results Guaranteed', 'Independently Verified', 'Fast Delivery' and 'Verified on NEAR AgentProof' that the brief never supports.\"},{\"criterion\":\"polish\",\"score\":1,\"quote\":\"⚡ Built by [seller] · How does it look?\",\"reason\":\"Leftover scaffolding and template text like '[seller]', 'Request edits', 'Custom domain — $20 USDC' and raw section labels 'hero / what it does / how it works / contact' remain visible, making the page read as unfinished.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1267,
+            "completion_tokens": 225,
+            "cost": 0.000162525
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}
