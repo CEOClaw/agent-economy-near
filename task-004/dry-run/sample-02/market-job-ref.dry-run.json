@@ -1,0 +1,140 @@
+{
+  "schema": "agentproof-market-job-ref-v1",
+  "written_at": "2026-10-21T12:00:00.000Z",
+  "dry_run": true,
+  "phase": "accepted",
+  "terminal": true,
+  "hire": {
+    "id": "row-2",
+    "assignment_id": "asg-1",
+    "job_id": "job-1",
+    "state": "accepted",
+    "market_status": "accepted",
+    "cancel_reason": null,
+    "rounds": 1,
+    "started_at": "2026-10-21T12:00:00.000Z",
+    "submitted_at": "2026-10-21T12:00:00.000Z",
+    "accepted_at": "2026-10-21T12:00:00.000Z",
+    "amount": "1.00",
+    "token": "USD"
+  },
+  "job": {
+    "read_ok": true,
+    "source": "GET /v1/jobs/{id}",
+    "id": "job-1",
+    "status": "in_progress",
+    "kind": "instant",
+    "title": "job",
+    "creator_account_id": "buyer-acct",
+    "budget_amount": "1.000000000000",
+    "budget_token": "USD",
+    "created_at": "2026-10-21T12:00:00.000Z",
+    "updated_at": "2026-10-21T12:00:00.000Z",
+    "missing": null
+  },
+  "escrow": {
+    "read_ok": true,
+    "source": "GET /v1/agents/me/assignments",
+    "assignment_status": "accepted",
+    "amount": "1.000000000000",
+    "token": "USD",
+    "started_at": "2026-10-21T12:00:00.000Z",
+    "submitted_at": "2026-10-21T12:00:00.000Z",
+    "finalized_at": "2026-10-21T12:00:00.000Z",
+    "market_deliverable_hash": "market-hash-dry",
+    "funding_tx": null,
+    "funding_tx_source": "requester ledger (buyer side)",
+    "missing": null
+  },
+  "executor": {
+    "market_agent_id": "agent-market-1",
+    "handle": "resumen-pro",
+    "owner_account_id": "acct-1",
+    "executor_agent_id": "ohwow-agent"
+  },
+  "delivery": {
+    "submitted_at": "2026-10-21T12:00:00.000Z",
+    "deliverable_sha256": "642eb38e23cfd545c6053d7944a15756d1f97afa0fdd55c6ba9c7b58db93af52",
+    "deliverable_bytes": 439,
+    "output": {
+      "schema": "agentproof-extraction-v1",
+      "task_id": "00000000-0000-4000-8000-000000000002",
+      "extracted": {
+        "CURRENCY": "USDC",
+        "MEMO": "Ref: Q4 renewal: net 30",
+        "INVOICE_ID": "INV-0042",
+        "CLIENT": "Ünïcödé Ltd 東京",
+        "STATUS": "final",
+        "ENDPOINT": "https://api.example.com:8443/v1/jobs?id=7&mode=full"
+      },
+      "extraction_timestamp_iso": "2026-10-21T12:00:00.000Z",
+      "executor_agent_id": "ohwow-agent"
+    },
+    "checker": {
+      "outcome": "pass",
+      "evidence_digest": "8a7c45de1a3a4e6d9f2f22fe434ef7f40b113f06b35bbc1aace7b4411144830d",
+      "checker_ref": "ohwow-port-of-AGENTPROOF-CHECKER.md@2026-10-30",
+      "digest_canon": "python-json.dumps(sort_keys=True,separators=(\",\",\":\"),ensure_ascii=True)",
+      "notes": [],
+      "task_type": "structured-field-extraction-v1",
+      "output_schema": "agentproof-extraction-v1",
+      "judged_at": "2026-10-21T12:00:00.000Z"
+    }
+  },
+  "settlement": {
+    "ledger_read_ok": true,
+    "ledger_source": "GET /v1/wallet/ledger (newest 200 rows)",
+    "ours": {
+      "decision": "release",
+      "reason": "Aceptado en NEAR. Pago en camino, todavía no está en tu saldo.",
+      "rail": "near_market",
+      "rail_ref": "asg-1",
+      "resolved_at": "2026-10-21T12:00:00.000Z"
+    },
+    "ledger_entries": [
+      {
+        "id": "led-1",
+        "kind": "escrow_release",
+        "amount": "1.000000000000",
+        "currency": "USD",
+        "status": "pending",
+        "chain_tx_hash": null,
+        "created_at": "2026-10-21T12:00:00.000Z"
+      }
+    ],
+    "dispute": null,
+    "note": "The release row is a promise, not booked money: the payout is a later market step. Ledger rows above are what the market showed this seller token for this job.",
+    "missing": null
+  },
+  "checks_task_004": {
+    "job_created_via_confirmed_api": {
+      "value": true,
+      "proof": "job.id equals hire.job_id and job.status/created_at come from GET /v1/jobs/{id}"
+    },
+    "job_ref_independently_retrievable": {
+      "value": true,
+      "proof": "job.read_ok: the market returned the job to the seller token by its id, not from our own database"
+    },
+    "escrow_funded_usdc_onchain": {
+      "value": null,
+      "proof": "not visible seller-side: escrow.amount/escrow.token show the held escrow, the funding tx is on the requester ledger (escrow.funding_tx_source)"
+    },
+    "executor_received_and_acknowledged": {
+      "value": true,
+      "proof": "escrow.started_at (market assignment row)"
+    },
+    "delivery_submitted_by_executor": {
+      "value": true,
+      "proof": "delivery.submitted_at + delivery.deliverable_sha256 (escrow.market_deliverable_hash is the market copy)"
+    },
+    "settlement_path_documented": {
+      "value": true,
+      "proof": "settlement.ours.decision/reason (our settlement row) + settlement.ledger_entries (market ledger rows for this job)"
+    },
+    "all_committed_to_market_job_ref_json": {
+      "value": null,
+      "proof": "committing this file to the partner repo is a human step; this record is the content"
+    }
+  },
+  "missing": []
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "agentproof-extraction-v1",
+  "task_id": "00000000-0000-4000-8000-000000000002",
+  "extracted": {
+    "CURRENCY": "USDC",
+    "MEMO": "Ref: Q4 renewal: net 30",
+    "INVOICE_ID": "INV-0042",
+    "CLIENT": "Ünïcödé Ltd 東京",
+    "STATUS": "final",
+    "ENDPOINT": "https://api.example.com:8443/v1/jobs?id=7&mode=full"
+  },
+  "extraction_timestamp_iso": "2026-10-21T12:00:00.000Z",
+  "executor_agent_id": "ohwow-agent"
+}
