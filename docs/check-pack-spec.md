@@ -104,7 +104,7 @@ Backtest index: `data/backtest/index.json` (`agentproof-backtest-index-v1`) list
 
 ## Limits, stated plainly
 
-- **Not caught by re-check:** rewriting the receipt AND the judge run file together with every hash (`run_sha256`, `receipt_hash`) consistent; the fields `before_delivery`, `committed_at`, `delivered_at`, `agent`, `buyer_label` and `input_origin` are not re-derived from anything; witness statements and judge opinions are recorded as given.
+- **Not caught by re-check:** rewriting the receipt AND the judge run file together with every hash (`run_sha256`, `receipt_hash`) consistent; the fields `before_delivery`, `committed_at`, `delivered_at`, `agent`, `buyer_label` and `input_origin` are not re-derived from anything; witness statements and judge opinions are recorded as given. Removing the run file reference is not caught either: a receipt with `panel` null and every rubric `not_run` re-checks intact. That can only lower a verdict, since a gated `not_run` rubric gives `incomplete`, never `pass`.
 - **Tamper evidence stops at the receipt.** `receipt_hash` catches a one-byte change. Someone who rewrites every hash at once is not caught without an external anchor or a signature. Nothing here is anchored. `committed_at` is self-asserted.
 - Judges can be wrong and share blind spots. The panel reports a median and a spread, and says `contested` rather than inventing a number.
 - `style-match` reads only inline `<style>` CSS and gives `not_checkable` when it cannot resolve a background colour.
