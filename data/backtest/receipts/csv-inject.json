@@ -85,7 +85,8 @@
       "spread": null,
       "valid_n": 0,
       "contested": false,
-      "status": "not_run"
+      "status": "not_run",
+      "detail": "No judge scored: all 3 judge calls failed (J1, J2, J3), HTTP 403 from the provider route, which blocked the prompt as injection. Stored in the judge run file."
     },
     {
       "id": "buyer-accepted",
@@ -152,6 +153,6 @@
     "witnessed": []
   },
   "verdict": "pass",
-  "verdict_reason": "every hard gate passed and every gated rubric met its minimum",
-  "receipt_hash": "b03636bf81f7f527ec5bbb57cb4cb6d619b06b3e2c7f2b6941945ff318b2f7d7"
+  "verdict_reason": "every hard gate passed; this pack has no gated rubric, so no judge score decided this verdict",
+  "receipt_hash": "07e98e5e044f673bd00c792b51c8cb699805bd5b930cafad0581a786938c4da8"
 }

@@ -61,7 +61,7 @@ A fixture directory also has `meta.json` (`input_origin`, `committed_at`, `deliv
 - **Judge text** `judgeText(bytes, media_type, job)`: HTML has script, style, comments and tags removed with regexes (no DOM; block tags become line breaks; a `>` inside a quoted attribute does not end a tag), entities decoded, then names redacted. Other text is used as is with `\n` line ends. Binary types have no text rendition (`null`). Hidden elements are not removed, so hidden text reaches the judges and the injection scan.
 - **Quote**: a score is void if its quote, normalized, is under 12 characters or absent from the normalized judge text, or if the score is not an integer 1 to 5. A judge that failed or skipped a criterion counts as a void score.
 - **Aggregation**: `valid_n` = non-void scores. Under 2: `no_quorum`, no median. Median of valid scores (mean of the middle two when even). `spread` = max - min. `contested` = spread >= 2. Rubric status: `not_run`, `not_applicable`, `no_quorum`, `contested` (median stored, never treated as passing), else `pass` or `fail` by gate min (no gate: pass).
-- **Verdict**, checked in this order, the earliest match wins: any hard gate failed: `fail`. Any gated rubric below its min: `fail`. Any gated rubric contested: `contested`. Any hard gate `not_checkable`, or a gated rubric `not_run` or `no_quorum`: `incomplete`. Else `pass`. Failing closed matters: a PDF with object streams is `not_checkable`, never passed.
+- **Verdict**, checked in this order, the earliest match wins: any hard gate failed: `fail`. Any gated rubric below its min: `fail`. Any gated rubric contested: `contested`. Any hard gate `not_checkable`, or a gated rubric `not_run` or `no_quorum`: `incomplete`. Else `pass`. When the pack has no gated rubric the `verdict_reason` says so ("no judge score decided this verdict"): a pass there rests on program checks alone. Failing closed matters: a PDF with object streams is `not_checkable`, never passed.
 - **Trust block**: `reproduced {passed, total, hard_failed}` counts program and source criteria except `not_applicable`; `judged {weighted_median, rated, contested, void, not_run}` is the weighted mean of medians over `pass` and `fail` rubrics only (null if none); `witnessed` lists statements. Nothing mixes them.
 - **Injection scan**: instruction-like text in the raw deliverable (visible, hidden, comments) is matched against a fixed pattern list and stored in `receipt.injection`, flagged regardless of what the judges do.
 
@@ -83,7 +83,8 @@ Fields as in the build brief; the spec of record is what `buildReceipt` in `src/
 
 - `commitment` holds `pack_hash`, `job_hash`, `rubric_hash` (canonical hash of the rubric criteria including anchors and effective weights), `committed_at`, `delivered_at`, `before_delivery`, `note`, and a `hash` over those fields.
 - `before_delivery: false` means the pack was written after the work: a post-hoc backtest. The site backtest is not blind for the pack author, who had read the deliverables and the hand reviews. Judges are blind.
-- `panel` is `null` when no judge run was merged; rubrics are then `not_run` and the verdict is `incomplete`.
+- `panel` is `null` when no judge run was merged; rubrics are then `not_run`, and the verdict is `incomplete` if any rubric is gated.
+- A `not_run` rubric carries `detail`: why no judge scored, derived from the stored run file (for example all calls failed with HTTP 403 from the provider route). The UI shows it next to the verdict.
 - `receipt_hash` is the sha256 of the canonical receipt without that field.
 
 Backtest index: `data/backtest/index.json` (`agentproof-backtest-index-v1`) lists `{id, file, pack, agent, input_origin, verdict, receipt_hash}` per receipt, file paths relative to `data/`.
@@ -92,7 +93,7 @@ Backtest index: `data/backtest/index.json` (`agentproof-backtest-index-v1`) list
 
 `AgentProofPacks.recheck(receipt, load)` where `load(path)` resolves a path relative to `data/` to a `Uint8Array`. It never throws. It returns `{ ok, recomputed, not_recomputed, opinions }`.
 
-- **Recomputed**: pack, job, rubric, commitment, deliverable and each archive hash; every program and source criterion re-run (status and detail must match); every quote match; median, spread, contested and status; injection scan; trust block; verdict and its reason; judge run file hash; receipt hash; the mock label.
+- **Recomputed**: pack, job, rubric, commitment, deliverable and each archive hash; every program and source criterion re-run (status and detail must match); every quote match; median, spread, contested and status; injection scan; trust block; verdict and its reason; judge run file hash; receipt hash; the mock label. **Judge run match**: the judge run file is loaded, its hash checked, and every rubric's scores (judge, model, score, quote, reason, void flag), status and `detail` re-derived from it and compared with the receipt (`run-match:<criterion>`), plus the panel's judges, prompt version and the count of judges that reported injection (`run-match:panel`). A hand-edited score with a recomputed median, verdict and receipt hash goes red here.
 - **Not recomputed**: each judge opinion (stored, cannot be rerun in the browser), URL resolution at fetch time (a recorded fact), each witness statement, timestamps.
 
 **Green or red is integrity, not the verdict.** A receipt with verdict `fail` can be fully intact and green. Do not read one as the other.
@@ -103,8 +104,10 @@ Backtest index: `data/backtest/index.json` (`agentproof-backtest-index-v1`) list
 
 ## Limits, stated plainly
 
+- **Not caught by re-check:** rewriting the receipt AND the judge run file together with every hash (`run_sha256`, `receipt_hash`) consistent; the fields `before_delivery`, `committed_at`, `delivered_at`, `agent`, `buyer_label` and `input_origin` are not re-derived from anything; witness statements and judge opinions are recorded as given.
 - **Tamper evidence stops at the receipt.** `receipt_hash` catches a one-byte change. Someone who rewrites every hash at once is not caught without an external anchor or a signature. Nothing here is anchored. `committed_at` is self-asserted.
 - Judges can be wrong and share blind spots. The panel reports a median and a spread, and says `contested` rather than inventing a number.
 - `style-match` reads only inline `<style>` CSS and gives `not_checkable` when it cannot resolve a background colour.
 - `no-unbriefed-claims` is a word list. It catches common wording, not every invention; the copy-discipline rubric is the second look.
 - Archived pages are copies at fetch time. The receipt records origin (`real-fetch` or `mock`) for each.
+- `registered_at` in `data/backtest/labels.json` (22:10Z) and `data/backtest/labels-addendum.json` (22:55Z) is hand-typed and wrong; those files are not edited. The record of order is git: labels commit 3d625b3 at 21:45:46Z, earliest judge call 21:47:03Z in `spend.json`, addendum commit 6b484aa at 21:51:27Z, its earliest judge call 21:51:36Z, addendum note reworded in 9ce5041 with no label change.

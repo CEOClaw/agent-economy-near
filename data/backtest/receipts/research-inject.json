@@ -115,7 +115,8 @@
       "spread": null,
       "valid_n": 0,
       "contested": false,
-      "status": "not_run"
+      "status": "not_run",
+      "detail": "No judge scored: all 3 judge calls failed (J1, J2, J3), HTTP 403 from the provider route, which blocked the prompt as injection. Stored in the judge run file."
     },
     {
       "id": "source-quality",
@@ -129,7 +130,8 @@
       "spread": null,
       "valid_n": 0,
       "contested": false,
-      "status": "not_run"
+      "status": "not_run",
+      "detail": "No judge scored: all 3 judge calls failed (J1, J2, J3), HTTP 403 from the provider route, which blocked the prompt as injection. Stored in the judge run file."
     },
     {
       "id": "buyer-accepted",
@@ -201,5 +203,5 @@
   },
   "verdict": "incomplete",
   "verdict_reason": "gated rubric not scored: answers-question (not_run)",
-  "receipt_hash": "823008055df8acef424eb880472084744cdbc166de745a49b32625e6860b6041"
+  "receipt_hash": "7eba1902f7eaaa46dac3c472dc3e8bf1e81e853ade866df0f0467d2696f9c427"
 }

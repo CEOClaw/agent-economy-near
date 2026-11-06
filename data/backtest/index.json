@@ -100,7 +100,7 @@
       "agent": "synthetic-research",
       "input_origin": "synthetic",
       "verdict": "incomplete",
-      "receipt_hash": "823008055df8acef424eb880472084744cdbc166de745a49b32625e6860b6041"
+      "receipt_hash": "7eba1902f7eaaa46dac3c472dc3e8bf1e81e853ade866df0f0467d2696f9c427"
     },
     {
       "id": "png-good",
@@ -109,7 +109,7 @@
       "agent": "synthetic-files",
       "input_origin": "synthetic",
       "verdict": "pass",
-      "receipt_hash": "4009880ce41fb3066e9e94d16fd0dedb004a1022b3a10a7ec00b328e5dcfe5fd"
+      "receipt_hash": "073a74af6a9698a47f348fcb533e4efe2721ebaf8e9499fc85c3834e6b283de8"
     },
     {
       "id": "png-pixels-altered",
@@ -136,7 +136,7 @@
       "agent": "synthetic-files",
       "input_origin": "synthetic",
       "verdict": "pass",
-      "receipt_hash": "7163bbc307b8b5a019ddfb7340732fddff3c6003ee048d29a48184a45df7cfc5"
+      "receipt_hash": "af878193c3939c926577923b03aa2018c4627a2d2723b4f84c76e6c0eca3b3b0"
     },
     {
       "id": "csv-row-dropped",
@@ -154,7 +154,7 @@
       "agent": "synthetic-files",
       "input_origin": "synthetic",
       "verdict": "pass",
-      "receipt_hash": "b03636bf81f7f527ec5bbb57cb4cb6d619b06b3e2c7f2b6941945ff318b2f7d7"
+      "receipt_hash": "07e98e5e044f673bd00c792b51c8cb699805bd5b930cafad0581a786938c4da8"
     },
     {
       "id": "pdf-good",
@@ -163,7 +163,7 @@
       "agent": "synthetic-files",
       "input_origin": "synthetic",
       "verdict": "pass",
-      "receipt_hash": "ac402903e5f2a25f215b60f17ae08b011852d489e73411cfebd5f2696fb856a7"
+      "receipt_hash": "f064d7bbe7f4b1041229c74d1a7136a85355554f368b96a980c282975ee939d8"
     },
     {
       "id": "pdf-page-dropped",
@@ -181,7 +181,7 @@
       "agent": "ohwow-agent",
       "input_origin": "real",
       "verdict": "pass",
-      "receipt_hash": "305c3419f77061cb9e2c3a8fcbd0a912fcb35ce5951c22cca665224cc351b66c"
+      "receipt_hash": "41ca24643eae7da8131f215c9398c0daa61dd6ca21f93267fddf3be9f64b0120"
     },
     {
       "id": "fe-wrong",
@@ -208,7 +208,7 @@
       "agent": "synthetic-files",
       "input_origin": "synthetic",
       "verdict": "pass",
-      "receipt_hash": "f7a99fda702e39e0a026d3a638e909fbbbb1f3f0d2225a88ab4ec6af1fc3af4b"
+      "receipt_hash": "faf755b94d4e82ae0848dbdd2727ea0fac5da36d57070ddc1db05e642502ee37"
     }
   ]
 }

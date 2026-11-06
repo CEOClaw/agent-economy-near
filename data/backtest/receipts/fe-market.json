@@ -172,6 +172,6 @@
     ]
   },
   "verdict": "pass",
-  "verdict_reason": "every hard gate passed and every gated rubric met its minimum",
-  "receipt_hash": "305c3419f77061cb9e2c3a8fcbd0a912fcb35ce5951c22cca665224cc351b66c"
+  "verdict_reason": "every hard gate passed; this pack has no gated rubric, so no judge score decided this verdict",
+  "receipt_hash": "41ca24643eae7da8131f215c9398c0daa61dd6ca21f93267fddf3be9f64b0120"
 }

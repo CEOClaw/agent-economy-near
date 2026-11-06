@@ -121,6 +121,6 @@
     "witnessed": []
   },
   "verdict": "pass",
-  "verdict_reason": "every hard gate passed and every gated rubric met its minimum",
-  "receipt_hash": "4009880ce41fb3066e9e94d16fd0dedb004a1022b3a10a7ec00b328e5dcfe5fd"
+  "verdict_reason": "every hard gate passed; this pack has no gated rubric, so no judge score decided this verdict",
+  "receipt_hash": "073a74af6a9698a47f348fcb533e4efe2721ebaf8e9499fc85c3834e6b283de8"
 }

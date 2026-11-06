@@ -104,6 +104,7 @@
     const unscored = criteria.filter((c) => gatedRubric(c) && (c.status === "not_run" || c.status === "no_quorum"));
     if (unchecked.length || unscored.length)
       return { verdict: "incomplete", verdict_reason: [unchecked.length && "hard check not checkable: " + unchecked.join(", "), unscored.length && "gated rubric not scored: " + unscored.map((c) => `${c.id} (${c.status})`).join(", ")].filter(Boolean).join("; ") };
+    if (!criteria.some(gatedRubric)) return { verdict: "pass", verdict_reason: "every hard gate passed; this pack has no gated rubric, so no judge score decided this verdict" };
     return { verdict: "pass", verdict_reason: "every hard gate passed and every gated rubric met its minimum" };
   }
 
@@ -398,13 +399,22 @@
   }
   const rubricHash = (pack, job) => hashJson(pack.criteria.filter((c) => c.type === "rubric").map((c) => ({ ...c, weight: effectiveWeight(c, job) })));
 
+  // Why nothing was scored, read from the stored run: the receipt must say it, not leave a bare not_run.
+  function notRunReason(judges) {
+    if (!judges.length) return "No judge run was made for this deliverable.";
+    const failed = judges.filter((j) => j.ok === false);
+    if (failed.length !== judges.length) return "No judge returned a score for this criterion.";
+    const codes = [...new Set(failed.map((j) => (/^HTTP (\d+)/.exec(String(j.error || "")) || [])[1] || "no HTTP status"))];
+    const blocked = failed.some((j) => /injection/i.test(String(j.error || "")));
+    return `No judge scored: all ${failed.length} judge calls failed (${failed.map((j) => j.label).join(", ")}), ${codes.map((c) => /^\d/.test(c) ? "HTTP " + c : c).join(", ")} from the provider route${blocked ? ", which blocked the prompt as injection" : ""}. Stored in the judge run file.`;
+  }
   // Score one rubric from stored judge outputs. Opinion is data here: only the quote and arithmetic are checked.
   function scoreRubric(c, jt, judgeRun, job) {
     const base = { id: c.id, type: "rubric", trust: "Judged", gate: c.gate, weight: effectiveWeight(c, job), label: c.label };
     if (jt == null) return { ...base, scores: [], median: null, spread: null, valid_n: 0, contested: false, status: "not_applicable" };
     const judges = (judgeRun && judgeRun.judges) || [];
     if (!judges.some((j) => j.ok !== false && (j.scores || []).some((s) => s.criterion === c.id)))
-      return { ...base, scores: [], median: null, spread: null, valid_n: 0, contested: false, status: "not_run" };
+      return { ...base, scores: [], median: null, spread: null, valid_n: 0, contested: false, status: "not_run", detail: notRunReason(judges) };
     const scores = judges.map((j) => {
       const s = j.ok === false ? null : (j.scores || []).find((x) => x.criterion === c.id);
       if (!s) return { judge: j.label, model: j.model, score: null, quote: "", reason: "", quote_found: false, void: true };
@@ -467,7 +477,9 @@
       const bytes = await get(r.deliverable.file);
       pass("pack-hash", "Pack file hash", pack && (await hashJson(pack)) === r.pack.hash && r.commitment.pack_hash === r.pack.hash, pack ? "sha256 of the canonical pack" : "pack file could not be loaded");
       pass("job-hash", "Job file hash", job && (await hashJson(job)) === r.job.hash && r.commitment.job_hash === r.job.hash, job ? "sha256 of the canonical job" : "job file could not be loaded");
-      if (pack && job) {
+      const packOk = !!pack && Array.isArray(pack.criteria) && pack.criteria.every((c) => c && typeof c === "object") && !!job && typeof job === "object" && !Array.isArray(job);
+      if (pack && job && !packOk) pass("pack-shape", "Pack and job files have the expected shape", false, "criteria could not be read, so the checks that need them were skipped");
+      if (packOk) {
         let rh = null; try { checkWeights(pack, job); rh = await rubricHash(pack, job); } catch (e) { rh = e.message; }
         pass("rubric-hash", "Rubric hash (criteria, anchors, effective weights)", rh === r.commitment.rubric_hash, "sha256 of the rubric criteria as committed");
       }
@@ -483,10 +495,12 @@
         sources.push({ ...s, bytes: b });
         not.push({ id: "fetch:" + s.id, label: `URL ${s.id} resolved at fetch time`, detail: `recorded fact: HTTP ${s.http_status}, origin ${s.origin}` });
       }
-      if (pack && job && bytes) {
+      if (packOk && bytes) {
         const inputU8 = job.params && job.params.input_file ? await get(job.params.input_file) : null;
         if (job.params && job.params.input_file) pass("input-hash", "Input file bytes", inputU8 && (await sha256(inputU8)) === job.params.input_sha256, inputU8 ? "sha256 of the input" : "input file could not be loaded");
         const ctx = { pack, job, bytes, mediaType: r.deliverable.media_type, sources, input: inputU8 }, jt = judgeText(bytes, r.deliverable.media_type, job);
+        // The receipt's rubric results must be what the sha-pinned judge run file says, not just internally consistent.
+        const runU8 = r.panel ? await get(r.panel.run) : null, runJ = runU8 && parseJson(runU8), runOk = !r.panel || (runJ && typeof runJ === "object" && runJ.schema === JUDGE_RUN_SCHEMA && runJ.job === job.id && Array.isArray(runJ.judges));
         pass("criteria-match-pack", "Criteria are the pack's criteria", same(r.criteria.map((c) => [c.id, c.type, c.gate, c.label]), pack.criteria.map((c) => [c.id, c.type, c.gate, c.label])), `${pack.criteria.length} criteria in ${pack.id}`);
         for (const pc of pack.criteria) {
           const sc = r.criteria.find((c) => c.id === pc.id); if (!sc) continue;
@@ -495,6 +509,8 @@
             pass("run:" + pc.id, `Re-ran ${pc.id}`, sc.status === o.status && sc.detail === o.detail, `${o.status}: ${o.detail}`);
           } else if (pc.type === "rubric") {
             const stored = (sc.scores || []).map((s) => ({ ...s })), q = stored.map((s) => { const f = quoteFound(s.quote, jt); return f === s.quote_found && s.void === !(f && validScore(s.score)); });
+            const want = runOk ? scoreRubric(pc, jt, r.panel ? runJ : null, job) : null;
+            pass("run-match:" + pc.id, `Scores for ${pc.id} match the stored judge run`, want && same(sc, want), want ? `${want.status}${want.scores.length ? ", " + want.scores.map((x) => `${x.judge} ${x.void ? "void" : x.score}`).join(", ") : ""}` : "judge run file could not be read or is not for this job");
             pass("quotes:" + pc.id, `Quote matches for ${pc.id}`, q.every(Boolean) && (sc.status === "not_run" || sc.status === "not_applicable" ? !stored.length : true), `${stored.filter((s) => !s.void).length} of ${stored.length} quotes found in the judge text`);
             if (sc.status !== "not_run" && sc.status !== "not_applicable") {
               const a = aggregate(stored, pc.gate);
@@ -505,6 +521,8 @@
         }
         const inj = scanInjection(bytes, r.deliverable.media_type);
         pass("injection-scan", "Injection scan of the raw deliverable", r.injection.flagged === inj.flagged && same(r.injection.matches, inj.matches), inj.flagged ? `${inj.matches.length} patterns matched` : "no pattern matched");
+        const wantPanel = r.panel ? (runOk ? { judges: (runJ.judges || []).map((j) => ({ label: j.label, model: j.model })), prompt_version: runJ.prompt_version ?? null, flagged: runJ.judges.filter((j) => j.injection_seen === true).length } : null) : { flagged: 0 };
+        pass("run-match:panel", "Panel and judge-reported injection match the stored judge run", !!wantPanel && (r.panel ? same(r.panel.judges, wantPanel.judges) && r.panel.prompt_version === wantPanel.prompt_version : true) && r.injection.judges_flagged === wantPanel.flagged, r.panel ? `${(r.panel.judges || []).length} judges in the receipt` : "no judge run");
         if (r.injection.judges_flagged) not.push({ id: "judges-flagged", label: "Judges that reported injection", detail: `${r.injection.judges_flagged} reported by the judges, stored` });
       }
       pass("trust-block", "Trust block recomputed from criteria", same(r.trust, trustBlock(r.criteria)), "Reproduced, Judged and Witnessed counted apart, never summed");

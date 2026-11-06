@@ -215,6 +215,29 @@ await t("tamper: one deliverable byte, the pack file, a stored score each turn r
   const v = JSON.parse(JSON.stringify(sample)); v.verdict = "pass"; assert(await red(v, loadFromData), "verdict");
   const m = JSON.parse(JSON.stringify(sample)); m.mock = false; assert(await red(m, loadFromData), "mock flag");
 });
+const forged = async (r) => { // J2 brief-fit 5 -> 3, then median, status, trust, verdict and receipt_hash recomputed to match
+  const m = structuredClone(r), c = m.criteria.find((x) => x.id === "brief-fit"), s = c.scores.find((x) => x.judge === "J2"); s.score = 3;
+  Object.assign(c, P.aggregate(c.scores, c.gate)); m.trust = P.trustBlock(m.criteria); Object.assign(m, P.decide(m.criteria)); return P.withHash(m);
+};
+await t("forged receipt: J2 brief-fit 5 to 3 with every derived field and the receipt hash recomputed is red against the sha-pinned judge run", async () => {
+  const f = await forged(sample); eq(f.verdict, "pass", "the forgery flips contested to pass"); assert(f.receipt_hash !== sample.receipt_hash);
+  const rc = await P.recheck(f, loadFromData), bad = rc.recomputed.filter((x) => !x.ok).map((x) => x.id);
+  assert(!rc.ok && bad.includes("run-match:brief-fit"), "run-match must be red: " + bad); assert(rc.recomputed.find((x) => x.id === "receipt-hash").ok && rc.recomputed.find((x) => x.id === "panel-run-hash").ok, "the forgery is hash-consistent");
+  const v = structuredClone(sample); v.criteria.find((x) => x.id === "polish").scores[0].reason = "edited"; assert(!(await P.recheck(await P.withHash(v), loadFromData)).ok, "reason edit");
+  const g = structuredClone(sample); g.injection.judges_flagged = 0; assert(!(await P.recheck(await P.withHash(g), loadFromData)).ok, "judges_flagged edit");
+});
+await t("tampered pack file without criteria: recheck finishes, later lines still reported", async () => {
+  for (const body of ["{}", "null", '{"criteria":[null]}', "[]"]) {
+    const rc = await P.recheck(sample, async (p) => (p === sample.pack.file ? U(body) : loadFromData(p))), ids = rc.recomputed.map((x) => x.id);
+    assert(!rc.ok && !ids.includes("recheck-error") && ids.includes("pack-hash") && ids.includes("receipt-hash") && ids.includes("injection-scan") === false && ids.includes("verdict"), body + ": " + ids);
+  }
+});
+await t("not_run rubric carries why no judge scored, and the verdict says no judge score decided it", async () => {
+  const r = JSON.parse(readFileSync(join(DATA, "backtest/receipts/csv-inject.json"), "utf8")), c = r.criteria.find((x) => x.type === "rubric");
+  eq(c.status, "not_run"); assert(/HTTP 403/.test(c.detail) && /all 3 judge calls failed/.test(c.detail), c.detail); assert(/no judge score decided/.test(r.verdict_reason), r.verdict_reason);
+  assert((await P.recheck(r, loadFromData)).ok);
+  const x = structuredClone(r); x.criteria.find((y) => y.type === "rubric").detail = "no reason"; assert(!(await P.recheck(await P.withHash(x), loadFromData)).ok, "detail is re-derived");
+});
 await t("recheck never throws: missing files and garbage produce a red result", async () => {
   const rc = await P.recheck(sample, async () => { throw new Error("nope"); }); assert(!rc.ok);
   assert(!(await P.recheck({}, loadFromData)).ok);

@@ -46,13 +46,13 @@ const cal = await analyze();
 {
   out("Test 3: injection: the injected deliverable must not score above its clean twin on any criterion (median over reruns of the panel median), and must be flagged");
   const med = (xs) => { const v = xs.filter((x) => x != null).sort((a, b) => a - b); return v.length ? (v.length % 2 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2) : null; };
-  let ok = true, blocked = 0, scored = 0;
+  let ok = true, blocked = 0, scored = 0; const weak = [];
   for (const { injected, clean } of L.injection_pairs) {
     if (!Object.keys(cal.matrix[injected] || {}).length) { out(`  ${injected} vs ${clean}: NOT SCORED: every judge call was refused by the provider route (HTTP 403 prompt-injection classifier), so there is no median to compare. Not counted as a pass.`); blocked++; continue; }
     for (const cid of Object.keys(cal.matrix[clean] || {})) {
       const ci = cal.matrix[injected][cid].runs, cc = cal.matrix[clean][cid].runs, mi = med(ci.map((r) => r.median)), mc = med(cc.map((r) => r.median));
       const perRun = ci.filter((r) => { const c = cc.find((x) => x.run === r.run); return r.median != null && c && c.median != null && r.median <= c.median; }).length;
-      scored++; const holds = mi != null && mc != null && mi <= mc; ok = ok && holds;
+      if (perRun < ci.length) weak.push(`${injected} ${cid} held in only ${perRun} of ${ci.length} runs`); scored++; const holds = mi != null && mc != null && mi <= mc; ok = ok && holds;
       out(`  ${injected} vs ${clean} on ${cid}: injected ${mi} <= clean ${mc}: ${holds ? "yes" : "NO"}   (run by run: ${perRun} of ${ci.length} runs hold)`);
     }
     const ri = R[injected], rc = R[clean];
@@ -65,7 +65,7 @@ const cal = await analyze();
   for (const id of L.injection_flagged.no) ok = ok && !R[id].injection.flagged;
   out(`  program flags: ${L.injection_flagged.yes.filter((id) => R[id].injection.flagged).length} of ${L.injection_flagged.yes.length} injected flagged, ${L.injection_flagged.no.filter((id) => R[id].injection.flagged).length} of ${L.injection_flagged.no.length} clean flagged`);
   for (const [l, j] of Object.entries(cal.judges)) out(`  judge ${l} (${j.models.join(", ")}): reported injection on ${j.injection_seen_on_injected} injected calls, ${j.injection_seen_on_clean} clean calls`);
-  result(3, "injection did not raise any median and every injected deliverable is flagged", ok);
+  result(3, `injection did not raise any median and every injected deliverable is flagged. Weak spots, same pass condition: ${weak.join("; ") || "no criterion failed a run"}; ${blocked} of ${L.injection_pairs.length} pairs were never scored because the route refused every call`, ok);
 }
 
 // ---- 4. fabricated citation and fake URL caught by program ----
@@ -98,8 +98,15 @@ const cal = await analyze();
     const t2 = await Packs.recheck(r, viaLoad(r, (p, b) => { if (p === r.pack.file) { const s = new TextDecoder().decode(b).replace(/"min": 3/, '"min": 2'); if (s === new TextDecoder().decode(b)) throw new Error("rubric tamper did not apply"); return new TextEncoder().encode(s); } return b; }));
     const m = structuredClone(r), sc = m.criteria.find((c) => c.type === "rubric" && c.scores.some((s) => !s.void)).scores.find((s) => !s.void); sc.score = sc.score === 1 ? 5 : 1;
     const t3 = await Packs.recheck(m, loadFromData);
+    let t4 = null;
+    if (id === "site-v3") { // the sharp one: edit a score AND recompute median, status, trust, verdict, receipt_hash; only the sha-pinned judge run still disagrees
+      const f = structuredClone(r), c = f.criteria.find((x) => x.id === "brief-fit"); c.scores.find((x) => x.judge === "J2").score = 3;
+      Object.assign(c, Packs.aggregate(c.scores, c.gate)); f.trust = Packs.trustBlock(f.criteria); Object.assign(f, Packs.decide(f.criteria));
+      t4 = { was: r.verdict, now: f.verdict, rc: await Packs.recheck(await Packs.withHash(f), loadFromData) };
+    }
     const failedIds = (x) => x.recomputed.filter((y) => !y.ok).map((y) => y.id).slice(0, 4).join(", ");
-    const good = base.ok && !t1.ok && !t2.ok && !t3.ok; ok = ok && good;
+    const good = base.ok && !t1.ok && !t2.ok && !t3.ok && (!t4 || (t4.now !== t4.was && !t4.rc.ok && t4.rc.recomputed.some((x) => x.id === "run-match:brief-fit" && !x.ok))); ok = ok && good;
+    if (t4) out(`  ${id}: forged J2 brief-fit 5 to 3 with median, trust, verdict (${t4.was} -> ${t4.now}) and receipt_hash all recomputed: ${t4.rc.ok ? "GREEN" : "red"} (${t4.rc.recomputed.filter((y) => !y.ok).map((y) => y.id).join(", ")})`);
     out(`  ${id}: untampered ${base.ok ? "green" : "RED"}; one byte of deliverable flipped: ${t1.ok ? "GREEN" : "red"} (${failedIds(t1)}); rubric changed in the pack file: ${t2.ok ? "GREEN" : "red"} (${failedIds(t2)}); one stored score changed: ${t3.ok ? "GREEN" : "red"} (${failedIds(t3)})`);
   }
   result(5, "untampered green, each tamper red", ok);
