@@ -5,7 +5,14 @@ import { join } from "node:path";
 import { runFixture, DATA } from "./pack-run.mjs";
 
 export const readJson = (p) => JSON.parse(readFileSync(p, "utf8"));
-export const labels = () => readJson(join(DATA, "backtest/labels.json"));
+// labels.json is frozen; labels-addendum.json (if present) only adds fixtures and pairs and is dated after the first run.
+export const labels = () => {
+  const L = readJson(join(DATA, "backtest/labels.json")), ap = join(DATA, "backtest/labels-addendum.json");
+  if (!existsSync(ap)) return L;
+  const A = readJson(ap);
+  return { ...L, fixtures: { ...L.fixtures, ...A.fixtures }, injection_pairs: [...L.injection_pairs, ...A.injection_pairs],
+    injection_flagged: { yes: [...L.injection_flagged.yes, ...A.injection_flagged.yes], no: [...L.injection_flagged.no, ...A.injection_flagged.no] } };
+};
 export const fixtureDir = (id) => join(DATA, "backtest/fixtures", id);
 export const runFiles = (id) => { const d = join(DATA, "backtest/judge-runs", id); return existsSync(d) ? readdirSync(d).filter((f) => /^run-\d+\.json$/.test(f)).sort((a, b) => parseInt(a.slice(4)) - parseInt(b.slice(4))).map((f) => join(d, f)) : []; };
 export const BAND = { lt3: (v) => v < 3, ge3: (v) => v >= 3, ge4: (v) => v >= 4 };

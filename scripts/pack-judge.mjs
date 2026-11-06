@@ -66,7 +66,7 @@ async function post(model, messages) {
   const body = { model: model.slug, messages, temperature: 0.3, max_tokens: 3000, transforms: [], reasoning: model.reasoning, usage: { include: true }, provider: { data_collection: "deny" } };
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", { method: "POST", headers: { Authorization: "Bearer " + KEY(), "Content-Type": "application/json", "X-Title": "agentproof-check-packs-backtest" }, body: JSON.stringify(body), signal: AbortSignal.timeout(180000) });
   const txt = await res.text(); let j = null; try { j = JSON.parse(txt); } catch { /* non-JSON error page */ }
-  return { status: res.status, json: j, errorText: res.ok ? null : txt.slice(0, 300) };
+  return { status: res.status, json: j, errorText: res.ok ? null : txt.replace(/"user_id"\s*:\s*"[^"]*"?/g, "").slice(0, 300) }; // the account id is stripped from stored errors
 }
 // Strict parse: one JSON object, with at most one surrounding code fence removed. Anything else is malformed.
 export function parseJudge(content, rubricIds) {
@@ -90,7 +90,7 @@ export async function callJudge({ ledger, model, price, pack, job, jt, fixture, 
     ledger.record({ at: new Date().toISOString(), kind, fixture, run, judge: model.label, model_slug: model.slug, model_returned: r.json && r.json.model || null, attempt, http_status: r.status, usd, usd_estimated: !hasCost && r.status === 200,
       prompt_tokens: u.prompt_tokens ?? null, completion_tokens: u.completion_tokens ?? null, reasoning_tokens: (u.completion_tokens_details && u.completion_tokens_details.reasoning_tokens) ?? null });
     const content = r.json && r.json.choices && r.json.choices[0] && r.json.choices[0].message && r.json.choices[0].message.content;
-    raw.push({ attempt, http_status: r.status, id: r.json && r.json.id || null, model: r.json && r.json.model || null, finish_reason: r.json && r.json.choices && r.json.choices[0] && r.json.choices[0].finish_reason || null, content: content ?? null, error: r.errorText || (r.json && r.json.error && String(r.json.error.message || "").slice(0, 200)) || null, usage: { prompt_tokens: u.prompt_tokens ?? null, completion_tokens: u.completion_tokens ?? null, cost: u.cost ?? null } });
+    raw.push({ attempt, http_status: r.status, id: r.json && r.json.id || null, model: r.json && r.json.model || null, finish_reason: r.json && r.json.choices && r.json.choices[0] && r.json.choices[0].finish_reason || null, content: content ?? null, error: r.errorText || (r.json && r.json.error && String(r.json.error.message || "").replace(/user_[A-Za-z0-9]+/g, "").slice(0, 200)) || null, usage: { prompt_tokens: u.prompt_tokens ?? null, completion_tokens: u.completion_tokens ?? null, cost: u.cost ?? null } });
     if (r.status === 200 && content != null) {
       const p = parseJudge(content, ids);
       if (!p.error) return { label: model.label, model: r.json.model, ok: true, injection_seen: p.injection_seen, scores: p.scores, prompt_sha256: promptSha, usd: raw.reduce((a, x) => a + (x.usage.cost || 0), 0), raw };
