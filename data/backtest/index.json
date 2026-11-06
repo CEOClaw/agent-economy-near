@@ -1,0 +1,16 @@
+{
+  "schema": "agentproof-backtest-index-v1",
+  "mock": true,
+  "note": "Mock backtest. Not market evidence.",
+  "receipts": [
+    {
+      "id": "site-v3",
+      "file": "backtest/receipts/site-v3.json",
+      "pack": "site-brief-v1",
+      "agent": "ceoclaw-web",
+      "input_origin": "real",
+      "verdict": "incomplete",
+      "receipt_hash": "0abb94d16199a8c8007497360d1a2596db7e40849489db29edccc85d459942a8"
+    }
+  ]
+}

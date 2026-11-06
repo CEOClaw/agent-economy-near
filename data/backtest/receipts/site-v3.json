@@ -1,0 +1,181 @@
+{
+  "schema": "agentproof-pack-receipt-v1",
+  "id": "site-v3",
+  "mock": true,
+  "input_origin": "real",
+  "evidence_note": "Mock backtest. Not market evidence. Real page, real brief, but the pack was written afterwards and nothing was accepted on the market.",
+  "agent": {
+    "label": "ceoclaw-web",
+    "handle": null
+  },
+  "buyer_label": "owner-ohwow",
+  "pack": {
+    "id": "site-brief-v1",
+    "version": "1.0.0",
+    "file": "packs/site-brief-v1.json",
+    "hash": "7e89508b6604252a44b826006fb8a497cf56a949553ffd28fdb5a01fb0669b81"
+  },
+  "job": {
+    "file": "backtest/fixtures/site-v3/job.json",
+    "hash": "ff9733c1896b513cd26a5a371b96b61a734d3fbdaebbf98a735db8232305879c"
+  },
+  "commitment": {
+    "pack_hash": "7e89508b6604252a44b826006fb8a497cf56a949553ffd28fdb5a01fb0669b81",
+    "job_hash": "ff9733c1896b513cd26a5a371b96b61a734d3fbdaebbf98a735db8232305879c",
+    "rubric_hash": "8a4502d24f2f324889371940509f7da6f2cae0683466f980ae623ecd5095b5f4",
+    "committed_at": "2026-11-06T21:35:54Z",
+    "delivered_at": null,
+    "before_delivery": false,
+    "note": "Pack written after this delivery and after the hand review: post-hoc backtest, not blind for the pack author. Judges are blind.",
+    "hash": "a9a04cec427e3ad7c96e1157944a7b459d164221bdf3f3338407fc4c0cdf9453"
+  },
+  "deliverable": {
+    "file": "backtest/fixtures/site-v3/deliverable.html",
+    "sha256": "bbe20da755f88572697132d03430a0b20807721d89f257d9fd3ac0d1269e8e4b",
+    "bytes": 10224,
+    "media_type": "text/html"
+  },
+  "sources": [],
+  "criteria": [
+    {
+      "id": "required-copy",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "Every required copy string from the brief appears in the visible text",
+      "status": "pass",
+      "detail": "all 9 required copy strings present"
+    },
+    {
+      "id": "cta-link",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "A link with the requested button text points to the requested address",
+      "status": "pass",
+      "detail": "link with text \"Start now\" points to https://ohwow.fun"
+    },
+    {
+      "id": "required-sections",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "Each requested section has its own heading or section id",
+      "status": "pass",
+      "detail": "all 4 sections have a heading or id"
+    },
+    {
+      "id": "no-unbriefed-claims",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "No guarantee, price, certification or verification claim that the brief does not contain",
+      "status": "pass",
+      "detail": "no guarantee, price or verification claim outside the brief"
+    },
+    {
+      "id": "style-match",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "none",
+      "label": "Page background matches the requested dark or light style, read from its CSS",
+      "status": "pass",
+      "detail": "page background luminance 0.004: matches dark"
+    },
+    {
+      "id": "delivered-hash",
+      "type": "source_replay",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The delivered page hashes to the sha256 the seller declared, and that value is well formed",
+      "status": "pass",
+      "detail": "delivered bytes hash to the declared sha256"
+    },
+    {
+      "id": "brief-fit",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": {
+        "min": 3
+      },
+      "weight": 3,
+      "label": "The page does what the brief asked, section by section",
+      "scores": [],
+      "median": null,
+      "spread": null,
+      "valid_n": 0,
+      "contested": false,
+      "status": "not_run"
+    },
+    {
+      "id": "copy-discipline",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": {
+        "min": 3
+      },
+      "weight": 2,
+      "label": "Nothing is invented: no facts, numbers, names or promises beyond the brief",
+      "scores": [],
+      "median": null,
+      "spread": null,
+      "valid_n": 0,
+      "contested": false,
+      "status": "not_run"
+    },
+    {
+      "id": "polish",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": "none",
+      "weight": 1,
+      "label": "Polish judged from the page text and structure only: no screenshots are used",
+      "scores": [],
+      "median": null,
+      "spread": null,
+      "valid_n": 0,
+      "contested": false,
+      "status": "not_run"
+    },
+    {
+      "id": "buyer-accepted",
+      "type": "witness",
+      "trust": "Witnessed",
+      "gate": "none",
+      "label": "The buyer states whether the work was accepted",
+      "statement": "Passes on content by hand review. Nothing was submitted on the market by the deadline, the assignment was cancelled and the escrow was refunded. This is not a buyer acceptance.",
+      "by": "owner-ohwow",
+      "at": "2026-11-06",
+      "ref": "hand review: job-closed notice to the seller"
+    }
+  ],
+  "panel": null,
+  "injection": {
+    "flagged": false,
+    "matches": [],
+    "judges_flagged": 0
+  },
+  "trust": {
+    "reproduced": {
+      "passed": 6,
+      "total": 6,
+      "hard_failed": []
+    },
+    "judged": {
+      "weighted_median": null,
+      "rated": 0,
+      "contested": 0,
+      "void": 0,
+      "not_run": 3
+    },
+    "witnessed": [
+      {
+        "id": "buyer-accepted",
+        "statement": "Passes on content by hand review. Nothing was submitted on the market by the deadline, the assignment was cancelled and the escrow was refunded. This is not a buyer acceptance."
+      }
+    ]
+  },
+  "verdict": "incomplete",
+  "verdict_reason": "gated rubric not scored: brief-fit (not_run), copy-discipline (not_run)",
+  "receipt_hash": "0abb94d16199a8c8007497360d1a2596db7e40849489db29edccc85d459942a8"
+}
