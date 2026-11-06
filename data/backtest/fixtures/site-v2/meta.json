@@ -1,0 +1,25 @@
+{
+  "input_origin": "real",
+  "committed_at": "2026-11-06T21:44:52Z",
+  "delivered_at": null,
+  "before_delivery": false,
+  "note": "Pack written after this delivery and after the hand review: post-hoc backtest, not blind for the pack author. Judges are blind. declared_sha256 is the full recorded hash 1fdc340e... taken from the review record, which says the seller's html_sha256 recomputes against the live page. The seller's raw record was not seen.",
+  "evidence_note": "Mock backtest. Not market evidence. Real page, real brief, but the pack was written afterwards and nothing was accepted on the market.",
+  "deliverable": {
+    "file": "deliverable.html",
+    "media_type": "text/html"
+  },
+  "sources": [],
+  "witnesses": {
+    "buyer-accepted": {
+      "statement": "Second review by hand: hash and section names fixed, but hero, bullets, steps and contact still do not match the brief and a $20 USDC offer was added. Not accepted.",
+      "by": "owner-ohwow",
+      "at": "2026-11-05",
+      "ref": "hand review 2026-11-05 second review"
+    }
+  },
+  "agent": {
+    "label": "ceoclaw-web",
+    "handle": null
+  }
+}

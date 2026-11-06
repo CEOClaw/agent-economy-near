@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ohwow</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--accent:#059669;--accent-dark:#047857;--bg:#030f0a;--surface:rgba(5,150,105,0.06);--border:rgba(5,150,105,0.2);--text:#f0fdf4;--muted:rgba(240,253,244,0.6)}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;line-height:1.6;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,15,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-size:20px;font-weight:700;color:var(--text)}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{background:var(--accent);color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;transition:background .2s}
+.nav-cta:hover{background:var(--accent-dark)}
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 48px 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(5,150,105,0.1) 0%,transparent 70%)}
+h1{font-size:clamp(48px,8vw,88px);font-weight:700;letter-spacing:-3px;line-height:1.05;margin-bottom:28px;background:linear-gradient(135deg,#f0fdf4 0%,#6ee7b7 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(16px,2vw,20px);color:var(--muted);max-width:520px;margin:0 auto 48px;line-height:1.7}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:var(--accent);color:#fff;padding:14px 36px;border-radius:10px;text-decoration:none;font-size:16px;font-weight:600;transition:all .2s}
+.btn-primary:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--text);padding:14px 32px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:500;border:1px solid var(--border);transition:all .2s}
+.btn-secondary:hover{border-color:var(--accent)}
+section{padding:100px 48px}
+.section-label{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+h2{font-size:clamp(32px,4vw,52px);font-weight:700;letter-spacing:-1.5px;line-height:1.1;margin-bottom:24px}
+.section-desc{color:var(--muted);font-size:17px;max-width:600px;line-height:1.75;margin-bottom:48px}
+#what-it-does{background:rgba(5,150,105,0.03);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.bullets{display:grid;gap:16px;max-width:640px}
+.bullet{display:flex;align-items:flex-start;gap:16px;padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;transition:border-color .2s}
+.bullet:hover{border-color:rgba(5,150,105,0.4)}
+.bullet-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:8px;flex-shrink:0}
+.bullet-text{font-size:15px;font-weight:500;color:var(--text)}
+#how-it-works .steps{display:grid;gap:24px;max-width:640px}
+.step{display:flex;gap:20px;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.step-num{width:36px;height:36px;border-radius:50%;background:rgba(5,150,105,0.15);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent);flex-shrink:0}
+.step h3{font-size:16px;font-weight:600;margin-bottom:4px}
+.step p{color:var(--muted);font-size:14px;line-height:1.6}
+#contact{text-align:center}
+.contact-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px;max-width:520px;margin:0 auto}
+.contact-box a{color:var(--accent);text-decoration:none;font-size:17px;font-weight:500}
+footer{padding:28px 48px;border-top:1px solid var(--border);color:var(--muted);font-size:13px;text-align:center}
+#ceoclaw-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(3,15,10,0.97);border-top:1px solid rgba(5,150,105,0.3);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:9999;backdrop-filter:blur(10px);font-family:inherit;gap:12px;flex-wrap:wrap}
+.cc-brand{color:rgba(255,255,255,0.5);font-size:12px;white-space:nowrap}
+.cc-brand a{color:#059669;font-weight:600;text-decoration:none}
+.cc-actions{display:flex;gap:8px;flex-wrap:wrap}
+.cc-btn{padding:7px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#fff;transition:all .2s;white-space:nowrap}
+.cc-btn:hover{background:rgba(255,255,255,0.1)}
+.cc-btn.cc-primary{background:rgba(5,150,105,0.15);border-color:#059669;color:#059669}
+#cc-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;align-items:center;justify-content:center}
+.cc-modal-box{background:#0a1a10;border:1px solid rgba(5,150,105,0.4);border-radius:12px;padding:28px;max-width:420px;width:90%;text-align:center}
+.cc-email-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;margin:16px 0;cursor:pointer}
+.cc-email-box:hover{border-color:#059669}
+@media(max-width:768px){nav{padding:16px 24px}.nav-links{display:none}section{padding:80px 24px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">ohwow</div>
+  <ul class="nav-links">
+    <li><a href="#what-it-does">What it does</a></li>
+    <li><a href="#how-it-works">How it works</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="https://ohwow.fun" class="nav-cta">Start now →</a>
+</nav>
+
+<section class="hero" id="hero">
+  <div>
+    <h1>Your business,<br>on autopilot.</h1>
+    <p class="hero-sub">Tell us your business. Get one job done in a minute. Free. No signup to try.</p>
+    <div class="hero-actions">
+      <a href="https://ohwow.fun" class="btn-primary">Start now →</a>
+      <a href="#what-it-does" class="btn-secondary">See what we do</a>
+    </div>
+  </div>
+</section>
+
+<section id="what-it-does">
+  <div class="section-label">What it does</div>
+  <h2>Everything your<br>business needs.</h2>
+  <div class="bullets">
+    <div class="bullet"><div class="bullet-dot"></div><div class="bullet-text">Websites, chatbots and voice agents</div></div>
+    <div class="bullet"><div class="bullet-dot"></div><div class="bullet-text">WhatsApp agents, email outreach and lead follow-up</div></div>
+    <div class="bullet"><div class="bullet-dot"></div><div class="bullet-text">Appointment booking and customer support</div></div>
+    <div class="bullet"><div class="bullet-dot"></div><div class="bullet-text">Marketing, content and social posts</div></div>
+    <div class="bullet"><div class="bullet-dot"></div><div class="bullet-text">CRM, automations and reports</div></div>
+  </div>
+</section>
+
+<section id="how-it-works">
+  <div class="section-label">How it works</div>
+  <h2>One minute to<br>your first result.</h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div><h3>Tell us your business</h3><p>Describe what you do and what you need. No forms, no setup — just tell us.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div><h3>Get one job done</h3><p>ohwow runs the job immediately. See a real result for your business in under a minute.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div><h3>Keep going or stop</h3><p>No signup required to try. When you're ready to run more, your business keeps itself going.</p></div></div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-label">Contact</div>
+  <h2>Get in touch</h2>
+  <div class="contact-box">
+    <p style="color:var(--muted);margin-bottom:24px;font-size:15px;">Questions or custom requests — reach out directly.</p>
+    <a href="mailto:ogsus@ohwow.fun">ogsus@ohwow.fun</a>
+    <div style="margin-top:28px"><a href="https://ohwow.fun" class="btn-primary">Try ohwow free →</a></div>
+  </div>
+</section>
+
+<footer>© 2026 Ohwow Limited Liability Company</footer>
+
+<div id="ceoclaw-bar">
+  <div class="cc-brand">⚡ Built by <a href="https://ceoclaw.ai">CEOClaw</a> &nbsp;·&nbsp; How does it look?</div>
+  <div class="cc-actions">
+    <button class="cc-btn" onclick="ccContact('Edit request for ohwow','I would like the following changes:')">✏️ Request edits</button>
+    <button class="cc-btn cc-primary" onclick="ccContact('More pages for ohwow','I would like to add:')">📄 Add more pages</button>
+  </div>
+  <button onclick="document.getElementById('ceoclaw-bar').style.display='none'" style="color:rgba(255,255,255,0.3);cursor:pointer;font-size:18px;background:none;border:none;">×</button>
+</div>
+<div id="cc-modal"><div class="cc-modal-box">
+  <div style="color:#059669;font-size:14px;font-weight:600;margin-bottom:8px;" id="cc-modal-subject"></div>
+  <p style="color:rgba(255,255,255,0.6);font-size:13px;">Email us at:</p>
+  <div class="cc-email-box" onclick="navigator.clipboard.writeText('claw@ceoclaw.ai').then(()=>{this.querySelector('span').textContent='Copied!'})">
+    <code style="color:#fff;font-size:15px;">claw@ceoclaw.ai</code><br>
+    <span style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:4px;display:block;">Click to copy</span>
+  </div>
+  <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:16px;">Include: <span id="cc-modal-hint" style="color:rgba(255,255,255,0.6);"></span></p>
+  <button onclick="document.getElementById('cc-modal').style.display='none'" style="background:rgba(5,150,105,0.15);border:1px solid #059669;color:#059669;padding:8px 24px;border-radius:6px;cursor:pointer;font-size:13px;">Close</button>
+</div></div>
+<script>function ccContact(s,h){document.getElementById('cc-modal-subject').textContent=s;document.getElementById('cc-modal-hint').textContent=h;document.getElementById('cc-modal').style.display='flex';}</script>
+</body>
+</html>

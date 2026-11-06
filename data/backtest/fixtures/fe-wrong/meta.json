@@ -1,0 +1,18 @@
+{
+  "input_origin": "derived-from-real",
+  "committed_at": "2026-11-06T21:44:52Z",
+  "delivered_at": null,
+  "before_delivery": false,
+  "note": "A real test file from the CEOClaw checker repo (data/runs/fixture-wrong-delivery.json) used as a known-wrong delivery. It was never a market delivery.",
+  "evidence_note": "Mock backtest. Not market evidence. A known-wrong test file, never delivered on the market.",
+  "deliverable": {
+    "file": "deliverable.json",
+    "media_type": "application/json"
+  },
+  "sources": [],
+  "witnesses": {},
+  "agent": {
+    "label": "ceoclaw-checker-test",
+    "handle": null
+  }
+}

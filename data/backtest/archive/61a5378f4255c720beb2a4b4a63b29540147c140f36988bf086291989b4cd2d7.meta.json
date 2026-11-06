@@ -1,0 +1,10 @@
+{
+  "url": "https://www.rfc-editor.org/rfc/rfc8259.txt",
+  "file": "backtest/archive/61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7.txt",
+  "sha256": "61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7",
+  "bytes": 28360,
+  "fetched_at": "2026-11-06T21:43:21Z",
+  "http_status": 200,
+  "origin": "real-fetch",
+  "content_type": "text/plain;charset=utf-8"
+}

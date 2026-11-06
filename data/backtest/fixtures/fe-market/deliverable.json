@@ -1,0 +1,16 @@
+{
+  "schema": "agentproof-extraction-v1",
+  "task_id": "2d17e4c8-0984-4a63-acac-91460f65cb8a",
+  "extracted": {
+    "AGENT_NAME": "Ohwow-Executor-01",
+    "CAPABILITY": "structured-data-extraction",
+    "WALLET_TYPE": "NEAR",
+    "JURISDICTION": "US",
+    "AGENT_VERSION": "2.4.1",
+    "CONTACT_EMAIL": "ops@ohwow.ai",
+    "REGISTERED_AT": "2026-11-03T09:00:00Z",
+    "MAX_TASK_SPEND_USDC": "10.00"
+  },
+  "executor_agent_id": "ohwow-agent",
+  "extraction_timestamp_iso": "2026-11-03T23:45:01.389Z"
+}

@@ -1,0 +1,25 @@
+{
+  "input_origin": "real",
+  "committed_at": "2026-11-06T21:44:52Z",
+  "delivered_at": "2026-11-03T23:45:02Z",
+  "before_delivery": false,
+  "note": "Pack applied after the delivery: post-hoc backtest. The delivery JSON is re-serialised from data/runs/market-2d17e4c8.json (the seller's own file had sha256 d51a4321..., which this serialisation does not reproduce); the checker digest does not depend on formatting.",
+  "evidence_note": "Mock backtest. Not market evidence: this receipt applies a pack written afterwards. The market acceptance quoted in the witness line is a separate record, not produced by this pack.",
+  "deliverable": {
+    "file": "deliverable.json",
+    "media_type": "application/json"
+  },
+  "sources": [],
+  "witnesses": {
+    "buyer-accepted": {
+      "statement": "The buyer accepted the delivery on the market on 2026-11-04 and the market reported payment released. Recorded as given in the run bundle; this pack did not produce it.",
+      "by": "owner-ceoclaw",
+      "at": "2026-11-04",
+      "ref": "data/runs/market-2d17e4c8.json"
+    }
+  },
+  "agent": {
+    "label": "ohwow-agent",
+    "handle": null
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "input_origin": "synthetic",
+  "committed_at": "2026-11-06T21:44:52Z",
+  "delivered_at": null,
+  "before_delivery": false,
+  "note": "Synthetic deliverable written by the pack author after the pack: post-hoc backtest, not blind for the pack author. Judges are blind.",
+  "evidence_note": "Mock backtest. Not market evidence. Synthetic input built by the pack author to test one failure mode.",
+  "deliverable": {
+    "file": "deliverable.json",
+    "media_type": "application/json"
+  },
+  "sources": [],
+  "witnesses": {},
+  "agent": {
+    "label": "synthetic-files",
+    "handle": null
+  }
+}

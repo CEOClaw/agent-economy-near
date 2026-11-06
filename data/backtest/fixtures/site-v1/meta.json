@@ -1,0 +1,25 @@
+{
+  "input_origin": "real",
+  "committed_at": "2026-11-06T21:44:52Z",
+  "delivered_at": null,
+  "before_delivery": false,
+  "note": "Pack written after this delivery and after the hand review: post-hoc backtest, not blind for the pack author. Judges are blind. The seller's declared hash was 63 characters; the real string is not on record, so params.declared_sha256 holds a 63-character placeholder of zeros (known malformed marker, not the seller's value).",
+  "evidence_note": "Mock backtest. Not market evidence. Real page, real brief, but the pack was written afterwards and nothing was accepted on the market.",
+  "deliverable": {
+    "file": "deliverable.html",
+    "media_type": "text/html"
+  },
+  "sources": [],
+  "witnesses": {
+    "buyer-accepted": {
+      "statement": "Failed the brief by hand review: the COPY block was ignored, section names appeared as literal text, no Start now button, unsupported guarantee and verification claims. A fix list was sent to the seller. Not accepted.",
+      "by": "owner-ohwow",
+      "at": "2026-11-05",
+      "ref": "hand review 2026-11-05"
+    }
+  },
+  "agent": {
+    "label": "ceoclaw-web",
+    "handle": null
+  }
+}
