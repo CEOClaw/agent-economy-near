@@ -100,5 +100,6 @@ $("save").addEventListener("click", async () => {
   }, "image/png");
 });
 </script>
+<script>if (new URLSearchParams(location.search).get("packs") === "1") import("./src/packs-ui.js");</script>
 </body>
 </html>

@@ -955,3 +955,5 @@ function frame() {
 window.__forceFrame = () => { tick(nowT()); controls.update(); renderer.render(scene, camera); placeLabels(); };
 requestAnimationFrame(frame);
 boot();
+
+if (new URLSearchParams(location.search).get("packs") === "1") import("./packs-ui.js");
