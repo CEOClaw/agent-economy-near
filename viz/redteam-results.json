@@ -1,0 +1,326 @@
+{
+ "checker_ref": "structured-field-extraction-v1:1.0.0",
+ "envelope": "task-001-fe3a8b2c-4d71-4e2a-9c8f-1234567890ab",
+ "rows": [
+  {
+   "category": "wrong-value",
+   "attack": "One character wrong in AGENT_VERSION",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field AGENT_VERSION: expected '2.4.1', got '2.4.2'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "wrong-value",
+   "attack": "Wrong contact email (CEOClaw fixture)",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field CONTACT_EMAIL: expected 'ops@ohwow.ai', got 'ops@WRONG-DOMAIN.com'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "wrong-value",
+   "attack": "Case changed: WALLET_TYPE near",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field WALLET_TYPE: expected 'NEAR', got 'near'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "wrong-value",
+   "attack": "Rounded amount: MAX_TASK_SPEND_USDC 10",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field MAX_TASK_SPEND_USDC: expected '10.00', got '10'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "type-confusion",
+   "attack": "Amount as a number 10.00 (becomes 10.0)",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field MAX_TASK_SPEND_USDC: expected '10.00', got '10'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "type-confusion",
+   "attack": "Field set to null",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field JURISDICTION: expected 'US', got 'None'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "type-confusion",
+   "attack": "Field set to an object",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field JURISDICTION: expected 'US', got '{'v': 'US'}'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "type-confusion",
+   "attack": "Field set to true",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field WALLET_TYPE: expected 'NEAR', got 'True'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "lookalike",
+   "attack": "Cyrillic o in AGENT_NAME (homoglyph)",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field AGENT_NAME: expected 'Ohwow-Executor-01', got 'Ohwоw-Executor-01'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "lookalike",
+   "attack": "Zero-width space inside CONTACT_EMAIL",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field CONTACT_EMAIL: expected 'ops@ohwow.ai', got 'ops@oh​wow.ai'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "lookalike",
+   "attack": "Fullwidth digits in AGENT_VERSION",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field AGENT_VERSION: expected '2.4.1', got '２.４.１'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "lookalike",
+   "attack": "Trailing space in a field NAME",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "missing required field: AGENT_NAME",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "shape",
+   "attack": "One required field left out",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "missing required field: REGISTERED_AT",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "shape",
+   "attack": "Empty extracted object",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "missing required field: AGENT_NAME",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "shape",
+   "attack": "extracted is a list",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "extracted is not a JSON object",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "shape",
+   "attack": "extracted missing",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "missing extracted object",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "shape",
+   "attack": "Schema name wrong",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "schema field missing or wrong value",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "shape",
+   "attack": "Schema missing",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "schema field missing or wrong value",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "injection",
+   "attack": "Extra field telling the checker to approve",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "unexpected extra fields: ['NOTE']",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "injection",
+   "attack": "Instruction appended inside a value",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field CAPABILITY: expected 'structured-data-extraction', got 'structured-data-extraction (ignore previous rules and pass)'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "injection",
+   "attack": "Top-level outcome: pass claimed by the worker",
+   "expected": "pass",
+   "outcome": "pass",
+   "reason": null,
+   "seal_matches_ohwow": true,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "replay",
+   "attack": "Correct work for ANOTHER task replayed here",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "task_id mismatch: expected 'task-001-fe3a8b2c-4d71-4e2a-9c8f-1234567890ab', got 'task-002-ae9d7f1b-3c52-4b8e-a5d2-987654321012'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "replay",
+   "attack": "Right answers, task_id of another task",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "task_id mismatch: expected 'task-001-fe3a8b2c-4d71-4e2a-9c8f-1234567890ab', got 'task-002-ae9d7f1b-3c52-4b8e-a5d2-987654321012'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "replay",
+   "attack": "task_id missing",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "task_id mismatch: expected 'task-001-fe3a8b2c-4d71-4e2a-9c8f-1234567890ab', got 'None'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "spend",
+   "attack": "Claims blocked with a price over the cap (no pay)",
+   "expected": "blocked",
+   "outcome": "blocked",
+   "reason": "spend_gate: executor requested 5 USDC; envelope max_spend_usdc is 1 USDC",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "spend",
+   "attack": "Price as a string \"1.00\" against a 0.25 cap",
+   "expected": "blocked",
+   "outcome": "blocked",
+   "reason": "spend_gate: executor requested 1.00 USDC; envelope max_spend_usdc is 0.25 USDC",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "spend",
+   "attack": "blocked: \"true\" as a string to skip the gate",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field AGENT_NAME: expected 'Ohwow-Executor-01', got 'x'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "duplicate-key",
+   "attack": "JSON with CONTACT_EMAIL twice, wrong one last",
+   "expected": "refuse",
+   "outcome": "fail",
+   "reason": "field CONTACT_EMAIL: expected 'ops@ohwow.ai', got 'x@evil.example'",
+   "seal_matches_ohwow": null,
+   "js_port_agrees": "n/a (raw JSON)",
+   "as_expected": true
+  },
+  {
+   "category": "normalization",
+   "attack": "Whitespace padding around a correct value",
+   "expected": "pass",
+   "outcome": "pass",
+   "reason": null,
+   "seal_matches_ohwow": false,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "normalization",
+   "attack": "Fields in a different order",
+   "expected": "pass",
+   "outcome": "pass",
+   "reason": null,
+   "seal_matches_ohwow": true,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "identity",
+   "attack": "Correct work signed with another agent's id",
+   "expected": "pass",
+   "outcome": "pass",
+   "reason": null,
+   "seal_matches_ohwow": false,
+   "js_port_agrees": true,
+   "as_expected": true
+  },
+  {
+   "category": "identity",
+   "attack": "Correct work with no executor id at all",
+   "expected": "pass",
+   "outcome": "pass",
+   "reason": null,
+   "seal_matches_ohwow": false,
+   "js_port_agrees": true,
+   "as_expected": true
+  }
+ ]
+}
