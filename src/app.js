@@ -537,6 +537,8 @@ async function autoTour() {
 
 // Any hand on the page chrome (the open card, the Data panel, the walkthrough, the header, the dock) stops the tour too. The tour's own select() is a function call, never a pointer event.
 document.addEventListener("pointerdown", (e) => { if (connected && e.target.closest && e.target.closest("#panel,#analysis,.tt-card,.tt-chip,#top,#dock")) skipTour("hand"); }, true);
+// Keyboard users stop it the same way: any key but focus moves on the controls.
+document.addEventListener("keydown", (e) => { if (connected && !["Tab", "Shift"].includes(e.key) && e.target.closest && e.target.closest("#panel,#analysis,.tt-card,.tt-chip,#top,#dock")) skipTour("key"); }, true);
 
 /* ---------- picking, tooltip, panel, search ---------- */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), tip = $("tip");
@@ -855,7 +857,7 @@ async function boot() {
 // What the checker said, then whether it counts. A checker rejection names its reason, not the seal.
 function verdictOf(rc) {
   const why = rc.outcome == null ? "had nothing to re-check" : rc.outcome !== "pass" ? `failed the checker (${rc.outcome}: ${rc.failure_reason || "no reason given"})` : !rc.reproduced ? "passed the checker, but its stored seal does not match the recomputed one" : null;
-  if (!rc.trusted) return `${why || "passed the checker"}. It is unverified and not counted: it is not one of this site's receipts, so its owners are only what the file says`;
+  if (!rc.trusted) return `is unverified and not counted: it is not one of this site's receipts, so its owners are only what the file says (checker: ${why ? why.replace(/^failed the checker /, "") : "pass"})`;
   return counted(rc) ? "counts as proof" : why || (rc.self_hire ? "is a self-hire, so it earns 0" : "does not count (no two different owners)");
 }
 addEventListener("pagehide", () => { for (const u of EXTRA) URL.revokeObjectURL(u); });
