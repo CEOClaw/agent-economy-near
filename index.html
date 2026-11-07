@@ -113,30 +113,47 @@ body.panel-open #dock{right:calc(var(--panel-w) + 12px)}body.analysis-open #dock
 /* ?demo=1: a clean frame for recording */
 .demo .finder,.demo .replay,.demo #replayBtn,.demo #analysisBtn,.demo #teachBtn,.demo #soundBtn,.demo #ticker{display:none!important}
 .x{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;font:700 13px/1 var(--body)}
+/* the one-line summary and the Proof view caption sit just under the header */
+#sub{position:fixed;z-index:8;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:var(--top-h,56px);pointer-events:none}
+#sub p{margin:6px 0 0;width:fit-content;max-width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 12px;font:600 13px/1.35 var(--body);color:var(--dim);box-shadow:0 2px 10px rgba(30,40,50,.08)}
+#sub #lensCap{color:var(--ok)}
+/* the first-visit pill must never sit on a card number, the Data chart or the walkthrough */
+body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidden])) .tt-chip{display:none}
 /* the open card must not cover the header controls */
-@media (min-width:701px){body.panel-open #top{padding-right:calc(var(--panel-w) + 12px)}body.analysis-open #top{padding-right:calc(var(--analysis-w) + 12px)}body.panel-open .replay,body.analysis-open .replay{display:none}}
+@media (min-width:701px){body.panel-open #top{padding-right:calc(var(--panel-w) + 12px)}body.analysis-open #top{padding-right:calc(var(--analysis-w) + 12px)}body.panel-open .replay,body.analysis-open .replay{display:none}
+  /* a card or the Data panel is open: the header keeps to two rows, the summary line carries the counts */
+  body.panel-open #sub,body.analysis-open #sub{right:calc(var(--panel-w) + 12px)}body.analysis-open #sub{right:calc(var(--analysis-w) + 12px)}
+  body.panel-open #top,body.analysis-open #top{gap:6px}
+  body.panel-open #countChip,body.analysis-open #countChip,body.panel-open #rcptChip,body.analysis-open #rcptChip,body.panel-open #soundBtn,body.analysis-open #soundBtn{display:none}
+  body.panel-open .finder,body.analysis-open .finder{flex:0 1 220px}
+}
 @media (max-width:700px){
   #panel{top:auto;left:0;right:0;width:auto;height:44vh;max-height:44vh;border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(30,40,50,.2)}
   #panel[hidden]{transform:translateY(105%)}
-  /* one header row: brand, source, lens, search. Counts and buttons move to the dock (app.js). */
-  #top{flex-wrap:nowrap;gap:6px}
+  /* header: brand, lens, search on row one, the source on row two. Counts and buttons move to the dock (app.js). */
+  #top{gap:4px 6px;align-items:center}
+  #srcChip{order:1;padding:5px 10px;font-size:11.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
   .brand{font-size:14.5px;margin-right:0}
   .lv,#countChip,#rcptChip,#soundBtn{display:none}
-  #srcChip{padding:6px 9px}
-  #srcText{display:none}#srcShort{display:inline;position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  #srcChip i{margin-right:0}#srcChip{padding:8px 10px}
-  #srcLine{display:block;font:600 11px/1.3 var(--body);color:var(--dim);padding:0 2px}
-  .lens button{padding:5px 8px;font-size:12px}
+  #srcLine{display:none}
+  /* every tap target is at least 44 x 44 */
+  .lens button{padding:0 10px;font-size:12px;min-height:44px;min-width:44px}
   .finder{flex:1 1 80px}
-  #search{padding:7px 10px;font-size:13px;text-overflow:ellipsis}
+  #search{padding:0 10px;font-size:16px;min-height:44px;text-overflow:ellipsis}
+  #results li{min-height:44px;align-items:center}
+  #dock button.chip:not(#soundBtn),#dock .replay{min-height:44px;display:inline-flex;align-items:center}
+  #dock .replay{padding:0 8px}
+  #panel header{padding:6px 10px}
+  #panel header .x,#panel header a{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center}
+  #panel header a{padding:0 4px}
   .spacer{display:none}
   #dock #tools{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-  #dock .chip{padding:5px 9px;font-size:11.5px}
+  #dock .chip{padding:0 12px;font-size:12px}
   #dock{left:0;right:0;max-width:none;padding:0 12px;align-items:flex-start;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
   body.panel-open #dock,body.analysis-open #dock{right:0;max-width:none}
   #ticker{max-width:none;align-items:flex-start;flex-direction:row;flex-wrap:wrap}
   #legend{font-size:10.5px;gap:2px 9px;padding:5px 9px}
-  #toast{top:64px}
+  #toast{top:96px}
 }
 @media (prefers-reduced-motion:reduce){#panel,#panel[hidden]{transition:none}#ticker li{animation:none}}
 </style>
@@ -172,6 +189,7 @@ body.panel-open #dock{right:calc(var(--panel-w) + 12px)}body.analysis-open #dock
   </div>
 </div>
 
+<div id="sub"><p id="gist" hidden></p><p id="lensCap" hidden></p></div>
 <div id="empty" hidden><p id="note" aria-live="polite"></p></div>
 <div id="tip" hidden></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>

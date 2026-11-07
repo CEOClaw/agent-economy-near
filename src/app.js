@@ -535,6 +535,9 @@ async function autoTour() {
   if (tour.state === "idle") playTour();
 }
 
+// Any hand on the page chrome (the open card, the Data panel, the walkthrough, the header, the dock) stops the tour too. The tour's own select() is a function call, never a pointer event.
+document.addEventListener("pointerdown", (e) => { if (connected && e.target.closest && e.target.closest("#panel,#analysis,.tt-card,.tt-chip,#top,#dock")) skipTour("hand"); }, true);
+
 /* ---------- picking, tooltip, panel, search ---------- */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), tip = $("tip");
 function pick(ev) {
@@ -685,7 +688,7 @@ function setSrc(text, short, cls, title) {
 function header(res) {
   const live = res.source === "relay" || res.source === "live", when = utc(res.fetched_at);
   setSrc(res.source === "relay" ? "live via relay" : res.source === "live" ? "live" : `snapshot from ${when || "an unknown time"}`, live ? "live" : "snapshot", live ? "relay" : "calm", res.fetched_at ? `fetched ${res.fetched_at}` : "");
-  $("countChip").textContent = `${town.count} agents`; town.source = res.source; town.fetched_at = res.fetched_at;
+  $("countChip").textContent = `${town.count} agents`; town.source = res.source; town.fetched_at = res.fetched_at; if (connected) gist();
 }
 function revealUI() {
   for (const id of ["tally", "countChip", "rcptChip", "crossChip", "legend", "soundBtn"]) $(id).hidden = false;
@@ -696,16 +699,24 @@ function revealUI() {
 const mqPhone = matchMedia("(max-width:700px)");
 let dockH = 0, topH = 0;
 function placeTools() { searchEl.placeholder = mqPhone.matches ? "Find agent" : "Find an agent by handle or name"; const t = $("tools"); if (mqPhone.matches) $("dock").insertBefore(t, $("legend")); else $("top").append(t); layoutPhone(); }
-function layoutPhone() { dockH = $("dock").offsetHeight + 12; topH = $("top").offsetHeight + 8; document.documentElement.style.setProperty("--dock-h", dockH + "px"); } // --dock-h lets the first-visit hint sit above the dock
-if (window.ResizeObserver) new ResizeObserver(() => layoutPhone()).observe($("dock")); // the dock grows as chips and notes arrive
+function layoutPhone() { dockH = $("dock").offsetHeight + 12; topH = $("top").offsetHeight + 8; document.documentElement.style.setProperty("--dock-h", dockH + "px"); document.documentElement.style.setProperty("--top-h", $("top").offsetHeight + "px"); } // --dock-h lets the first-visit hint sit above the dock
+if (window.ResizeObserver) { const ro = new ResizeObserver(() => layoutPhone()); ro.observe($("dock")); ro.observe($("top")); } // the dock grows as chips and notes arrive
 mqPhone.addEventListener("change", placeTools); placeTools();
 
 /* ---------- proof lens: Market view (delivered) <-> Proof view (counted receipts) ---------- */
 let tShown = null, tRun = 0;
 const deliveredTotal = () => { let n = 0; for (const i of BY.values()) if (S[i].kind !== "sink") n += S[i].agent.delivered_jobs || 0; return n; };
 const provenTotal = () => RD.filter((x) => counted(x.rc)).length;
+// One plain line for a cold open, computed from what the town shows right now.
+function gist() {
+  const el = $("gist"), n = town.count, mk = deliveredTotal(), pf = provenTotal(), snap = town.source === "snapshot" && town.fetched_at && !isNaN(Date.parse(town.fetched_at));
+  const on = snap ? `On the ${new Date(town.fetched_at).toISOString().slice(0, 10)} snapshot, ` : "";
+  const body = `${n} agents say they delivered ${mk} ${mk === 1 ? "job" : "jobs"}. ${pf} ${pf === 1 ? "is" : "are"} proven.`;
+  el.textContent = on ? on + body : body[0].toUpperCase() + body.slice(1); el.hidden = false; layoutPhone();
+}
 function tally(anim) {
   if (!connected) return;
+  gist();
   const mk = deliveredTotal(), pf = provenTotal(), to = lens === "proof" ? pf : mk, unit = lens === "proof" ? "proven" : "delivered (market's word)", el = $("tally");
   town.tally = { market: mk, proof: pf };
   const paint = (n, u) => { tShown = n; el.textContent = u ? `${n} ${u}` : String(n); }, run = ++tRun;
@@ -729,7 +740,20 @@ function setLens(l) {
   $("lgHeight").textContent = l === "proof" ? "height = proof-backed jobs" : "height = delivered jobs"; $("lgHeight").dataset.term = l === "proof" ? "proof-backed" : "delivered";
   retarget(); tally(true); nameLabels();
 }
-for (const b of document.querySelectorAll(".lens button")) b.addEventListener("click", () => setLens(b.dataset.lens));
+// Flipping to Proof view by hand: the camera eases to what is left standing and a caption says which and why.
+function proofView(on) {
+  const cap = $("lensCap");
+  if (!on) { cap.hidden = true; cap.textContent = ""; if (!REDUCED) frameAll(false, T.flyHome); return; }
+  const seen = new Map(); // seller -> buyer owner names, counted receipts only
+  for (const e of RC) if (e.kind === "arc" && e.loop === "verified" && counted(e.src.rc) && BY.has(e.seller)) { const l = seen.get(e.seller) || []; if (e.buyerName && !l.includes(e.buyerName)) l.push(e.buyerName); seen.set(e.seller, l); }
+  const hs = [...seen.keys()];
+  if (!hs.length) { cap.textContent = "No building is proven yet."; cap.hidden = false; return; }
+  const by = hs.length === 1 && seen.get(hs[0]).length ? `, hired by ${seen.get(hs[0]).join(" and ")}, a different owner` : "";
+  cap.textContent = hs.length === 1 ? `1 building left: ${hs[0]}${by}` : `${hs.length} buildings left: ${hs.slice(0, 3).join(", ")}${hs.length > 3 ? ` and ${hs.length - 3} more` : ""}, each hired by a different owner`;
+  cap.hidden = false;
+  if (!REDUCED) setTimeout(() => lens === "proof" && tour.state !== "playing" && !teachUI?.isOpen() && frameOn(hs.map((h) => S[BY.get(h)]), T.tourFly), T.lens * .6); // the other buildings sink first, then the camera arrives
+}
+for (const b of document.querySelectorAll(".lens button")) b.addEventListener("click", () => { const was = lens; setLens(b.dataset.lens); if (was !== lens) proofView(lens === "proof"); });
 // Proven buildings glow in the Proof view: a green ring and a faint beam, faded by lensK (0 market, 1 proof).
 const GLOW = new Map(); let lensK = 0;
 const beamMat = new THREE.MeshBasicMaterial({ color: T.green, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }), glowRingMat = new THREE.MeshBasicMaterial({ color: T.green, transparent: true, opacity: 0 });
@@ -876,7 +900,7 @@ function refreshAnalysis() {
     receipts: RD.map((r) => { const b = buyerOf(r.run); return { ...r.rc, file: r.file, buyer_handle: b ? b.handle : null, price_usdc: priceOf(r.run) }; }),
   });
 }
-function openAnalysis() { if (!window.AgentProofAnalysis) return; select(null); anEl.hidden = false; document.body.classList.add("analysis-open"); $("analysisBtn").setAttribute("aria-pressed", "true"); refreshAnalysis(); }
+function openAnalysis() { if (!window.AgentProofAnalysis) return; skipTour("data"); select(null); anEl.hidden = false; document.body.classList.add("analysis-open"); $("analysisBtn").setAttribute("aria-pressed", "true"); refreshAnalysis(); }
 function closeAnalysis() { if (anEl.hidden) return; anEl.hidden = true; document.body.classList.remove("analysis-open"); $("analysisBtn").setAttribute("aria-pressed", "false"); }
 $("analysisBtn").addEventListener("click", () => (anEl.hidden ? openAnalysis() : closeAnalysis()));
 anEl.addEventListener("analysis:close", () => { anEl.hidden = true; document.body.classList.remove("analysis-open"); $("analysisBtn").setAttribute("aria-pressed", "false"); });
