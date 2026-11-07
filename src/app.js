@@ -292,7 +292,8 @@ function tick(now) {
 /* ---------- receipts: drawn only from re-checked records ---------- */
 const RC = [], RD = []; // RC: drawn receipts (keyed by handle, never slot); RD: every re-checked receipt, so one can come back with its agent
 // RD.reveal (0..1) is how much of a receipt the tour has drawn: 0 until played, 1 after, or at once when the tour is skipped.
-const counted = (rc) => rc.reproduced && rc.outcome === "pass" && !rc.self_hire && rc.buyer_owner != null && rc.seller_owner != null && rc.buyer_owner !== rc.seller_owner;
+// Only a run from data/manifest.json can count: a dropped file's owners are whatever the file says.
+const counted = (rc) => rc.trusted === true && rc.reproduced && rc.outcome === "pass" && !rc.self_hire && rc.buyer_owner != null && rc.seller_owner != null && rc.buyer_owner !== rc.seller_owner;
 const norm = (v) => String(v || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 // The buyer is an owner in data/agents.json (run.requester.agent). Its building is one of its executor_ids
@@ -345,6 +346,7 @@ function arcOf(e) {
   revealArc(e);
 }
 // A zero-job buyer is a flat tile; this blue pedestal gives the arc something to land on.
+const UNV = 0x8a94a3; // unverified receipt: neutral, never proof green
 const PED_H = .26, pedMat = new THREE.MeshStandardMaterial({ color: T.blue, roughness: .55, emissive: T.blue, emissiveIntensity: .18 });
 function makePed() {
   const g = new THREE.Group(), base = new THREE.Mesh(new THREE.CylinderGeometry(.5, .56, PED_H, 28).translate(0, PED_H / 2, 0), pedMat), ring = new THREE.Mesh(new THREE.TorusGeometry(.66, .045, 8, 36), pedMat);
@@ -353,7 +355,7 @@ function makePed() {
 function drawReceipt(r) {
   const { rc, run } = r, sellerSlot = BY.get(rc.seller_handle); if (sellerSlot == null) return;
   if (r.reveal == null) r.reveal = tour.state === "idle" ? 0 : 1; // only a tour that has not started yet will play it
-  if (rc.self_hire) {
+  if (rc.self_hire && rc.trusted) {
     const g = new THREE.Group(), m = new THREE.MeshStandardMaterial({ color: T.pink, roughness: .6, emissive: T.pink, emissiveIntensity: .5 });
     for (let k = 0; k < 18; k++) { const a = k / 18 * Math.PI * 2, b = new THREE.Mesh(new THREE.BoxGeometry(.3, .1, .14), m); b.position.set(Math.cos(a) * 1.05, 0, Math.sin(a) * 1.05); b.rotation.y = -a; g.add(b); }
     scene.add(g);
@@ -363,8 +365,9 @@ function drawReceipt(r) {
     return;
   }
   const ok = rc.reproduced && rc.outcome === "pass", cross = rc.buyer_owner && rc.seller_owner && rc.buyer_owner !== rc.seller_owner;
-  const color = ok && cross ? T.green : (!ok ? T.red : null); if (color == null) return;
-  const by = buyerOf(run), mat = new THREE.MeshStandardMaterial({ color, roughness: .5, emissive: color, emissiveIntensity: .35 }), loop = ok && cross ? "verified" : "failed";
+  // Unverified (not from the manifest): a grey arc, whatever the checker or the file's owners say.
+  const color = !rc.trusted ? UNV : ok && cross ? T.green : (!ok ? T.red : null); if (color == null) return;
+  const by = buyerOf(run), mat = new THREE.MeshStandardMaterial({ color, roughness: .5, emissive: color, emissiveIntensity: .35 }), loop = !rc.trusted ? "unverified" : ok && cross ? "verified" : "failed";
   const e = { kind: "arc", seller: rc.seller_handle, buyer: by && by.handle, off: by && by.handle == null ? by.name : null, buyerName: by && by.name, via: by && by.via, mat, mesh: null, sig: "", loop, src: r };
   if (e.off) offMarket(e.off); else if (e.buyer != null) e.ped = makePed();
   RC.push(e); r.drawn = true; arcOf(e);
@@ -388,9 +391,11 @@ const getJ = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: HTT
 let MANIFEST = [], EXTRA = []; // EXTRA: blob URLs of dropped run files, so the card re-checks them too
 let receiptsDone; const receiptsReady = new Promise((ok) => (receiptsDone = ok));
 // Re-checks one run bundle in this browser and keeps it. -> { rd } | { dup } | null (not a market job record)
-async function addRun(run, file) {
-  const rc = await P.checkReceipt(run, C); if (!rc) return null;
-  if (rc.id != null && RD.some((x) => x.rc.id === rc.id)) return { dup: rc };
+// { clash } is a copy with a known job id whose contents differ from the one on the map.
+async function addRun(run, file, source) {
+  const rc = await P.checkReceipt(run, C, source); if (!rc) return null;
+  const same = rc.id != null && RD.find((x) => x.rc.id === rc.id);
+  if (same) return same.rc.bundle_digest === rc.bundle_digest ? { dup: rc } : { clash: rc, have: same.rc };
   const rd = { rc, run, file, drawn: false, reveal: null }; RD.push(rd); return { rd };
 }
 // Counted receipts per seller drive the Proof view; call after any receipt is added.
@@ -404,7 +409,7 @@ async function loadReceipts() {
   try {
     const man = await getJ("data/manifest.json"); MANIFEST = (man.runs || []).map((r) => r.file);
     for (const r of man.runs || []) {
-      const got = await addRun(await getJ(`data/${r.file}`), r.file); if (!got || !got.rd) continue;
+      const got = await addRun(await getJ(`data/${r.file}`), r.file, "manifest"); if (!got || !got.rd) continue;
       drawReceipt(got.rd); receiptsChanged();
     }
   } catch (e) { console.warn("receipts not loaded", e); }
@@ -491,7 +496,7 @@ async function playOne(e, alive) {
   if (!REDUCED) await frameOn(e.kind === "arc" && endB(e) ? [endB(e), sl()] : [sl()], T.tourFly);
   if (!alive() || !sl()) return;
   // Highlight the buyer (the seller itself on a self-hire) and pulse its building.
-  step.phase = "pulse"; halo.material.color.setHex(e.loop === "verified" ? T.green : e.loop === "failed" ? T.red : T.pink);
+  step.phase = "pulse"; halo.material.color.setHex(e.loop === "verified" ? T.green : e.loop === "failed" ? T.red : e.loop === "unverified" ? UNV : T.pink);
   haloAt = () => (e.kind === "arc" ? endB(e) : sl());
   const bi = BY.get(e.buyer ?? e.seller);
   if (!REDUCED && bi != null && e.off == null) for (let k = 0; k < 2; k++) { S[bi].pulse0 = performance.now(); ACTIVE.add(bi); await sleep(T.pulse + 60); if (!alive()) return; }
@@ -500,14 +505,15 @@ async function playOne(e, alive) {
   r.reveal = 1;
   // The tag is this browser's checker, run again now on the same record: nothing here is a stored string.
   step.phase = "check"; setTag(e.seller, "re-checking...", "");
-  const t0 = performance.now(), rc2 = await P.checkReceipt(r.run, C);
+  const t0 = performance.now(), rc2 = await P.checkReceipt(r.run, C, r.rc.source);
   await sleep(Math.max(0, T.recheck - (performance.now() - t0))); if (!alive()) return;
   if (!rc2) { setTag(e.seller, "nothing to re-check", "bad"); await sleep(T.result); setTag(null, ""); haloAt = null; return; }
   tour.check = { id: rc2.id, outcome: rc2.outcome, recomputed_digest: rc2.recomputed_digest, stored_digest: rc2.stored_digest, reproduced: rc2.reproduced };
   const d8 = (x) => String(x).slice(0, 8), good = rc2.reproduced && rc2.outcome === "pass";
-  const text = rc2.outcome == null ? "nothing to re-check" : rc2.outcome !== "pass" && !rc2.recomputed_digest ? `re-check failed: checker says ${rc2.outcome}` : !rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} does not match ${rc2.stored_digest ? d8(rc2.stored_digest) : "a stored seal"}`
+  const text = rc2.outcome == null ? "nothing to re-check" : rc2.outcome !== "pass" && !rc2.recomputed_digest ? `re-check failed: checker says ${rc2.outcome}${rc2.failure_reason ? ` (${rc2.failure_reason})` : ""}` : !rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} does not match ${rc2.stored_digest ? d8(rc2.stored_digest) : "a stored seal"}`
     : `seal ${d8(rc2.recomputed_digest)} matches${rc2.outcome !== "pass" ? `, checker says ${rc2.outcome}` : ""}`;
-  setTag(e.seller, good && rc2.self_hire ? `checker passed, seal ${d8(rc2.recomputed_digest)} matches\nearns 0 reputation: same owner` : text, !good ? "bad" : rc2.self_hire ? "self" : "ok");
+  if (!r.rc.trusted) setTag(e.seller, `${text}\nunverified: not one of this site's receipts, not counted`, "bad");
+  else setTag(e.seller, good && rc2.self_hire ? `checker passed, seal ${d8(rc2.recomputed_digest)} matches\nearns 0 reputation: same owner` : text, !good ? "bad" : rc2.self_hire ? "self" : "ok");
   refreshSeals(); nameLabels();
   await sleep(T.result); if (!alive()) return;
   step.phase = "card"; select(e.seller);
@@ -553,7 +559,7 @@ function select(handle, still) {
   $("copyBtn").textContent = "Copy link"; $("saveBtn").textContent = "Save image";
   $("panelBody").replaceChildren(el); $("panelLink").href = `portfolio.html#${encodeURIComponent(handle)}`; p.hidden = false;
 }
-const toast = (msg, ms = 6500) => { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), ms); };
+const toast = (msg, ms = 6500, kind = "") => { const t = $("toast"); t.textContent = msg; t.hidden = false; t.dataset.kind = kind; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), ms); };
 $("saveBtn").addEventListener("click", async () => {
   const el = $("panelBody").firstElementChild, h = selH; if (!el || !h) return;
   try {
@@ -822,15 +828,23 @@ async function boot() {
 }
 
 /* ---------- drop or paste a run file ---------- */
+// What the checker said, then whether it counts. A checker rejection names its reason, not the seal.
+function verdictOf(rc) {
+  const why = rc.outcome == null ? "had nothing to re-check" : rc.outcome !== "pass" ? `failed the checker (${rc.outcome}: ${rc.failure_reason || "no reason given"})` : !rc.reproduced ? "passed the checker, but its stored seal does not match the recomputed one" : null;
+  if (!rc.trusted) return `${why || "passed the checker"}. It is unverified and not counted: it is not one of this site's receipts, so its owners are only what the file says`;
+  return counted(rc) ? "counts as proof" : why || (rc.self_hire ? "is a self-hire, so it earns 0" : "does not count (no two different owners)");
+}
 addEventListener("pagehide", () => { for (const u of EXTRA) URL.revokeObjectURL(u); });
 async function takeRun(text, name) {
   let run; try { run = JSON.parse(text); } catch (e) { return toast(`${name} is not JSON, so there is nothing to check.`); }
-  let got; try { got = await addRun(run, name); } catch (e) { return toast(`${name} looks like a run file but could not be checked: ${e.message || e}`); }
+  await receiptsReady; // the site's own receipts first, so a copy can never take a genuine one's place
+  let got; try { got = await addRun(run, name, "a file dropped on this page"); } catch (e) { return toast(`${name} looks like a run file but could not be checked: ${e.message || e}`); }
   if (!got) return toast(`${name} is not a market job record (it has no job_ref), so nothing was added.`);
-  if (got.dup) return toast(`That receipt (${got.dup.id}) is already on the map.`);
+  if (got.clash) return toast(`This copy of receipt ${String(got.clash.id).slice(0, 8)} does not match the one on the map (file fingerprint ${got.clash.bundle_digest.slice(0, 8)}, the map has ${got.have.bundle_digest.slice(0, 8)}). It was edited, so nothing was added.`, 9000, "bad");
+  if (got.dup) return toast(`That receipt (${got.dup.id}) is already on the map, and this copy matches it byte for byte.`);
   const rd = got.rd; EXTRA.push(URL.createObjectURL(new Blob([text], { type: "application/json" })));
   rd.reveal = 0; drawReceipt(rd); receiptsChanged();
-  const e = RC.find((x) => x.src === rd), verdict = counted(rd.rc) ? "counts as proof" : rd.rc.self_hire ? "is a self-hire, so it earns 0" : !rd.rc.reproduced ? "did not reproduce its stored seal" : rd.rc.outcome !== "pass" ? `was judged ${rd.rc.outcome}` : "does not count (no two different owners)";
+  const e = RC.find((x) => x.src === rd), verdict = verdictOf(rd.rc);
   if (!e) { rd.reveal = 1; return toast(`Checked ${name}: ${rd.rc.seller_handle || "its seller"} is not a building on this map, and the receipt ${verdict}.`); }
   skipTour("drop"); select(null); closeAnalysis(); rd.reveal = 0;
   const run2 = ++tourRun; await playOne(e, () => run2 === tourRun); if (run2 !== tourRun) return;
@@ -881,7 +895,7 @@ const teachHooks = {
     for (const r of RD) r.reveal = 1; refreshSeals(); nameLabels();
     await focusOn([seller], T.tourFly); if (my !== teachTok) return; highlight([seller], T.green);
     if (!rd) return { stored: null, recomputed: null, match: false };
-    setTag(seller, "re-checking...", ""); const rc2 = await P.checkReceipt(rd.run, C); if (my !== teachTok) return;
+    setTag(seller, "re-checking...", ""); const rc2 = await P.checkReceipt(rd.run, C, rd.rc.source); if (my !== teachTok) return;
     setTag(seller, rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} matches` : `seal ${d8(rc2.recomputed_digest)} does not match`, rc2.reproduced ? "ok" : "bad");
     return { stored: rc2.stored_digest, recomputed: rc2.recomputed_digest, match: !!rc2.reproduced };
   },

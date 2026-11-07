@@ -5,7 +5,8 @@
   const isOn = (a) => (a.available_now != null ? a.available_now === true : a.availability === "available" || a.availability === "available_now");
   const num = (v) => (typeof v === "number" && isFinite(v) ? v : null);
   const crossOwner = (r) => !r.self_hire && r.buyer_owner != null && r.seller_owner != null && r.buyer_owner !== r.seller_owner;
-  const counted = (r) => !!(r.reproduced && r.outcome === "pass" && crossOwner(r));
+  // trusted: the run is one of the site's own (data/manifest.json); a dropped file never counts.
+  const counted = (r) => !!(r.trusted === true && r.reproduced && r.outcome === "pass" && crossOwner(r));
   const BINS = [["0", 0, 0], ["1", 1, 1], ["2-3", 2, 3], ["4-7", 4, 7], ["8-15", 8, 15], ["16-31", 16, 31], ["32-63", 32, 63], ["64+", 64, null]];
 
   function median(xs) {
@@ -35,6 +36,7 @@
       id: r.id ?? null, seller_handle: r.seller_handle ?? null, buyer_owner: r.buyer_owner ?? null, seller_owner: r.seller_owner ?? null,
       self_hire: r.self_hire === true, price_usdc: num(r.price_usdc), outcome: r.outcome ?? null,
       stored_digest: r.stored_digest ?? null, recomputed_digest: r.recomputed_digest ?? null, reproduced: !!r.reproduced, counted: counted(r),
+      trusted: r.trusted === true, source: r.source ?? null,
     }));
     for (const r of receipts) if (r.counted && catOf.has(r.seller_handle)) cats.get(catOf.get(r.seller_handle)).proven++;
     const list = [...cats.values()];
@@ -223,12 +225,12 @@
     if (!s.receipts.length) return sec("No receipts to re-check", "Run files give the proof side of every number above.", `<p class="an-empty">none yet</p>`, "source: run files in this repo");
     const rows = s.receipts.map((r) => {
       const own = r.self_hire ? `<span class="an-tag rep">self-hire</span>` : r.buyer_owner != null && r.seller_owner != null && r.buyer_owner !== r.seller_owner ? `<span class="an-tag ok">cross-owner</span>` : `<span class="an-tag nil">owner unknown</span>`;
-      const v = r.counted ? `<span class="an-tag ok">counted</span>` : !r.reproduced ? `<span class="an-tag fail">digest differs</span>` : r.outcome !== "pass" ? `<span class="an-tag fail">${esc(r.outcome || "no outcome")}</span>` : `<span class="an-tag rep">not counted</span>`;
+      const v = r.counted ? `<span class="an-tag ok">counted</span>` : !r.trusted ? `<span class="an-tag fail">unverified</span><br><span style="color:var(--dim)">from ${esc(r.source || "unknown source")}</span>` : !r.reproduced ? `<span class="an-tag fail">digest differs</span>` : r.outcome !== "pass" ? `<span class="an-tag fail">${esc(r.outcome || "no outcome")}</span>` : `<span class="an-tag rep">not counted</span>`;
       const same = r.stored_digest && r.recomputed_digest && r.stored_digest === r.recomputed_digest;
       return `<tr><td class="mono">${esc(String(r.id || "").slice(0, 8) || "none")}</td><td>${esc(r.buyer_owner ?? "not observed")}</td><td>${esc(r.seller_handle ?? "not observed")}<br><span class="mono" style="color:var(--dim)">${esc(r.seller_owner ?? "not observed")}</span></td><td>${own}</td><td class="mono">${r.price_usdc == null ? "not observed" : "$" + r.price_usdc}</td><td>${v}<br><span style="color:var(--dim)">checker: ${esc(r.outcome ?? "none")}</span></td><td class="mono">${esc(short(r.stored_digest))}<br>${esc(short(r.recomputed_digest))}<br><span style="color:${same ? "var(--ok)" : "var(--fail)"}">${same ? "match" : "no match"}</span></td></tr>`;
     }).join("");
     return sec(s.proven_total ? `${fmt(s.proven_total)} receipt${s.proven_total === 1 ? "" : "s"} survive${s.proven_total === 1 ? "s" : ""} the checker and the owner test` : "No receipt survives the checker and the owner test",
-      "A receipt counts only if the checker re-run here gives the stored digest, the outcome is pass, and the buyer's owner differs from the seller's.",
+      "A receipt counts only if it is one of this site's runs, the checker re-run here gives the stored digest, the outcome is pass, and the buyer's owner differs from the seller's. A dropped file is unverified: its owners are only what it says.",
       `<div class="an-twrap"><table><thead><tr><th>Job</th><th>Buyer owner</th><th>Seller</th><th>Owners</th><th>Price</th><th>Verdict</th><th title="first 8 hex">Digest: stored, recomputed</th></tr></thead><tbody>${rows}</tbody></table></div>`,
       "source: run files in this repo, re-checked in your browser when the page loaded");
   }

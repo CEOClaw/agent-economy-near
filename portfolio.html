@@ -62,6 +62,7 @@ const $ = (id) => document.getElementById(id);
 const card = $("card");
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 // Test hook: ?receipts=url1,url2 replaces data/manifest.json as the receipt source.
+// A URL the manifest does not list renders as unverified and never counts (owners are self-asserted in the file).
 const q = new URLSearchParams(location.search).get("receipts");
 if (q) card.setAttribute("receipts", q);
 const fromHash = () => decodeURIComponent(location.hash.slice(1)).trim() || "ohwow-agent";
@@ -72,11 +73,13 @@ show();
 card.addEventListener("agentproof:ready", (e) => {
   const { receipts, market } = e.detail;
   $("receipts").innerHTML = receipts.length ? receipts.map((r) => {
-    const v = r.reproduced && r.outcome === "pass" ? '<span class="v ok">digest reproduced</span>' : `<span class="v bad">failed check${r.outcome ? " (" + esc(r.outcome) + ")" : ""}</span>`;
+    // A run the site's manifest does not list is never proof, whatever the checker says about it.
+    const v = !r.trusted ? `<span class="v bad">unverified, from ${esc(r.source)}: not counted</span>` : r.reproduced && r.outcome === "pass" ? '<span class="v ok">digest reproduced</span>' : `<span class="v bad">failed check${r.outcome ? " (" + esc(r.outcome) + ")" : ""}</span>`;
     return `<li><span title="job id">${esc(String(r.id || "no id").slice(0, 8))}</span>${r.self_hire ? '<span class="dim">self-hire, 0 pts</span>' : ""}${v}</li>`;
   }).join("") : '<li class="dim">No receipts for this agent yet.</li>';
   const when = market.fetched_at ? market.fetched_at.slice(0, 16).replace("T", " ") + " UTC" : "date not observed";
   $("src").textContent = market.source === "live" ? "Market numbers: market.near.ai, live." : `Market numbers: snapshot of market.near.ai, ${when}. Proof numbers: receipts re-checked in this browser.`;
+  if (receipts.some((r) => !r.trusted)) $("src").textContent += " Receipts from outside this site's manifest are unverified and not counted.";
 });
 
 AgentProof.loadMarket().then((m) => {

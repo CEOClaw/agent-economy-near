@@ -79,6 +79,7 @@ button.chip[aria-pressed="true"]{background:var(--wash);border-color:var(--reque
 #tip b{display:block;font:600 14px/1.2 var(--display)}
 #tip span{color:var(--dim);font-weight:400}
 #toast{position:fixed;z-index:10;left:50%;top:112px;transform:translateX(-50%);max-width:min(460px,calc(100% - 24px));background:var(--ink);color:var(--card);border-radius:12px;padding:10px 14px;font:600 13px/1.4 var(--body);box-shadow:0 8px 28px rgba(30,40,50,.3)}
+#toast[data-kind="bad"]{background:var(--fail);color:var(--on-accent)}
 body.dropping::after{content:"Drop a run file to add it to the map";position:fixed;inset:10px;z-index:11;display:flex;align-items:center;justify-content:center;border:3px dashed var(--request);border-radius:22px;background:rgba(59,120,222,.1);color:var(--request);font:700 20px var(--display);pointer-events:none}
 /* change ticker: only real differences between two refreshes */
 #ticker{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;align-items:flex-end;max-width:300px;pointer-events:none}

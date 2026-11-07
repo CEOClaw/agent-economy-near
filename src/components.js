@@ -8,7 +8,8 @@
 //
 // Attributes (both elements):
 //   agent     market handle
-//   receipts  optional comma-separated run URLs that replace the manifest
+//   receipts  optional comma-separated run URLs that replace the manifest; a URL the
+//             manifest does not list is shown as unverified and never counted
 //   theme     "light" | "dark"; default follows prefers-color-scheme
 //   flip      (portfolio only) first show "Market says N delivered", then after
 //             ~900 ms count down to the proven number; reduced motion skips it
@@ -49,20 +50,23 @@
     }));
   }
 
+  // Where an unverified run came from, in words a reader can check.
+  const sourceOf = (u) => { const x = new URL(u); return x.protocol === "blob:" ? "a file dropped on this page" : x.origin === location.origin ? x.pathname : x.host; };
+
   // One receipt set per source (the manifest, or a `receipts` list). count resolves
   // as soon as the bundles are fetched, checked once every checker run is done.
   const sets = new Map();
   function loadReceipts(list) {
     const key = list || "manifest";
     if (sets.has(key)) return sets.get(key);
-    const urls = list
-      ? Promise.resolve(list.split(",").map((u) => new URL(u.trim(), location.href).href))
-      : getJson(new URL("manifest.json", DATA)).then((m) => m.runs.map((r) => new URL(r.file, DATA).href));
+    // Trust is by address, never by what a file says: only a URL the site's own manifest lists counts.
+    const own = getJson(new URL("manifest.json", DATA)).then((m) => m.runs.map((r) => new URL(r.file, DATA).href), () => []);
+    const urls = list ? Promise.resolve(list.split(",").map((u) => new URL(u.trim(), location.href).href)) : own;
     const runs = Promise.all([deps, urls]).then(([, us]) => Promise.all(us.map((u) => getJson(u).then((run) => ({ u, run }))))).then((xs) => xs.filter((x) => x.run && x.run.job_ref));
     const set = {
       count: runs.then((xs) => xs.length),
-      checked: runs.then((xs) => Promise.all(xs.map(async ({ u, run }) => {
-        const r = await window.AgentProofPortfolio.checkReceipt(run, window.AgentProofChecker);
+      checked: Promise.all([runs, own]).then(([xs, mine]) => Promise.all(xs.map(async ({ u, run }) => {
+        const r = await window.AgentProofPortfolio.checkReceipt(run, window.AgentProofChecker, mine.includes(u) ? "manifest" : sourceOf(u));
         return r && Object.assign(r, { file: u.split("/").pop() });
       }))).then((rs) => rs.filter(Boolean)),
     };
@@ -104,7 +108,7 @@
 .big .bn{display:inline-block;transition:color .4s}
 .big.mk .bn{color:var(--market)}
 .st{margin-top:24px;font:600 11px var(--mono);border-radius:999px;padding:4px 9px;white-space:nowrap;color:var(--muted);background:var(--bg)}
-.st.ok{color:var(--proof)}.st.bad{color:var(--on-warn);background:var(--warn)}
+.st.ok{color:var(--proof)}.st.bad{color:var(--on-warn);background:var(--warn)}.st.unv{color:var(--warn);background:transparent;border:1.5px dashed var(--warn)}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
 .stats div{border-top:2px solid var(--line);padding-top:8px;min-width:0}
 .stats b{font:700 20px var(--display);display:block}
@@ -118,7 +122,11 @@
   // Everything the card shows, as plain values. The canvas export draws from this too.
   function cardModel(p, owner, receipts, marketAgent) {
     const q = p.proof, m = p.market;
-    const mine = receipts.filter((r) => r.seller_handle === p.handle);
+    const mine = receipts.filter((r) => r.seller_handle === p.handle && r.trusted === true);
+    const unv = receipts.filter((r) => r.seller_handle === p.handle && r.trusted !== true);
+    const srcs = [...new Set(unv.map((r) => r.source))].join(", ");
+    // Self-made data never renders as proof: say where it came from and that it was not counted.
+    const unvText = unv.length ? `${unv.length} ${unv.length === 1 ? "receipt" : "receipts"} not counted: unverified, from ${srcs}. Its owners and payout are only what the file says. ` : "";
     const last = q.last_verified_at ? "last verified " + q.last_verified_at.slice(0, 10)
       : q.self_hires.length ? "self-hire, " + ((mine.find((r) => r.self_hire) || {}).verified_at || "").slice(0, 10).replace(/^$/, "date not observed")
       : mine.length ? "no counted receipts" : ""; // no receipts at all: the status pill already says so
@@ -128,14 +136,14 @@
       big: q.verified_jobs,
       owners: q.distinct_owners,
       earned,
-      // Zero proof is "none", not a pending state; a counted job with no payout seen is "not observed".
-      earnedText: q.verified_jobs ? earned || "not observed" : "none",
-      why: q.verified_jobs ? null : (q.self_hires.length ? "Its self-hire does not count. " : "") + "To get a proof-backed job: a buyer with a different owner hires this agent, and the checker passes the delivery.",
-      foot: mine.length ? "AgentProof · re-checked in your browser" : "AgentProof", // zero receipts: said once, in the status pill
+      // Zero proof is "none", not a pending state; a counted job with no payout seen is "not recorded".
+      earnedText: q.verified_jobs ? earned || "not recorded" : "none",
+      why: (unvText + (q.verified_jobs ? "" : (q.self_hires.length ? "Its self-hire does not count. " : "") + "To get a proof-backed job: a buyer with a different owner hires this agent, and the checker passes the delivery.")).trim() || null,
+      foot: mine.length ? "AgentProof · re-checked in your browser" : unv.length ? "AgentProof · unverified data, not proof" : "AgentProof", // zero receipts: said once, in the status pill
       self: q.self_hires.length,
       listed: !!marketAgent,
       delivered: m.delivered_jobs, rate: m.success_rate,
-      status: q.failed_checks ? { kind: "bad", text: "receipt failed check" } : mine.length ? { kind: "ok", text: "✓ verified in your browser" } : { kind: "", text: "no receipts" },
+      status: q.failed_checks ? { kind: "bad", text: "receipt failed check" } : mine.length ? { kind: "ok", text: "✓ verified in your browser" } : unv.length ? { kind: "unv", text: "unverified, not counted" } : { kind: "", text: "no receipts" },
       last,
     };
   }
@@ -185,7 +193,7 @@
       const market = c.listed ? `<span>${nil(c.delivered)} delivered · ${c.rate == null ? nil(null) : `<b class="num">${esc(c.rate)}%</b>`} success</span>` : `<span class="nil">not listed</span>`;
       this._shell(`<article class="A" part="card"><div class="who"><div class="logo" ${logo}>${o.logo ? "" : esc(o.letter)}</div><div><div class="nm" title="${esc(o.name)}">${esc(o.name)}</div><div class="hd">${esc(c.handle)} · market.near.ai</div></div></div>
 <div class="row"><div class="big num"><span class="bn">${c.big}</span><small>proof-backed ${c.big === 1 ? "job" : "jobs"}</small></div><span class="st ${c.status.kind}" data-status="${c.status.kind || "none"}">${esc(c.status.text)}</span></div>
-<div class="stats"><div><b class="num">${c.owners}</b><span>${c.owners === 1 ? "outside owner" : "outside owners"}</span></div><div>${c.earned == null ? `<b class="nil${c.earnedText === "not observed" ? " sm" : ""}">${esc(c.earnedText)}</b>` : `<b class="num">${esc(c.earned)}</b>`}<span>earned, verified</span></div><div><b class="num">${c.self}</b><span>${c.self === 1 ? "self-hire" : "self-hires"}, 0 pts</span></div></div>
+<div class="stats"><div><b class="num">${c.owners}</b><span>${c.owners === 1 ? "outside owner" : "outside owners"}</span></div><div>${c.earned == null ? `<b class="nil${c.earnedText === "not recorded" ? " sm" : ""}">${esc(c.earnedText)}</b>` : `<b class="num">${esc(c.earned)}</b>`}<span>payout as recorded</span></div><div><b class="num">${c.self}</b><span>${c.self === 1 ? "self-hire" : "self-hires"}, 0 pts</span></div></div>
 <div class="vs"><span>Market says</span>${market}</div>${c.why ? `<p class="why">${esc(c.why)}</p>` : ""}
 <div class="foot"><span>${esc(c.foot)}</span><span>${esc(c.last)}</span></div></article>`);
       this._flip(c);
@@ -257,14 +265,15 @@
       text(c.big, P, bigTop + 60, `800 76px ${F.display}`, t("--ink"));
       text(c.big === 1 ? "proof-backed job" : "proof-backed jobs", P, bigTop + 68 + 8 + 10, `600 15px ${F.body}`, t("--muted"));
       x.font = `600 11px ${F.mono}`; const sw = x.measureText(c.status.text).width + 18;
-      rr(P + inner - sw, bigTop + 2, sw, 23, 12); x.fillStyle = c.status.kind === "bad" ? t("--warn") : t("--bg"); x.fill();
-      text(c.status.text, P + inner - 9, bigTop + 18, `600 11px ${F.mono}`, c.status.kind === "bad" ? t("--on-warn") : c.status.kind === "ok" ? t("--proof") : t("--muted"), "right");
+      rr(P + inner - sw, bigTop + 2, sw, 23, 12); x.fillStyle = c.status.kind === "bad" ? t("--warn") : c.status.kind === "unv" ? t("--paper") : t("--bg"); x.fill();
+      if (c.status.kind === "unv") { x.save(); x.setLineDash([4, 3]); x.lineWidth = 1.5; x.strokeStyle = t("--warn"); x.stroke(); x.restore(); }
+      text(c.status.text, P + inner - 9, bigTop + 18, `600 11px ${F.mono}`, c.status.kind === "bad" ? t("--on-warn") : c.status.kind === "ok" ? t("--proof") : c.status.kind === "unv" ? t("--warn") : t("--muted"), "right");
       // stats
       const sTop = bigTop + 68 + 8 + 22 + 18, cw = (inner - 20) / 3;
-      [[c.owners, c.owners === 1 ? "outside owner" : "outside owners"], [c.earnedText, "earned, verified"], [c.self, (c.self === 1 ? "self-hire" : "self-hires") + ", 0 pts"]].forEach(([v, label], i) => {
+      [[c.owners, c.owners === 1 ? "outside owner" : "outside owners"], [c.earnedText, "payout as recorded"], [c.self, (c.self === 1 ? "self-hire" : "self-hires") + ", 0 pts"]].forEach(([v, label], i) => {
         const X = P + i * (cw + 10);
         x.fillStyle = t("--line"); x.fillRect(X, sTop, cw, 2);
-        text(v, X, sTop + 31, v === "not observed" ? `600 14px ${F.body}` : `700 20px ${F.display}`, i === 1 && c.earned == null ? t("--void") : t("--ink"));
+        text(v, X, sTop + 31, v === "not recorded" ? `600 14px ${F.body}` : `700 20px ${F.display}`, i === 1 && c.earned == null ? t("--void") : t("--ink"));
         text(label, X, sTop + 50, `400 12px ${F.body}`, t("--muted"));
       });
       // market strip
@@ -301,6 +310,7 @@
       const n = c.big, m = c.owners;
       if (n) this._pill("ok", `proof-backed: ${n} from ${m} ${m === 1 ? "owner" : "owners"}`);
       else if (c.status.kind === "bad") this._pill("bad", "receipt failed check");
+      else if (c.status.kind === "unv") this._pill("", "no proof yet (unverified data)");
       else this._pill("", "no proof yet");
     }
   }
