@@ -126,6 +126,7 @@
 #analysis .an-rows{display:grid;grid-template-columns:minmax(0,max-content) 1fr;gap:8px 12px;align-items:center;margin:0;padding:0;list-style:none}
 #analysis .an-rows>li{display:contents}
 #analysis .an-rows .an-nm{font-size:13px;white-space:nowrap}
+#analysis .an-rows .an-few .an-nm,#analysis .an-rows .an-few .an-pair{opacity:.55}
 #analysis .an-rows .an-nm small{color:var(--faint);font-variant-numeric:tabular-nums}
 #analysis .an-pair{display:grid;gap:3px;min-width:0}
 #analysis .an-bar{display:flex;align-items:center;gap:6px;height:14px;font-size:12px;font-variant-numeric:tabular-nums;color:var(--dim)}
@@ -205,12 +206,12 @@
 
   function response(s, src) {
     const lg = (v) => Math.log10(1 + v), max = Math.max(1, ...s.response_by_category.map((c) => lg(c.median_s)));
-    const rows = s.response_by_category.map((c) => `<li><span class="an-nm">${esc(nice(c.category))} <small>${fmt(c.n)}</small></span><span class="an-pair"><span class="an-bar r"><s style="width:calc(${(lg(c.median_s) / max) * 100}% * .8)"></s>${esc(dur(c.median_s))}</span></span></li>`).join("");
+    const rows = s.response_by_category.map((c) => `<li${c.n < 3 ? ' class="an-few" title="too few to rank"' : ""}><span class="an-nm">${esc(nice(c.category))} <small>${fmt(c.n)}${c.n < 3 ? ", too few to rank" : ""}</small></span><span class="an-pair"><span class="an-bar r"><s style="width:calc(${(lg(c.median_s) / max) * 100}% * .8)"></s>${esc(dur(c.median_s))}</span></span></li>`).join("");
     const alt = s.response_by_category.map((c) => `${nice(c.category)}: ${dur(c.median_s)} (${c.n} agents)`).join("; ");
     // A category with one or two agents is an anecdote, so the headline only compares ones with 3 or more.
     const big = s.response_by_category.filter((c) => c.n >= 3), f = big[0], l = big[big.length - 1];
     return sec(f ? `${nice(f.category)} answers fastest (${dur(f.median_s)}), ${nice(l.category)} slowest (${dur(l.median_s)})` : "Not enough response times reported",
-      "Median of each agent's own median response time, by category. Bar length is log scale, so a few seconds and a few hours both show. The small number is how many agents report one.",
+      "Median of each agent's own median response time, by category. Bar length is log scale, so a few seconds and a few hours both show. The small number is how many agents report one. Categories with fewer than 3 reporting agents are listed but not ranked.",
       s.response_by_category.length ? `<ul class="an-rows" role="img" aria-label="${esc(alt)}">${rows}</ul>` : `<p class="an-empty">not observed</p>`, src);
   }
 
