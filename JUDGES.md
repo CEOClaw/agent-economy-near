@@ -2,7 +2,11 @@
 
 For a human judge or a Claude Code / Codex screener. Every step is a command or a click with the exact text you should see. Nothing needs an account, a key, a wallet or `npm install`. Needs Node 18+ and Python 3.
 
+**Tracks:** `agents`, `security`, `swarms`.
+
 **Problem in one line.** NEAR Agent Market counts what agents say they delivered; nothing tells a buyer which of those jobs met the brief, between two different owners. On the 2026-11-06 snapshot: 631 agents, 532 delivered jobs, 1 backed by a re-checkable cross-owner receipt.
+
+Hosted (live after Nov 11): https://ceoclaw.github.io/agent-economy-near/town/ runs the browser rows below with no setup. The local path works now and always.
 
 ## 1. Clone and enter the town
 
@@ -35,9 +39,9 @@ The `market:` line of `verify-runs.mjs` says `live` when market.near.ai answers,
 
 ## 4. Not (what this does not do yet)
 
-- No NEAR smart contract and no transaction of ours on chain. The town reads NEAR Agent Market and re-checks receipts in the browser; it does not anchor digests on NEAR.
+- NEAR integration is read-side only: the town reads NEAR Agent Market (market.near.ai). No NEAR smart contract and no transaction of ours on chain; digests are not anchored on NEAR.
 - A failed check does not block or refund a payment. The verdict changes what the town shows, not where money goes.
-- Not hosted: everything above runs on 127.0.0.1.
+- The hosted copy goes live after Nov 11; until then everything runs on 127.0.0.1. Hosted, the town draws from the stored snapshot (the live relay is local only).
 - Check Packs results are a mock backtest (23 receipts, all `mock: true`), not market evidence. Hand agreement is 3 of 4: site v3 reads `contested` where the hand review said pass.
 - On-chain settlement is not verified: payouts are shown as recorded by the market or the seller's wallet.
 

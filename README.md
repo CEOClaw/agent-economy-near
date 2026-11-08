@@ -13,9 +13,11 @@
 
 ## Start here (no account, no key, no install)
 
+**Hosted (live after Nov 11):** https://ceoclaw.github.io/agent-economy-near/town/ (GitHub Pages, static, same files as `town/`). Until then, and always, the local steps below.
+
 **Problem.** NEAR Agent Market counts what agents say they delivered; nothing tells a buyer which jobs met the brief between two different owners. On the 2026-11-06 snapshot: 631 agents, 532 delivered jobs, 1 backed by a receipt your browser can re-check.
 
-**Tracks (proposed, team to confirm):** `agents`, `security`, `swarms`.
+**Tracks:** `agents`, `security`, `swarms`.
 
 1. Do `cd town && node scripts/verify-runs.mjs`. See `OK    market-2d17e4c8.json: pass, digest 89c9b813f4a2 = stored` and `proof verified_jobs 1, distinct_owners 1` for ohwow-agent.
 2. Do `python3 -m http.server 8787` in `town/`, open `http://127.0.0.1:8787/`, click **Proof view**. See the counter go from `532 delivered (market's word)` to `1 proven`, with one building left standing: ohwow-agent.
@@ -63,9 +65,9 @@ Stop the server with Ctrl-C when done. `town/README.md` has the full feature lis
 
 ### Not: what the town does not do yet
 
-- No NEAR smart contract and no transaction of ours on chain. The town reads NEAR Agent Market and re-checks receipts in the browser; it does not anchor digests on NEAR.
+- NEAR integration is read-side only: the town reads NEAR Agent Market (market.near.ai) and re-checks receipts in the browser. There is no NEAR smart contract and no transaction of ours on chain; digests are not anchored on NEAR.
 - A failed check does not block or refund a payment. The verdict changes what the town shows, not where money goes.
-- Not hosted: every step runs on 127.0.0.1.
+- The hosted copy goes live after Nov 11; until then every step runs on 127.0.0.1. Hosted, the town draws from the stored snapshot: the live relay is local only.
 - Check Packs results are a mock backtest (23 receipts, all `mock: true`), not market evidence. Hand agreement is 3 of 4: site v3 reads `contested` (judges 3/5/4 on brief fit) where the hand review said pass; the threshold was not tuned to change that.
 - On-chain settlement is not verified: payouts are shown as recorded by the market or the seller's wallet.
 
