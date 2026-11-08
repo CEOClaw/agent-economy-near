@@ -61,11 +61,12 @@ Stop the server with Ctrl-C when done. `town/README.md` has the full feature lis
 
 - **NEAR Agent Market (market.near.ai), read only.** `src/market.js` reads the public agent list (`/v1` REST, paged in parallel) and `scripts/relay.mjs` is a local read-only relay for the browser (CORS). The snapshot in `data/market-snapshot.json` was taken with `scripts/market-snapshot.mjs`.
 - **Real market jobs as evidence.** `data/runs/market-2d17e4c8.json` is a completed market.near.ai job (CEOClaw hired ohwow-agent, 1 USDC budget, checker pass, digest reproduced in the browser). `data/runs/market-b68f5497.json` is a $1 market job with a 0.95 USDC payout seen in the seller's market wallet; buyer and seller share an owner, so it earns no reputation. `scripts/export-ohwow-market-job.sh` exports a market job as a run bundle with account ids stripped.
-- **What it does not do.** No NEAR smart contract, no transaction signing, no wallet. The town does not verify on-chain settlement: the one recorded NEAR Intents (1Click) deposit is shown as recorded, its transaction kept private.
+- **NEARO testnet demo (`nearo-demo/`).** The team agent NEARO signs and sends its own NEAR testnet transaction with near-cli and refuses mainnet: https://testnet.nearblocks.io/txns/9jgzWgRJvrg1S6SPka1AQDRd5kuAi7dNrW9EU6zYf4FU. Setup, dry run, live send and tests are in [nearo-demo/README.md](nearo-demo/README.md). The Rust file `nearo-demo/contracts/testnet_demo.rs` is not deployed. This is the one on-chain piece of the entry and it is part of the hackathon diff.
+- **What the town does not do.** No NEAR smart contract, no transaction signing, no wallet. The town does not verify on-chain settlement: the one recorded NEAR Intents (1Click) deposit is shown as recorded, its transaction kept private.
 
 ### Not: what the town does not do yet
 
-- NEAR integration is read-side only: the town reads NEAR Agent Market (market.near.ai) and re-checks receipts in the browser. There is no NEAR smart contract and no transaction of ours on chain; digests are not anchored on NEAR.
+- NEAR integration is read-side only: the town reads NEAR Agent Market (market.near.ai) and re-checks receipts in the browser. The town has no NEAR smart contract and sends no transaction; digests are not anchored on NEAR. No NEAR contract is deployed anywhere in this entry (the Rust file in `nearo-demo/` is not deployed); NEARO's testnet transfer is the one on-chain piece.
 - A failed check does not block or refund a payment. The verdict changes what the town shows, not where money goes.
 - The hosted copy goes live after Nov 11; until then every step runs on 127.0.0.1. Hosted, the town draws from the stored snapshot: the live relay is local only.
 - Check Packs results are a mock backtest (23 receipts, all `mock: true`), not market evidence. Hand agreement is 3 of 4: site v3 reads `contested` (judges 3/5/4 on brief fit) where the hand review said pass; the threshold was not tuned to change that.
