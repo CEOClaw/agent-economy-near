@@ -68,9 +68,17 @@ const labelsEl = $("labels"); const LABELS = [];
 function label(obj, cls, html, dy = 0, style = "") { const el = document.createElement("div"); el.className = cls; el.innerHTML = html; if (style) el.style.cssText = style; labelsEl.appendChild(el); const L = { obj, el, dy, show: true }; LABELS.push(L); return L; }
 const tmpV = new THREE.Vector3();
 function placeLabels() { const w = innerWidth, h = innerHeight, topEdge = $("top").getBoundingClientRect().bottom + 4; // labels stop below the header instead of sliding under the Runs chip
-  for (const L of LABELS) { if (!L.show || !L.obj.visible) { L.el.style.display = "none"; continue; } L.obj.getWorldPosition(tmpV); tmpV.y += L.dy; tmpV.project(camera); if (tmpV.z > 1) { L.el.style.display = "none"; continue; } L.el.style.display = ""; L.el.style.left = ((tmpV.x + 1) / 2 * w) + "px"; const y = (1 - tmpV.y) / 2 * h; L.el.style.top = (y < topEdge + 40 ? Math.max(y, topEdge - parseFloat(getComputedStyle(L.el).transform.split(",")[5] || 0)) : y) + "px"; } }
+  for (const L of LABELS) { if (!L.show || !L.obj.visible) { L.el.style.display = "none"; continue; } L.obj.getWorldPosition(tmpV); tmpV.y += L.dy; tmpV.project(camera); if (tmpV.z > 1) { L.el.style.display = "none"; continue; } L.el.style.display = ""; L.el.style.left = ((tmpV.x + 1) / 2 * w) + "px"; const y = (1 - tmpV.y) / 2 * h; L.el.style.top = (y < topEdge + 40 ? Math.max(y, topEdge - parseFloat(getComputedStyle(L.el).transform.split(",")[5] || 0)) : y) + "px"; }
+  spreadSettleLabels(); }
 const anchorAt = (k, dy) => { const o = new THREE.Object3D(); o.position.set(pos(k)[0], dy, pos(k)[1]); scene.add(o); return o; };
 const STLAB = {};
+/* Settle, Escrow and Market fee stand close together, so from most angles their tags collide. Settle holds still; the other two step down / up just far enough to clear it. */
+const SETTLE_LABELS = [];
+function spreadSettleLabels() { const placed = [];
+  for (const [L, dir] of SETTLE_LABELS) { if (L.el.style.display === "none") continue;
+    const x = parseFloat(L.el.style.left), y0 = parseFloat(L.el.style.top), w = L.el.offsetWidth, h = L.el.offsetHeight; let y = y0;
+    if (dir) for (const p of placed) if (Math.abs(x - p.x) < (w + p.w) / 2 + 2 && Math.abs(y - p.y) < h + 2) y = p.y + dir * (h + 2);
+    L.nudge = (L.nudge || 0) + (y - y0 - (L.nudge || 0)) * (REDUCED ? 1 : .2); L.el.style.top = (y0 + L.nudge) + "px"; placed.push({ x, y, w }); } }
 const stationLabel = (key, at, dy) => (STLAB[key] = label(anchorAt(at, dy), "place", ST[key].name, 0, `background:${ST[key].c}`));
 
 /* ---------- ground ---------- */
@@ -131,9 +139,10 @@ const vault = {};
 { const [x, z] = PL.vault; vault.body = mesh(new THREE.BoxGeometry(1.5, 1, 1.1), clay("#5b7f86"), x, .5, z);
   vault.lidPivot = new THREE.Group(); vault.lidPivot.position.set(x, 1, z - .55); scene.add(vault.lidPivot); vault.lid = mesh(new THREE.BoxGeometry(1.56, .22, 1.16), clay(ST.settle.c), 0, .11, .58, vault.lidPivot);
   vault.lockM = new THREE.MeshStandardMaterial({ color: 0xe6b54a, roughness: .4, emissive: 0 }); vault.lock = mesh(new THREE.BoxGeometry(.3, .34, .08), vault.lockM, x, .68, z + .57);
-  label(anchorAt("vault", 1.7), "place", "Escrow", 0, "background:#5b7f86");
-  const [fx, fz] = PL.fee; mesh(new THREE.CylinderGeometry(.32, .28, .7, 18), clay("#b8ccd0", { roughness: .35 }), fx, .35, fz); label(anchorAt("fee", 1.05), "place", "Market fee", 0, "background:#8b949e");
-  stationLabel("settle", "vaultFront", 2.6); }
+  const escrowLabel = label(anchorAt("vault", 1.7), "place", "Escrow", 0, "background:#5b7f86");
+  const [fx, fz] = PL.fee; mesh(new THREE.CylinderGeometry(.32, .28, .7, 18), clay("#b8ccd0", { roughness: .35 }), fx, .35, fz); const feeLabel = label(anchorAt("fee", 1.05), "place", "Market fee", 0, "background:#8b949e");
+  stationLabel("settle", "vaultFront", 2.6);
+  SETTLE_LABELS.push([STLAB.settle, 0], [escrowLabel, 1], [feeLabel, -1]); }
 const BLOCKS = [];
 { const [x, z] = PL.tower; mesh(new THREE.CylinderGeometry(.9, 1, .3, 6), clay("#c7d8d4"), x, .15, z);
   for (let i = 0; i < 5; i++) { const m = mesh(new THREE.BoxGeometry(.9, .62, .9), clay(ST.settle.c, { emissive: new THREE.Color(ST.settle.c), emissiveIntensity: .12 }), x, .62 + i * .72, z); m.rotation.y = i * .35; m.visible = false; BLOCKS.push({ m, L: label(m, "chiplab", "", .55, `background:${ST.settle.c}`) }); }
