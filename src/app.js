@@ -531,6 +531,7 @@ function skipTour(why) {
 }
 async function autoTour() {
   $("replayBtn").hidden = !RC.length;
+  $("forgeBtn").hidden = !RC.length;
   while (ACTIVE.size && tour.state === "idle") await sleep(100); // let the town finish rising
   if (tour.state === "idle") playTour();
 }
@@ -950,6 +951,14 @@ Object.assign(window.__town, {
   openAnalysis, closeAnalysis,
 });
 $("replayBtn").addEventListener("click", () => playTour());
+// Attack scenario: a seller edits its own receipt (budget 1 -> 100 USDC) and offers the copy. The page must refuse it in red.
+async function tryForgery() {
+  const run = await getJ("data/runs/market-2d17e4c8.json");
+  run.job_ref.job.budget_amount = "100";
+  await takeRun(JSON.stringify(run), "Forged copy of receipt 2d17e4c8 (budget 1 to 100 USDC)");
+}
+$("forgeBtn").addEventListener("click", () => tryForgery().catch((e) => toast(`The forged copy could not be built: ${e.message || e}`)));
+if (Q.get("attack") === "forge") receiptsReady.then(tryForgery);
 
 /* ---------- loop ---------- */
 function resize() { const w = innerWidth, h = innerHeight, v = camera.view; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w < 600 ? 52 : 38;
