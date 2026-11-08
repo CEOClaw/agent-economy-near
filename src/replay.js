@@ -67,8 +67,8 @@ function mesh(geo, mat, x = 0, y = 0, z = 0, parent = scene) { const m = new THR
 const labelsEl = $("labels"); const LABELS = [];
 function label(obj, cls, html, dy = 0, style = "") { const el = document.createElement("div"); el.className = cls; el.innerHTML = html; if (style) el.style.cssText = style; labelsEl.appendChild(el); const L = { obj, el, dy, show: true }; LABELS.push(L); return L; }
 const tmpV = new THREE.Vector3();
-function placeLabels() { const w = innerWidth, h = innerHeight;
-  for (const L of LABELS) { if (!L.show || !L.obj.visible) { L.el.style.display = "none"; continue; } L.obj.getWorldPosition(tmpV); tmpV.y += L.dy; tmpV.project(camera); if (tmpV.z > 1) { L.el.style.display = "none"; continue; } L.el.style.display = ""; L.el.style.left = ((tmpV.x + 1) / 2 * w) + "px"; L.el.style.top = ((1 - tmpV.y) / 2 * h) + "px"; } }
+function placeLabels() { const w = innerWidth, h = innerHeight, topEdge = $("top").getBoundingClientRect().bottom + 4; // labels stop below the header instead of sliding under the Runs chip
+  for (const L of LABELS) { if (!L.show || !L.obj.visible) { L.el.style.display = "none"; continue; } L.obj.getWorldPosition(tmpV); tmpV.y += L.dy; tmpV.project(camera); if (tmpV.z > 1) { L.el.style.display = "none"; continue; } L.el.style.display = ""; L.el.style.left = ((tmpV.x + 1) / 2 * w) + "px"; const y = (1 - tmpV.y) / 2 * h; L.el.style.top = (y < topEdge + 40 ? Math.max(y, topEdge - parseFloat(getComputedStyle(L.el).transform.split(",")[5] || 0)) : y) + "px"; } }
 const anchorAt = (k, dy) => { const o = new THREE.Object3D(); o.position.set(pos(k)[0], dy, pos(k)[1]); scene.add(o); return o; };
 const STLAB = {};
 const stationLabel = (key, at, dy) => (STLAB[key] = label(anchorAt(at, dy), "place", ST[key].name, 0, `background:${ST[key].c}`));
