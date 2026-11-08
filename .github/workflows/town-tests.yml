@@ -1,0 +1,20 @@
+name: town tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Offline: fake fetch for the market client, stored judge runs for Check Packs. No secrets, no install.
+      - run: for t in scripts/test-*.mjs; do echo "== $t"; node "$t" || exit 1; done
+      - run: node scripts/check-analysis.mjs
