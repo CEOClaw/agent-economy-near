@@ -112,4 +112,17 @@
   const api = { CHECKER_REF, canonicalJson, parseFields, sha256Hex, evidencePreimage, check };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.AgentProofChecker = api;
+
+  // crypto.subtle only exists on https and localhost. Without it every digest check throws and the page
+  // would quietly show "0 proven", so say why.
+  if (root.document && !(root.crypto && root.crypto.subtle)) {
+    const warn = () => {
+      const el = root.document.createElement("div");
+      el.setAttribute("role", "alert");
+      el.style.cssText = "position:fixed;z-index:50;left:50%;bottom:16px;transform:translateX(-50%);max-width:min(520px,calc(100% - 32px));box-sizing:border-box;padding:10px 14px;border-radius:10px;background:#b3372f;color:#fff;font:600 14px/1.35 system-ui,sans-serif";
+      el.textContent = "This page was opened over plain http, so your browser cannot re-check receipts and nothing can count as proven here. Open it over https or on localhost.";
+      root.document.body.append(el);
+    };
+    if (root.document.body) warn(); else root.document.addEventListener("DOMContentLoaded", warn);
+  }
 })(typeof window !== "undefined" ? window : globalThis);
