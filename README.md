@@ -9,7 +9,77 @@
 
 **Community:** [Discord](https://discord.gg/Gpq7x5pMV) · **AgentProof Voice:** +1 (279) 236-6129
 
+[![town tests](https://github.com/CEOClaw/agent-economy-near/actions/workflows/town-tests.yml/badge.svg)](.github/workflows/town-tests.yml)
+
+## Start here (no account, no key, no install)
+
+**Problem.** NEAR Agent Market counts what agents say they delivered; nothing tells a buyer which jobs met the brief between two different owners. On the 2026-11-06 snapshot: 631 agents, 532 delivered jobs, 1 backed by a receipt your browser can re-check.
+
+**Tracks (proposed, team to confirm):** `agents`, `security`, `swarms`.
+
+1. Do `cd town && node scripts/verify-runs.mjs`. See `OK    market-2d17e4c8.json: pass, digest 89c9b813f4a2 = stored` and `proof verified_jobs 1, distinct_owners 1` for ohwow-agent.
+2. Do `python3 -m http.server 8787` in `town/`, open `http://127.0.0.1:8787/`, click **Proof view**. See the counter go from `532 delivered (market's word)` to `1 proven`, with one building left standing: ohwow-agent.
+3. Click **Try a forged receipt**. See it refused in red: `This copy of receipt 2d17e4c8 does not match the one on the map (...). It was edited, so nothing was added.`
+
+Full judge path with expected output: [JUDGES.md](JUDGES.md). What it does not do yet: [Not](#not-what-the-town-does-not-do-yet).
+
 > **November 1 project overview.** This repository contains both pre-event planning and hackathon development. A proposed architecture is not a completed integration. Actual results must be supported by code, tests, marketplace records or on-chain transaction references. The Command Center separates Workspace A (research and background technology) from Workspace B (new build and evidence).
+
+## For judges: AgentProof Market Town (`town/`)
+
+**What it is.** A browser page that draws every agent listed on NEAR Agent Market (market.near.ai) as a building whose height is the delivered-job count the market reports. Its **Proof view** keeps only jobs backed by a receipt that your browser re-checks: the checker re-runs on the delivered output and the evidence digest must reproduce. Static HTML and Node scripts, no build step, no dependencies to install.
+
+**The problem.** The market's counters say what an agent delivered, not whether the delivery met the brief or whether buyer and seller are the same owner. On the 2026-11-06 snapshot the market reports 532 delivered jobs across 631 agents (511 with none), and exactly 1 job is backed by a re-checkable receipt between two different owners (CEOClaw hired ohwow-agent, job `2d17e4c8`).
+
+### Reproduce it locally
+
+Needs Node 18 or newer and Python 3 (only for the static file server). Run every command from `town/`.
+
+1. Do `cd town && node scripts/verify-runs.mjs`. See five `OK` lines, one per shipped record, then the portfolio lines:
+   ```
+   OK    market-2d17e4c8.json: pass, digest 89c9b813f4a2 = stored
+   OK    market-b68f5497.json: pass, digest bede85c360ca = stored
+   OK    fixture-wrong-delivery.json: fail (field CONTACT_EMAIL: expected 'ops@ohwow.ai', got 'ops@WRONG-DOMAIN.com')
+   OK    checker-blocked-budget.json: blocked (spend_gate: executor requested 1.00 USDC; envelope max_spend_usdc is 0.25 USDC), equals committed result
+   OK    policy-scenario-c.json: policy record, rejected ($50 vs cap $10); not re-executable here, shown as recorded
+   PORTFOLIO ohwow-agent: market delivered N ... proof verified_jobs 1, distinct_owners 1, ... self_hires 1, ...
+   ```
+   The `market:` line says `live` when market.near.ai answers and `snapshot from <time>` when it does not; the market numbers move with the live market, the proof numbers do not.
+2. Do `node scripts/check-analysis.mjs`. See it end with `OK    n: 631`, `OK    delivered_total: 532`, `OK    zero.count: 511`, `OK    available.count: 341`, `OK    proven_total: 1` and exit 0. These are the Data panel's headline numbers, recomputed from `data/market-snapshot.json`.
+3. Do `node scripts/test-market.mjs`. See `all 12 passed` (market client and local relay, fake fetch, no network).
+4. Do `python3 -m http.server 8787` (same as `npm run dev`) and open `http://127.0.0.1:8787/`. See the town drawn from the snapshot, labelled "snapshot from ...". Flip the header switch to **Proof view**: one building stays standing with a gold seal, ohwow-agent. Click it: its card says proven 1, plus 1 self-hire at 0 points, the same numbers step 1 printed, computed by the same `src/checker.js` and `src/portfolio.js`.
+   Then click **Try a forged receipt** (or open `http://127.0.0.1:8787/?attack=forge`): the page edits one field of receipt 2d17e4c8 (budget 1 to 100 USDC), offers the copy and refuses it in red with `It was edited, so nothing was added.`; the counter does not move.
+5. Open `http://127.0.0.1:8787/portfolio.html#ohwow-agent`. See the shareable card with 1 proof-backed job next to the market's numbers. Change the hash to any market handle (for example `#web-research`) and see 0 proof plus what it would take to earn one.
+6. Optional, live data: do `node scripts/relay.mjs` in a second terminal. The open page finds the relay on 127.0.0.1:8788 and the header switches to "live via relay" once real data arrives. Without the relay the browser console shows refused-connection lines from the probe; they are expected.
+7. Check Packs (acceptance standards with typed criteria and a judge panel): do `node scripts/test-packs-unit.mjs` (see `28 passed, 0 failed`) and `node scripts/test-packs.mjs` (see `all 6 tests passed`, with `hand agreement: 3 of 4` printed under test 1). Both run offline from stored judge runs in `data/backtest/`; every receipt there is labelled mock and is not market evidence. Open `http://127.0.0.1:8787/?packs=1` to see the receipts in the page. The format is in `town/docs/check-pack-spec.md`.
+
+Stop the server with Ctrl-C when done. `town/README.md` has the full feature list and file map.
+
+### NEAR integration
+
+- **NEAR Agent Market (market.near.ai), read only.** `src/market.js` reads the public agent list (`/v1` REST, paged in parallel) and `scripts/relay.mjs` is a local read-only relay for the browser (CORS). The snapshot in `data/market-snapshot.json` was taken with `scripts/market-snapshot.mjs`.
+- **Real market jobs as evidence.** `data/runs/market-2d17e4c8.json` is a completed market.near.ai job (CEOClaw hired ohwow-agent, 1 USDC budget, checker pass, digest reproduced in the browser). `data/runs/market-b68f5497.json` is a $1 market job with a 0.95 USDC payout seen in the seller's market wallet; buyer and seller share an owner, so it earns no reputation. `scripts/export-ohwow-market-job.sh` exports a market job as a run bundle with account ids stripped.
+- **What it does not do.** No NEAR smart contract, no transaction signing, no wallet. The town does not verify on-chain settlement: the one recorded NEAR Intents (1Click) deposit is shown as recorded, its transaction kept private.
+
+### Not: what the town does not do yet
+
+- No NEAR smart contract and no transaction of ours on chain. The town reads NEAR Agent Market and re-checks receipts in the browser; it does not anchor digests on NEAR.
+- A failed check does not block or refund a payment. The verdict changes what the town shows, not where money goes.
+- Not hosted: every step runs on 127.0.0.1.
+- Check Packs results are a mock backtest (23 receipts, all `mock: true`), not market evidence. Hand agreement is 3 of 4: site v3 reads `contested` (judges 3/5/4 on brief fit) where the hand review said pass; the threshold was not tuned to change that.
+- On-chain settlement is not verified: payouts are shown as recorded by the market or the seller's wallet.
+
+### Libraries and baseline (Q-005)
+
+- three.js 0.160.0, vendored in `town/vendor/three` (MIT). Google Fonts load from the network and fall back. Everything else is Node built-ins and plain browser APIs.
+- Check Packs judge runs were made once with `scripts/pack-judge.mjs` through OpenRouter (google/gemini-3.1-flash-lite, openai/gpt-5-mini, deepseek/deepseek-v4.1-flash) and stored; nothing in the steps above calls a model or needs a key.
+- Pre-existing platforms the records come from, not part of this repository and not claimed as window work: ohwow (the executor agent and its production records), CEOClaw (the buyer and its site builder), NEAR Agent Market itself.
+
+### Build window and how the diff separates (Q-001, Q-002, Q-003)
+
+- The window runs from the announcement on 2026-10-19. This repository's first commit is 2026-10-21 (`26d2a2f`), so there is no pre-window code in its history. The town's history starts 2026-11-03 (`f534b9f`); its 60 commits keep their original SHAs and dates and were merged under `town/` as one merge commit (see `git log --first-parent` on this branch).
+- Tag `pre-hackathon` marks `26d2a2f`, the initial scaffold (one README, no code). Tag `hackathon-submission` marks the submitted state. `git diff --stat pre-hackathon hackathon-submission` is the judged work; `git diff --stat pre-hackathon hackathon-submission -- town/` is the town alone. On GitHub: `compare/pre-hackathon...hackathon-submission`.
+- The product the town reads from (NEAR Agent Market) and the agents in the records (ohwow, CEOClaw) existed before the window and are not judged here; only the code in this repository is.
 
 ## What AgentProof is
 
@@ -77,6 +147,8 @@ Dates above are **plans**, not completed milestones. Check [progress.md](progres
 | [PRE-HACK-KICKOFF.md](PRE-HACK-KICKOFF.md) | October 30 planning baseline |
 | [BRAINSTORM.md](BRAINSTORM.md) | Historical October 21 options and questions |
 | [HACKATHON.md](HACKATHON.md) | Captured contest requirements; reverify official site before submission |
+| [JUDGES.md](JUDGES.md) | Five-minute judge path for the town: do X, see Y |
+| [town/README.md](town/README.md) | AgentProof Market Town: market agents vs proof-backed jobs, re-checked in the browser; Check Packs |
 
 ## Governance and submission
 
