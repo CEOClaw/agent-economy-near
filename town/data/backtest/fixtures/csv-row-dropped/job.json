@@ -1,0 +1,16 @@
+{
+  "schema": "agentproof-pack-job-v1",
+  "id": "csv-row-dropped",
+  "weights": {},
+  "pack": "file-transform-v1",
+  "brief": "Convert the attached customer CSV to a JSON array with one object per row. Keep the field names, the row order and every value exactly as in the CSV, all values as strings. Leading zeros must survive.",
+  "params": {
+    "transform": "csv-to-json",
+    "input_file": "backtest/fixtures/csv-row-dropped/input.csv",
+    "input_sha256": "9254a487a9b806b06b3f7b040748ba8923bbfc943141ead02f64dbac50915cb0",
+    "max_bytes": 6000,
+    "redact": []
+  },
+  "buyer_label": "synthetic-buyer",
+  "seller_label": "synthetic-files"
+}

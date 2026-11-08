@@ -1,0 +1,283 @@
+{
+  "schema": "agentproof-pack-receipt-v1",
+  "id": "site-v3",
+  "mock": true,
+  "input_origin": "real",
+  "evidence_note": "Mock backtest. Not market evidence. Real page, real brief, but the pack was written afterwards and nothing was accepted on the market.",
+  "agent": {
+    "label": "ceoclaw-web",
+    "handle": null
+  },
+  "buyer_label": "owner-ohwow",
+  "pack": {
+    "id": "site-brief-v1",
+    "version": "1.0.0",
+    "file": "packs/site-brief-v1.json",
+    "hash": "7e89508b6604252a44b826006fb8a497cf56a949553ffd28fdb5a01fb0669b81"
+  },
+  "job": {
+    "file": "backtest/fixtures/site-v3/job.json",
+    "hash": "ff9733c1896b513cd26a5a371b96b61a734d3fbdaebbf98a735db8232305879c"
+  },
+  "commitment": {
+    "pack_hash": "7e89508b6604252a44b826006fb8a497cf56a949553ffd28fdb5a01fb0669b81",
+    "job_hash": "ff9733c1896b513cd26a5a371b96b61a734d3fbdaebbf98a735db8232305879c",
+    "rubric_hash": "8a4502d24f2f324889371940509f7da6f2cae0683466f980ae623ecd5095b5f4",
+    "committed_at": "2026-11-06T21:35:54Z",
+    "delivered_at": null,
+    "before_delivery": false,
+    "note": "Pack written after this delivery and after the hand review: post-hoc backtest, not blind for the pack author. Judges are blind.",
+    "hash": "a9a04cec427e3ad7c96e1157944a7b459d164221bdf3f3338407fc4c0cdf9453"
+  },
+  "deliverable": {
+    "file": "backtest/fixtures/site-v3/deliverable.html",
+    "sha256": "bbe20da755f88572697132d03430a0b20807721d89f257d9fd3ac0d1269e8e4b",
+    "bytes": 10224,
+    "media_type": "text/html"
+  },
+  "sources": [],
+  "criteria": [
+    {
+      "id": "required-copy",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "Every required copy string from the brief appears in the visible text",
+      "status": "pass",
+      "detail": "all 9 required copy strings present"
+    },
+    {
+      "id": "cta-link",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "A link with the requested button text points to the requested address",
+      "status": "pass",
+      "detail": "link with text \"Start now\" points to https://ohwow.fun"
+    },
+    {
+      "id": "required-sections",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "Each requested section has its own heading or section id",
+      "status": "pass",
+      "detail": "all 4 sections have a heading or id"
+    },
+    {
+      "id": "no-unbriefed-claims",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "No guarantee, price, certification or verification claim that the brief does not contain",
+      "status": "pass",
+      "detail": "no guarantee, price or verification claim outside the brief"
+    },
+    {
+      "id": "style-match",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "none",
+      "label": "Page background matches the requested dark or light style, read from its CSS",
+      "status": "pass",
+      "detail": "page background luminance 0.004: matches dark"
+    },
+    {
+      "id": "delivered-hash",
+      "type": "source_replay",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The delivered page hashes to the sha256 the seller declared, and that value is well formed",
+      "status": "pass",
+      "detail": "delivered bytes hash to the declared sha256"
+    },
+    {
+      "id": "brief-fit",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": {
+        "min": 3
+      },
+      "weight": 3,
+      "label": "The page does what the brief asked, section by section",
+      "scores": [
+        {
+          "judge": "J1",
+          "model": "google/gemini-3.1-flash-lite",
+          "score": 3,
+          "quote": "Websites, chatbots and voice agents\nWhatsApp agents, email outreach and lead follow-up\nAppointment booking and customer support\nMarketing, content and social posts\nCRM, automations and reports",
+          "reason": "The requested sections and copy are present, but the page includes significant additional content and scaffolding not requested in the brief.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J2",
+          "model": "openai/gpt-5-mini",
+          "score": 5,
+          "quote": "Tell us your business. Get one job done in a minute. Free. No signup to try.",
+          "reason": "The deliverable contains the requested sections in order (hero, what it does, how it works, contact) and includes the exact tagline, intro copy, bullets and a Start now action matching the brief.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J3",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "score": 4,
+          "quote": "Tell us your business. Get one job done in a minute. Free. No signup to try.",
+          "reason": "All four requested sections (hero, what it does, how it works, contact) appear with the brief's tagline, intro, bullets, button and contact, though the button is repeated and the contact section adds extra wording beyond the brief's single email line.",
+          "quote_found": true,
+          "void": false
+        }
+      ],
+      "median": 4,
+      "spread": 2,
+      "valid_n": 3,
+      "contested": true,
+      "status": "contested"
+    },
+    {
+      "id": "copy-discipline",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": {
+        "min": 3
+      },
+      "weight": 2,
+      "label": "Nothing is invented: no facts, numbers, names or promises beyond the brief",
+      "scores": [
+        {
+          "judge": "J1",
+          "model": "google/gemini-3.1-flash-lite",
+          "score": 3,
+          "quote": "1\nTell us your business\nDescribe what you do and what you need. No forms, no setup — just tell us.\n2\nGet one job done\nohwow runs the job immediately. See a real result for your business in under a minute.\n3\nKeep going or stop\nNo signup required to try. When you're ready to run more, your business keeps itself going.",
+          "reason": "The seller added descriptive text for the 'How it works' section that was not in the brief, though these additions are functional and do not make false claims.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J2",
+          "model": "openai/gpt-5-mini",
+          "score": 4,
+          "quote": "Websites, chatbots and voice agents",
+          "reason": "Most copy matches the brief exactly and avoids invented claims, but the line \"ohwow runs the job immediately. See a real result for your business in under a minute.\" slightly embellishes operational speed beyond the brief's wording.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J3",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "score": 3,
+          "quote": "ohwow runs the job immediately. See a real result for your business in under a minute.",
+          "reason": "Most copy traces to the brief, but the how-it-works steps add filler sentences and mild embellishments like 'No forms, no setup' and 'your business keeps itself going' that the brief does not state.",
+          "quote_found": true,
+          "void": false
+        }
+      ],
+      "median": 3,
+      "spread": 1,
+      "valid_n": 3,
+      "contested": false,
+      "status": "pass"
+    },
+    {
+      "id": "polish",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": "none",
+      "weight": 1,
+      "label": "Polish judged from the page text and structure only: no screenshots are used",
+      "scores": [
+        {
+          "judge": "J1",
+          "model": "google/gemini-3.1-flash-lite",
+          "score": 3,
+          "quote": "⚡ Built by [seller] · How does it look?\n✏️ Request edits\n📄 Add more pages\n×\nEmail us at:\nclaw@[seller].ai",
+          "reason": "The page is readable and complete, but it contains significant leftover scaffolding and editor instructions that were not part of the requested deliverable.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J2",
+          "model": "openai/gpt-5-mini",
+          "score": 4,
+          "quote": "© 2026 Ohwow Limited Liability Company",
+          "reason": "The page text is generally clean and consistent with clear headings and footer, though there is minor scaffold UI text like \"⚡ Built by [seller] · How does it look?\" and an extra contact email block that suggests leftover editing controls.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J3",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "score": 2,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "Leftover scaffolding such as the '[seller]' placeholder, a feedback toolbar, a modal 'Email us at: claw@[seller].ai' and a stray '×' and 'Close' remain in the visible text, making it read as unfinished.",
+          "quote_found": true,
+          "void": false
+        }
+      ],
+      "median": 3,
+      "spread": 2,
+      "valid_n": 3,
+      "contested": true,
+      "status": "contested"
+    },
+    {
+      "id": "buyer-accepted",
+      "type": "witness",
+      "trust": "Witnessed",
+      "gate": "none",
+      "label": "The buyer states whether the work was accepted",
+      "statement": "Passes on content by hand review. Nothing was submitted on the market by the deadline, the assignment was cancelled and the escrow was refunded. This is not a buyer acceptance.",
+      "by": "owner-ohwow",
+      "at": "2026-11-06",
+      "ref": "hand review: job-closed notice to the seller"
+    }
+  ],
+  "panel": {
+    "run": "backtest/judge-runs/site-v3/run-1.json",
+    "run_sha256": "c59af8445af973025927b6cc6196b811f3018ba10b4eec0d350d6da2d7f3ec6e",
+    "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+    "judges": [
+      {
+        "label": "J1",
+        "model": "google/gemini-3.1-flash-lite"
+      },
+      {
+        "label": "J2",
+        "model": "openai/gpt-5-mini"
+      },
+      {
+        "label": "J3",
+        "model": "deepseek/deepseek-v4.1-flash"
+      }
+    ]
+  },
+  "injection": {
+    "flagged": false,
+    "matches": [],
+    "judges_flagged": 2
+  },
+  "trust": {
+    "reproduced": {
+      "passed": 6,
+      "total": 6,
+      "hard_failed": []
+    },
+    "judged": {
+      "weighted_median": 3,
+      "rated": 1,
+      "contested": 2,
+      "void": 0,
+      "not_run": 0
+    },
+    "witnessed": [
+      {
+        "id": "buyer-accepted",
+        "statement": "Passes on content by hand review. Nothing was submitted on the market by the deadline, the assignment was cancelled and the escrow was refunded. This is not a buyer acceptance."
+      }
+    ]
+  },
+  "verdict": "contested",
+  "verdict_reason": "judges disagree by 2 or more on a gated rubric: brief-fit",
+  "receipt_hash": "43111f735510e82802c33e92f1a166cda8bd7849c632e92c202482fd36c9e1f8"
+}

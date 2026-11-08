@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "fe-wrong",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 4,
+  "judged_at": "2026-11-06T21:50:07.297Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 3,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "The output is mostly usable but contains a critical data error in the email field that requires correction."
+        }
+      ],
+      "prompt_sha256": "297cceea98f9f4528319a3f0bffdf888c53513479a084e9708da6bb298103f97",
+      "usd": 0.000317,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001805-59FUEbNTen2oXha50jXR",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":3,\"quote\":\"\\\"CONTACT_EMAIL\\\": \\\"ops@WRONG-DOMAIN.com\\\"\",\"reason\":\"The output is mostly usable but contains a critical data error in the email field that requires correction.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 896,
+            "completion_tokens": 62,
+            "cost": 0.000317
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 3,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "Most fields match the requested values and formats but the CONTACT_EMAIL value is incorrect, requiring a small fix to be usable."
+        }
+      ],
+      "prompt_sha256": "0b722341b82dd4f315b653915f58f5bf3719b8a8ea91a15ddc6c4cc4e432bc71",
+      "usd": 0.000368,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001805-agiPvDH3hJSGAKDxHSb2",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":3,\"quote\":\"\\\"CONTACT_EMAIL\\\": \\\"ops@WRONG-DOMAIN.com\\\"\",\"reason\":\"Most fields match the requested values and formats but the CONTACT_EMAIL value is incorrect, requiring a small fix to be usable.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 808,
+            "completion_tokens": 83,
+            "cost": 0.000368
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 2,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "The CONTACT_EMAIL value is wrong (should be ops@ohwow.ai), so the output cannot be used as delivered and requires a fix to a value, not just cosmetic adjustment."
+        }
+      ],
+      "prompt_sha256": "b4c92b486d53ff2d819351132a117d64fe1dbf1e9accdf1b415f0307e3580599",
+      "usd": 0.000091092,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001806-Narsy3urY7WzkEiN6B70",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":2,\"quote\":\"\\\"CONTACT_EMAIL\\\": \\\"ops@WRONG-DOMAIN.com\\\"\",\"reason\":\"The CONTACT_EMAIL value is wrong (should be ops@ohwow.ai), so the output cannot be used as delivered and requires a fix to a value, not just cosmetic adjustment.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 830,
+            "completion_tokens": 86,
+            "cost": 0.000091092
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

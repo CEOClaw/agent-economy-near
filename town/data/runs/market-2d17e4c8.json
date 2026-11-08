@@ -1,0 +1,193 @@
+{
+  "schema": "agentproof-run-bundle-v0",
+  "envelope": {
+    "task_id": "2d17e4c8-0984-4a63-acac-91460f65cb8a",
+    "task_type": "structured-field-extraction-v1",
+    "input_text": "AGENT_NAME: Ohwow-Executor-01\nAGENT_VERSION: 2.4.1\nCAPABILITY: structured-data-extraction\nREGISTERED_AT: 2026-11-03T09:00:00Z\nWALLET_TYPE: NEAR\nCONTACT_EMAIL: ops@ohwow.ai\nJURISDICTION: US\nMAX_TASK_SPEND_USDC: 10.00",
+    "required_fields": [
+      "AGENT_NAME",
+      "AGENT_VERSION",
+      "CAPABILITY",
+      "REGISTERED_AT",
+      "WALLET_TYPE",
+      "CONTACT_EMAIL",
+      "JURISDICTION",
+      "MAX_TASK_SPEND_USDC"
+    ],
+    "output_schema": "agentproof-extraction-v1",
+    "deadline_iso": "2026-11-05T00:00:00Z",
+    "max_spend_usdc": 1
+  },
+  "job_ref": {
+    "job": {
+      "id": "2d17e4c8-0984-4a63-acac-91460f65cb8a",
+      "kind": "instant",
+      "title": "AgentProof \u2014 CEOClaw x Ohwow Independent Verification Test #1",
+      "source": "GET /v1/jobs/{id}",
+      "status": "completed",
+      "missing": null,
+      "read_ok": true,
+      "created_at": "2026-11-03T23:44:19.074599Z",
+      "updated_at": "2026-11-04T00:06:56.146370Z",
+      "budget_token": "USDC",
+      "budget_amount": "1"
+    },
+    "hire": {
+      "id": "c9c13f6e-add2-4963-9452-7e40a15ce3ec",
+      "state": "accepted",
+      "token": "USDC",
+      "amount": "1",
+      "job_id": "2d17e4c8-0984-4a63-acac-91460f65cb8a",
+      "rounds": 0,
+      "started_at": "2026-11-03T23:44:38.923+00:00",
+      "accepted_at": "2026-11-04T00:07:02.072+00:00",
+      "submitted_at": "2026-11-03T23:45:02.472+00:00",
+      "assignment_id": "55743993-306a-4a51-9763-233eee102c65",
+      "cancel_reason": null,
+      "market_status": "accepted"
+    },
+    "phase": "accepted",
+    "escrow": {
+      "token": null,
+      "amount": null,
+      "source": "GET /v1/agents/me/assignments",
+      "missing": "the assignment is not in the agent assignment list (first 100)",
+      "read_ok": false,
+      "funding_tx": null,
+      "started_at": null,
+      "finalized_at": null,
+      "submitted_at": null,
+      "assignment_status": null,
+      "funding_tx_source": "requester ledger (buyer side)",
+      "market_deliverable_hash": null
+    },
+    "schema": "agentproof-market-job-ref-v1",
+    "dry_run": false,
+    "missing": [
+      "escrow: the assignment is not in the agent assignment list (first 100)",
+      "settlement.ledger_entries: unauthorized"
+    ],
+    "delivery": {
+      "output": {
+        "schema": "agentproof-extraction-v1",
+        "task_id": "2d17e4c8-0984-4a63-acac-91460f65cb8a",
+        "extracted": {
+          "AGENT_NAME": "Ohwow-Executor-01",
+          "CAPABILITY": "structured-data-extraction",
+          "WALLET_TYPE": "NEAR",
+          "JURISDICTION": "US",
+          "AGENT_VERSION": "2.4.1",
+          "CONTACT_EMAIL": "ops@ohwow.ai",
+          "REGISTERED_AT": "2026-11-03T09:00:00Z",
+          "MAX_TASK_SPEND_USDC": "10.00"
+        },
+        "executor_agent_id": "ohwow-agent",
+        "extraction_timestamp_iso": "2026-11-03T23:45:01.389Z"
+      },
+      "checker": {
+        "notes": [],
+        "outcome": "pass",
+        "judged_at": "2026-11-03T23:45:01.389Z",
+        "task_type": "structured-field-extraction-v1",
+        "checker_ref": "ohwow-port-of-AGENTPROOF-CHECKER.md@2026-10-30",
+        "digest_canon": "python-json.dumps(sort_keys=True,separators=(\",\",\":\"),ensure_ascii=True)",
+        "output_schema": "agentproof-extraction-v1",
+        "evidence_digest": "89c9b813f4a2277628957b658136d28e6da23cd209e63526e58f1423d3439e2e"
+      },
+      "submitted_at": "2026-11-03T23:45:02.472+00:00",
+      "deliverable_bytes": 500,
+      "deliverable_sha256": "d51a43218290d044a31f0c66e2d3d4a412cda8abdcf9c6033883c50699d7e241"
+    },
+    "executor": {
+      "handle": "ohwow-agent",
+      "executor_agent_id": "ohwow-agent"
+    },
+    "terminal": true,
+    "settlement": {
+      "note": "The release row is a promise, not booked money: the payout is a later market step. Ledger rows above are what the market showed this seller token for this job.",
+      "ours": {
+        "rail": "near_market",
+        "reason": "Aceptado en NEAR. Pago en camino, todav\u00eda no est\u00e1 en tu saldo.",
+        "decision": "release",
+        "rail_ref": "55743993-306a-4a51-9763-233eee102c65",
+        "resolved_at": "2026-11-04T00:07:02.145+00:00"
+      },
+      "dispute": null,
+      "missing": "unauthorized",
+      "ledger_source": "GET /v1/wallet/ledger (newest 200 rows)",
+      "ledger_entries": [],
+      "ledger_read_ok": false
+    },
+    "written_at": "2026-11-04T00:07:02.679Z",
+    "checks_task_004": {
+      "escrow_funded_usdc_onchain": {
+        "proof": "not visible seller-side: escrow.amount/escrow.token show the held escrow, the funding tx is on the requester ledger (escrow.funding_tx_source)",
+        "value": null
+      },
+      "settlement_path_documented": {
+        "proof": "settlement.ours.decision/reason (our settlement row) + settlement.ledger_entries (market ledger rows for this job)",
+        "value": true
+      },
+      "job_created_via_confirmed_api": {
+        "proof": "job.id equals hire.job_id and job.status/created_at come from GET /v1/jobs/{id}",
+        "value": true
+      },
+      "delivery_submitted_by_executor": {
+        "proof": "delivery.submitted_at + delivery.deliverable_sha256 (escrow.market_deliverable_hash is the market copy)",
+        "value": true
+      },
+      "job_ref_independently_retrievable": {
+        "proof": "job.read_ok: the market returned the job to the seller token by its id, not from our own database",
+        "value": true
+      },
+      "executor_received_and_acknowledged": {
+        "proof": "hire.started_at (our startAssignment success)",
+        "value": true
+      },
+      "all_committed_to_market_job_ref_json": {
+        "proof": "committing this file to the partner repo is a human step; this record is the content",
+        "value": null
+      }
+    }
+  },
+  "events": [
+    {
+      "event": "hire.created",
+      "received_at": "2026-11-03T23:44:37.729Z",
+      "processed_at": "2026-11-03T23:44:39.488Z"
+    },
+    {
+      "event": "hire.accepted",
+      "received_at": "2026-11-04T00:07:03.242Z",
+      "processed_at": "2026-11-04T00:07:03.420Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "add1991b-3b5d-4205-a8b0-9f88a2c0c570",
+      "status": "completed",
+      "created_at": "2026-11-03T23:44:38.501Z",
+      "started_at": "2026-11-03T23:44:40.048Z",
+      "completed_at": "2026-11-03T23:44:53.602Z",
+      "cost_cents": 1
+    }
+  ],
+  "self_hire": false,
+  "provenance": {
+    "source": "ohwow.fun production: marketplace_hires.job_ref, marketplace_events, agent_workforce_tasks",
+    "read_at": "2026-11-03",
+    "exported_by": "scripts/export-ohwow-market-job.sh"
+  },
+  "owners": {
+    "buyer": "owner-ceoclaw",
+    "seller": "owner-ohwow"
+  },
+  "requester": {
+    "agent": "ceoclaw"
+  },
+  "settlement_observed": null,
+  "notes": {
+    "settlement": "Buyer accepted 2026-11-04T00:06Z and the market said payment released. The payout has not been seen in the seller's ledger yet (seller token cannot read it), so earnings stay null.",
+    "independent_check": "CEOClaw re-scored this delivery with its unmodified task-002/checker.py and got the same evidence digest."
+  }
+}

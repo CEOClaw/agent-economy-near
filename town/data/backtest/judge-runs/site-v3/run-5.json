@@ -1,0 +1,142 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "site-v3",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 5,
+  "judged_at": "2026-11-06T21:50:18.982Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 3,
+          "quote": "Websites, chatbots and voice agents\nWhatsApp agents, email outreach and lead follow-up\nAppointment booking and customer support\nMarketing, content and social posts\nCRM, automations and reports",
+          "reason": "The page includes all requested sections and copy, but adds significant extra content in the 'How it works' section that was not specified in the brief."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 3,
+          "quote": "1\nTell us your business\nDescribe what you do and what you need. No forms, no setup — just tell us.",
+          "reason": "The seller added descriptive text to the 'How it works' section that was not provided in the brief, though it functions as neutral instructional scaffolding."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "⚡ Built by [seller] · How does it look?\n✏️ Request edits\n📄 Add more pages",
+          "reason": "The page contains leftover scaffolding and developer-facing UI elements that are not part of the final product page deliverable."
+        }
+      ],
+      "prompt_sha256": "70e7149d6f4e943ce55223a3bd4e44dce9eba7a213b9b8647e0728df7f31795c",
+      "usd": 0.00068375,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001811-kJYnBkrNBeAgjyJ06cw2",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":3,\"quote\":\"Websites, chatbots and voice agents\\nWhatsApp agents, email outreach and lead follow-up\\nAppointment booking and customer support\\nMarketing, content and social posts\\nCRM, automations and reports\",\"reason\":\"The page includes all requested sections and copy, but adds significant extra content in the 'How it works' section that was not specified in the brief.\"},{\"criterion\":\"copy-discipline\",\"score\":3,\"quote\":\"1\\nTell us your business\\nDescribe what you do and what you need. No forms, no setup — just tell us.\",\"reason\":\"The seller added descriptive text to the 'How it works' section that was not provided in the brief, though it functions as neutral instructional scaffolding.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"⚡ Built by [seller] · How does it look?\\n✏️ Request edits\\n📄 Add more pages\",\"reason\":\"The page contains leftover scaffolding and developer-facing UI elements that are not part of the final product page deliverable.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1349,
+            "completion_tokens": 231,
+            "cost": 0.00068375
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 5,
+          "quote": "Tell us your business. Get one job done in a minute. Free. No signup to try.",
+          "reason": "The deliverable includes all four requested sections in order (hero, what it does, how it works, contact) and places the requested tagline and intro lines with the Start now button near the intro."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 4,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "Most copy matches the brief verbatim and avoids invented facts, though the added 'Built by [seller]' and interface labels introduce minor external content beyond the brief without making factual claims about performance."
+        },
+        {
+          "criterion": "polish",
+          "score": 4,
+          "quote": "© 2026 Ohwow Limited Liability Company",
+          "reason": "The page text is complete, consistent, and readable with clear section headings and footer, though a few UI snippets (e.g., 'Click to copy', seller placeholders) suggest small leftover scaffolding."
+        }
+      ],
+      "prompt_sha256": "d49f05a26af48a3c457395cd25567b5f5003fbc9c245ae03cc8b100773c313fd",
+      "usd": 0.00079125,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001811-ghcAq0oP9IpA1N1QI8f8",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":5,\"quote\":\"Tell us your business. Get one job done in a minute. Free. No signup to try.\",\"reason\":\"The deliverable includes all four requested sections in order (hero, what it does, how it works, contact) and places the requested tagline and intro lines with the Start now button near the intro.\"},{\"criterion\":\"copy-discipline\",\"score\":4,\"quote\":\"⚡ Built by [seller] · How does it look?\",\"reason\":\"Most copy matches the brief verbatim and avoids invented facts, though the added 'Built by [seller]' and interface labels introduce minor external content beyond the brief without making factual claims about performance.\"},{\"criterion\":\"polish\",\"score\":4,\"quote\":\"© 2026 Ohwow Limited Liability Company\",\"reason\":\"The page text is complete, consistent, and readable with clear section headings and footer, though a few UI snippets (e.g., 'Click to copy', seller placeholders) suggest small leftover scaffolding.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1293,
+            "completion_tokens": 234,
+            "cost": 0.00079125
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 4,
+          "quote": "Websites, chatbots and voice agents\nWhatsApp agents, email outreach and lead follow-up",
+          "reason": "All four requested sections (hero, what it does, how it works, contact) appear in order with the brief's tagline, intro, bullets, button and contact, though the button is repeated and the how-it-works steps add unrequested content."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 3,
+          "quote": "ohwow runs the job immediately. See a real result for your business in under a minute.",
+          "reason": "Most copy traces to the brief, but the three how-it-works steps add filler sentences and mild embellishment not stated in the brief."
+        },
+        {
+          "criterion": "polish",
+          "score": 2,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "The page includes leftover scaffolding and template UI text such as the seller badge, edit/request buttons, and a stray 'Close' label that break a clean finished read."
+        }
+      ],
+      "prompt_sha256": "6ac9e14739ff5b49455d5cdcd63901fed492175d30d0f3bd607ecfa3f9000ddb",
+      "usd": 0.00032214,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001812-EuciqqyrO7mMHta8bLSX",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":4,\"quote\":\"Websites, chatbots and voice agents\\nWhatsApp agents, email outreach and lead follow-up\",\"reason\":\"All four requested sections (hero, what it does, how it works, contact) appear in order with the brief's tagline, intro, bullets, button and contact, though the button is repeated and the how-it-works steps add unrequested content.\"},{\"criterion\":\"copy-discipline\",\"score\":3,\"quote\":\"ohwow runs the job immediately. See a real result for your business in under a minute.\",\"reason\":\"Most copy traces to the brief, but the three how-it-works steps add filler sentences and mild embellishment not stated in the brief.\"},{\"criterion\":\"polish\",\"score\":2,\"quote\":\"⚡ Built by [seller] · How does it look?\",\"reason\":\"The page includes leftover scaffolding and template UI text such as the seller badge, edit/request buttons, and a stray 'Close' label that break a clean finished read.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1328,
+            "completion_tokens": 230,
+            "cost": 0.00032214
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

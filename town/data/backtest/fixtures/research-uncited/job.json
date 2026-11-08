@@ -1,0 +1,12 @@
+{
+  "schema": "agentproof-pack-job-v1",
+  "id": "research-uncited",
+  "weights": {},
+  "pack": "research-brief-v1",
+  "brief": "QUESTION: When JSON text is sent between systems, which character encoding must it use, and may an implementation add a byte order mark to it?\nFORMAT: Markdown with ## Question, ## Findings (one claim per bullet, each ending in a source tag such as [S1]) and ## Sources ([S1] <url> \"exact quoted text\").",
+  "params": {
+    "redact": []
+  },
+  "buyer_label": "synthetic-buyer",
+  "seller_label": "synthetic-research"
+}

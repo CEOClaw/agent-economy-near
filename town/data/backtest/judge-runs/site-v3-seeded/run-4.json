@@ -1,0 +1,142 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "site-v3-seeded",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 4,
+  "judged_at": "2026-11-06T21:49:55.975Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 3,
+          "quote": "Your business, running itself.",
+          "reason": "The tagline was modified to 'Your business, on autopilot' and the structure includes additional sections not requested in the brief."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 3,
+          "quote": "1\nTell us your business\nDescribe what you do and what you need. No forms, no setup — just tell us.",
+          "reason": "The seller added descriptive steps for 'How it works' that were not in the brief, though they do not contain false claims."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "⚡ Built by [seller] · How does it look?\n✏️ Request edits\n📄 Add more pages",
+          "reason": "The page includes leftover scaffolding and editing tools that are not part of the requested product page content."
+        }
+      ],
+      "prompt_sha256": "7be120a5002802e474ed275690d72dcda65efc0843d57e2f271a2219fb3842a2",
+      "usd": 0.00061025,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001792-ZoUbvVuwp4KI5bu6lIT1",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":3,\"quote\":\"Your business, running itself.\",\"reason\":\"The tagline was modified to 'Your business, on autopilot' and the structure includes additional sections not requested in the brief.\"},{\"criterion\":\"copy-discipline\",\"score\":3,\"quote\":\"1\\nTell us your business\\nDescribe what you do and what you need. No forms, no setup — just tell us.\",\"reason\":\"The seller added descriptive steps for 'How it works' that were not in the brief, though they do not contain false claims.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"⚡ Built by [seller] · How does it look?\\n✏️ Request edits\\n📄 Add more pages\",\"reason\":\"The page includes leftover scaffolding and editing tools that are not part of the requested product page content.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1349,
+            "completion_tokens": 182,
+            "cost": 0.00061025
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 4,
+          "quote": "Tell us your business. Get one job done in a minute. Free. No signup to try.",
+          "reason": "All four requested sections appear in the delivered content in the requested order with the tagline and CTA present, but some elements (e.g., button link to https://ohwow.fun and explicit DOMAIN delivery instruction) are not verifiably placed as the brief required."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 4,
+          "quote": "© 2026 Ohwow Limited Liability Company",
+          "reason": "Most copy matches the brief exactly and avoids invented factual claims, though the added lines like “ohwow runs the job immediately” and “See a real result for your business in under a minute” expand on the brief with implicit performance claims."
+        },
+        {
+          "criterion": "polish",
+          "score": 4,
+          "quote": "Start now →\nYour business,\non autopilot.",
+          "reason": "The page text is largely clean and consistent with minor tone and label inconsistencies (e.g., slight variance in the tagline wording and extra UI scaffolding lines at the end)."
+        }
+      ],
+      "prompt_sha256": "f6ed101386f44a404e58595cd12f2003f27868be92cb99fb8d06a2a95f13da39",
+      "usd": 0.000821,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001792-0nc9TD8FiN0e0Fi70b8B",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":4,\"quote\":\"Tell us your business. Get one job done in a minute. Free. No signup to try.\",\"reason\":\"All four requested sections appear in the delivered content in the requested order with the tagline and CTA present, but some elements (e.g., button link to https://ohwow.fun and explicit DOMAIN delivery instruction) are not verifiably placed as the brief required.\"},{\"criterion\":\"copy-discipline\",\"score\":4,\"quote\":\"© 2026 Ohwow Limited Liability Company\",\"reason\":\"Most copy matches the brief exactly and avoids invented factual claims, though the added lines like “ohwow runs the job immediately” and “See a real result for your business in under a minute” expand on the brief with implicit performance claims.\"},{\"criterion\":\"polish\",\"score\":4,\"quote\":\"Start now →\\nYour business,\\non autopilot.\",\"reason\":\"The page text is largely clean and consistent with minor tone and label inconsistencies (e.g., slight variance in the tagline wording and extra UI scaffolding lines at the end).\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1292,
+            "completion_tokens": 249,
+            "cost": 0.000821
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 3,
+          "quote": "Your business,\non autopilot.",
+          "reason": "The tagline is changed from the brief's 'Your business, running itself.' and the hero button does not link to https://ohwow.fun as requested, though the four sections and most copy are present."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 2,
+          "quote": "ohwow runs the job immediately. See a real result for your business in under a minute.",
+          "reason": "The how-it-works steps add checkable claims like 'under a minute' and 'runs the job immediately' that the brief never states."
+        },
+        {
+          "criterion": "polish",
+          "score": 2,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "Leftover scaffolding such as the builder toolbar, edit/close controls and '[seller]' placeholder text remain in the visible copy."
+        }
+      ],
+      "prompt_sha256": "298de4d665e0bfd691b3e51d2ebca6ed61fad2f9202311edf39e8c7ebb7e7332",
+      "usd": 0.0001488032,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001793-x4Utv7VprOFJhXC0leyM",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":3,\"quote\":\"Your business,\\non autopilot.\",\"reason\":\"The tagline is changed from the brief's 'Your business, running itself.' and the hero button does not link to https://ohwow.fun as requested, though the four sections and most copy are present.\"},{\"criterion\":\"copy-discipline\",\"score\":2,\"quote\":\"ohwow runs the job immediately. See a real result for your business in under a minute.\",\"reason\":\"The how-it-works steps add checkable claims like 'under a minute' and 'runs the job immediately' that the brief never states.\"},{\"criterion\":\"polish\",\"score\":2,\"quote\":\"⚡ Built by [seller] · How does it look?\",\"reason\":\"Leftover scaffolding such as the builder toolbar, edit/close controls and '[seller]' placeholder text remain in the visible copy.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1320,
+            "completion_tokens": 204,
+            "cost": 0.0001488032
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

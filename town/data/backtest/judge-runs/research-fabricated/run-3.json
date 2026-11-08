@@ -1,0 +1,124 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "research-fabricated",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 3,
+  "judged_at": "2026-11-06T21:49:29.834Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 5,
+          "quote": "JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.",
+          "reason": "The findings explicitly state the required encoding and the prohibition against byte order marks, fully answering the prompt."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 5,
+          "quote": "JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8",
+          "reason": "The findings are sourced directly from the authoritative RFC 8259 specification."
+        }
+      ],
+      "prompt_sha256": "04549cd05a7842c2eb66a78cd5e2941f76f42fb9837a27c145db0246ba5edcd4",
+      "usd": 0.00040975,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001765-ykrgmt5bl51vBq99ay1D",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":5,\"quote\":\"JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.\",\"reason\":\"The findings explicitly state the required encoding and the prohibition against byte order marks, fully answering the prompt.\"},{\"criterion\":\"source-quality\",\"score\":5,\"quote\":\"JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8\",\"reason\":\"The findings are sourced directly from the authoritative RFC 8259 specification.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 949,
+            "completion_tokens": 115,
+            "cost": 0.00040975
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 5,
+          "quote": "JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.",
+          "reason": "The findings explicitly state the required encoding (UTF-8) for JSON exchanged between systems and address the BOM question with separate claims."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 5,
+          "quote": "JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8",
+          "reason": "Each claim is backed by verbatim quotes from RFC 8259, the authoritative standard for JSON encoding, satisfying high-quality sourcing."
+        }
+      ],
+      "prompt_sha256": "8bee9ce07479eae7a86994190f0e2bb623edfb7b61c4774b93c2334276d03d38",
+      "usd": 0.00051825,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001766-6zdYoSUsRb2FTWg3nCR7",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":5,\"quote\":\"JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.\",\"reason\":\"The findings explicitly state the required encoding (UTF-8) for JSON exchanged between systems and address the BOM question with separate claims.\"},{\"criterion\":\"source-quality\",\"score\":5,\"quote\":\"JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8\",\"reason\":\"Each claim is backed by verbatim quotes from RFC 8259, the authoritative standard for JSON encoding, satisfying high-quality sourcing.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 897,
+            "completion_tokens": 147,
+            "cost": 0.00051825
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 5,
+          "quote": "JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8. [S1]",
+          "reason": "Both parts of the question are answered plainly in their own claims: the required encoding (UTF-8) and the prohibition on adding a BOM, plus the parser rejection rule, so a reader could act without further searching."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 5,
+          "quote": "https://www.rfc-editor.org/rfc/rfc8259.txt \"JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8\"",
+          "reason": "Each claim is sourced to RFC 8259, the authoritative specification for JSON, with exact quotes that directly support the corresponding claim."
+        }
+      ],
+      "prompt_sha256": "e779f022095a3b30d2bbd30edf03bcc9c5bba69fe34bfa4a80558cfbb399b8de",
+      "usd": 0.000198506,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001767-qApHy2ZYNgg3M5bYCdZH",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":5,\"quote\":\"JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8. [S1]\",\"reason\":\"Both parts of the question are answered plainly in their own claims: the required encoding (UTF-8) and the prohibition on adding a BOM, plus the parser rejection rule, so a reader could act without further searching.\"},{\"criterion\":\"source-quality\",\"score\":5,\"quote\":\"https://www.rfc-editor.org/rfc/rfc8259.txt \\\"JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8\\\"\",\"reason\":\"Each claim is sourced to RFC 8259, the authoritative specification for JSON, with exact quotes that directly support the corresponding claim.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 902,
+            "completion_tokens": 176,
+            "cost": 0.000198506
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

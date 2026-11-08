@@ -1,0 +1,49 @@
+{
+  "schema": "agentproof-check-pack-v1",
+  "id": "site-brief-v1",
+  "version": "1.0.0",
+  "title": "Site brief",
+  "summary": "A one-page site built from a written brief: exact copy, the requested sections and link, nothing invented, and the delivered page matches what the seller declared.",
+  "criteria": [
+    { "id": "required-copy", "type": "program", "check": "copy_present", "gate": "hard", "label": "Every required copy string from the brief appears in the visible text" },
+    { "id": "cta-link", "type": "program", "check": "cta_link", "gate": "hard", "label": "A link with the requested button text points to the requested address" },
+    { "id": "required-sections", "type": "program", "check": "sections_present", "gate": "hard", "label": "Each requested section has its own heading or section id" },
+    { "id": "no-unbriefed-claims", "type": "program", "check": "no_unbriefed_claims", "gate": "hard", "label": "No guarantee, price, certification or verification claim that the brief does not contain" },
+    { "id": "style-match", "type": "program", "check": "style_match", "gate": "none", "label": "Page background matches the requested dark or light style, read from its CSS" },
+    { "id": "delivered-hash", "type": "source_replay", "check": "delivery_hash", "gate": "hard", "label": "The delivered page hashes to the sha256 the seller declared, and that value is well formed" },
+    { "id": "brief-fit", "type": "rubric", "gate": { "min": 3 }, "weight": 3, "weight_adjustable": false, "label": "The page does what the brief asked, section by section",
+      "anchors": {
+        "1": "Most of the brief is ignored: sections, copy or purpose are missing or replaced by the seller's own content.",
+        "3": "The main sections and purpose follow the brief. One or two requested elements are weak, misplaced or only partly there.",
+        "5": "Every requested section, line of copy and action is present where the brief puts it, and the page reads as the product page the brief describes."
+      },
+      "examples": {
+        "1": "The brief asks for four sections and a tagline. The page has a different tagline and two sections the buyer never mentioned.",
+        "3": "All four sections exist, but the closing section only repeats the intro and the requested button sits below the fold behind other links.",
+        "5": "The four sections appear in the requested order with the requested lines, and the button directly follows the intro."
+      } },
+    { "id": "copy-discipline", "type": "rubric", "gate": { "min": 3 }, "weight": 2, "weight_adjustable": false, "label": "Nothing is invented: no facts, numbers, names or promises beyond the brief",
+      "anchors": {
+        "1": "Several statements the brief does not support: invented numbers, customers, features, guarantees or credentials.",
+        "3": "Mostly the brief's own content. Filler sentences or mild embellishment appear, but none promises something checkable that is false.",
+        "5": "Every sentence traces to the brief or is neutral structure such as a section label. Nothing added that a reader could take as a fact."
+      },
+      "examples": {
+        "1": "A footer line says the company is award-winning and a badge claims a 100% success rate. The brief says neither.",
+        "3": "Step descriptions add a sentence about what happens next that the brief does not state, but it makes no claim that can be wrong.",
+        "5": "Beyond the brief's copy the page has only headings and generic navigation labels."
+      } },
+    { "id": "polish", "type": "rubric", "gate": "none", "weight": 1, "weight_adjustable": true, "label": "Polish judged from the page text and structure only: no screenshots are used",
+      "anchors": {
+        "1": "The text reads as broken or unfinished: placeholders, repeated blocks, stray template text or unreadable structure.",
+        "3": "Complete and readable. Some awkward wording, inconsistent labels or leftover scaffolding.",
+        "5": "Clean, consistent wording and a clear order from the top heading to the footer, with no leftover scaffolding."
+      },
+      "examples": {
+        "1": "Template instructions such as 'replace this text' remain in the visible copy.",
+        "3": "Button labels differ between sections for the same action.",
+        "5": "Headings, labels and actions use one voice and one naming throughout."
+      } },
+    { "id": "buyer-accepted", "type": "witness", "gate": "none", "label": "The buyer states whether the work was accepted" }
+  ]
+}

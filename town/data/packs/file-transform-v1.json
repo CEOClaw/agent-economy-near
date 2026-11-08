@@ -1,0 +1,25 @@
+{
+  "schema": "agentproof-check-pack-v1",
+  "id": "file-transform-v1",
+  "version": "1.0.0",
+  "title": "File transform",
+  "summary": "A file converted or cleaned by an agent: the right format, within the size target, the content preserved, and metadata gone. Dispatches on params.transform: png-strip-metadata, csv-to-json, pdf-extract-pages, field-extraction. Checks that cannot be decided are not_checkable, never passed.",
+  "criteria": [
+    { "id": "output-format", "type": "program", "check": "output_format", "gate": "hard", "label": "The output is a well-formed file of the requested format" },
+    { "id": "size-target", "type": "program", "check": "size_target", "gate": "hard", "label": "The output is within the size target (not applicable when no target is set)" },
+    { "id": "content-preserved", "type": "program", "check": "content_preserved", "gate": "hard", "label": "The content of the input survives: pixels, rows and fields, page text, or the structured-field checker's digest" },
+    { "id": "metadata-clean", "type": "program", "check": "metadata_clean", "gate": "hard", "label": "No metadata is left where the transform promises to strip it (not applicable otherwise)" },
+    { "id": "fit-for-use", "type": "rubric", "gate": "none", "weight": 1, "weight_adjustable": true, "label": "Text renditions only: the output is usable for its stated purpose. Binary outputs are not applicable and no judge is called",
+      "anchors": {
+        "1": "The output cannot be used for its purpose without redoing the work.",
+        "3": "Usable with small fixes: naming, ordering or formatting a person would adjust.",
+        "5": "Usable as delivered: names, order and formatting suit the stated purpose."
+      },
+      "examples": {
+        "1": "Field names are replaced with column numbers so no one can tell what a value means.",
+        "3": "Fields are correct but keys are in an arbitrary order and dates use two formats.",
+        "5": "Fields keep the input's names, rows keep their order, values keep their format."
+      } },
+    { "id": "buyer-accepted", "type": "witness", "gate": "none", "label": "The buyer states whether the work was accepted" }
+  ]
+}

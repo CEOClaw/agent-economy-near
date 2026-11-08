@@ -1,0 +1,124 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "research-good",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 3,
+  "judged_at": "2026-11-06T21:49:29.875Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 5,
+          "quote": "JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.",
+          "reason": "The findings directly address both the required character encoding and the prohibition of the byte order mark with complete clarity."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 5,
+          "quote": "JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8",
+          "reason": "The findings are sourced directly from the authoritative RFC 8259 standard for JSON."
+        }
+      ],
+      "prompt_sha256": "51511ccba42d5eddc4c09bfadc17bd75197de10b0dad6e519915ed146d29ffb6",
+      "usd": 0.00041725,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001762-S2sDtbCSWPgm3HEx4sMZ",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":5,\"quote\":\"JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.\",\"reason\":\"The findings directly address both the required character encoding and the prohibition of the byte order mark with complete clarity.\"},{\"criterion\":\"source-quality\",\"score\":5,\"quote\":\"JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8\",\"reason\":\"The findings are sourced directly from the authoritative RFC 8259 standard for JSON.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 961,
+            "completion_tokens": 118,
+            "cost": 0.00041725
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 5,
+          "quote": "JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.",
+          "reason": "The findings explicitly state the required encoding and address the byte order mark separately, giving a complete actionable answer."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 5,
+          "quote": "\"JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8\"",
+          "reason": "Each claim is supported by direct quotes from RFC 8259, the authoritative standard for JSON encoding and BOM treatment."
+        }
+      ],
+      "prompt_sha256": "c83754f6cd1036aa4540b7b389b5d4e0b58424c5b3a3494603d0b95d547883cd",
+      "usd": 0.000508,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001763-DA9AyoDVejy2CcqQJMuH",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":5,\"quote\":\"JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8.\",\"reason\":\"The findings explicitly state the required encoding and address the byte order mark separately, giving a complete actionable answer.\"},{\"criterion\":\"source-quality\",\"score\":5,\"quote\":\"\\\"JSON text exchanged between systems that are not part of a closed ecosystem MUST be encoded using UTF-8\\\"\",\"reason\":\"Each claim is supported by direct quotes from RFC 8259, the authoritative standard for JSON encoding and BOM treatment.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 904,
+            "completion_tokens": 141,
+            "cost": 0.000508
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 5,
+          "quote": "JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8. [S1]",
+          "reason": "Both parts of the question are answered directly and completely: the required encoding (UTF-8) and the prohibition on adding a BOM, each in its own sourced claim, with the parser tolerance as useful extra detail."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 5,
+          "quote": "https://www.rfc-editor.org/rfc/rfc8259.txt \"Implementations MUST NOT add a byte order mark (U+FEFF) to the beginning of a networked-transmitted JSON text\"",
+          "reason": "Every claim is sourced to RFC 8259, the authoritative standard for JSON, with exact quotes that directly support each claim."
+        }
+      ],
+      "prompt_sha256": "ccc4813cdf53af4b3e36d32fccf3579363d9a54a03221ec07789d7982822e6d1",
+      "usd": 0.0000826917,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001763-5diRFmTh2IhXzshuDWrX",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":5,\"quote\":\"JSON text sent between systems outside a closed ecosystem must be encoded as UTF-8. [S1]\",\"reason\":\"Both parts of the question are answered directly and completely: the required encoding (UTF-8) and the prohibition on adding a BOM, each in its own sourced claim, with the parser tolerance as useful extra detail.\"},{\"criterion\":\"source-quality\",\"score\":5,\"quote\":\"https://www.rfc-editor.org/rfc/rfc8259.txt \\\"Implementations MUST NOT add a byte order mark (U+FEFF) to the beginning of a networked-transmitted JSON text\\\"\",\"reason\":\"Every claim is sourced to RFC 8259, the authoritative standard for JSON, with exact quotes that directly support each claim.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 915,
+            "completion_tokens": 179,
+            "cost": 0.0000826917
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

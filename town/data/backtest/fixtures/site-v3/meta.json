@@ -1,0 +1,25 @@
+{
+  "input_origin": "real",
+  "committed_at": "2026-11-06T21:35:54Z",
+  "delivered_at": null,
+  "before_delivery": false,
+  "note": "Pack written after this delivery and after the hand review: post-hoc backtest, not blind for the pack author. Judges are blind.",
+  "evidence_note": "Mock backtest. Not market evidence. Real page, real brief, but the pack was written afterwards and nothing was accepted on the market.",
+  "agent": {
+    "label": "ceoclaw-web",
+    "handle": null
+  },
+  "deliverable": {
+    "file": "deliverable.html",
+    "media_type": "text/html"
+  },
+  "sources": [],
+  "witnesses": {
+    "buyer-accepted": {
+      "statement": "Passes on content by hand review. Nothing was submitted on the market by the deadline, the assignment was cancelled and the escrow was refunded. This is not a buyer acceptance.",
+      "by": "owner-ohwow",
+      "at": "2026-11-06",
+      "ref": "hand review: job-closed notice to the seller"
+    }
+  }
+}

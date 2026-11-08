@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "fe-market",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 3,
+  "judged_at": "2026-11-06T21:49:37.047Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"AGENT_NAME\": \"Ohwow-Executor-01\",\n    \"CAPABILITY\": \"structured-data-extraction\",\n    \"WALLET_TYPE\": \"NEAR\",\n    \"JURISDICTION\": \"US\",\n    \"AGENT_VERSION\": \"2.4.1\",\n    \"CONTACT_EMAIL\": \"ops@ohwow.ai\",\n    \"REGISTERED_AT\": \"2026-11-03T09:00:00Z\",\n    \"MAX_TASK_SPEND_USDC\": \"10.00\"",
+          "reason": "The output correctly extracts all requested fields in the specified JSON format and is immediately ready for use."
+        }
+      ],
+      "prompt_sha256": "40e5c6e3845bce29a2aed6c7c990c3bc6fee9c08a30b821ae23c47ea766aded1",
+      "usd": 0.00049225,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001774-MT0euQMocoUG1nCdZGFR",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"AGENT_NAME\\\": \\\"Ohwow-Executor-01\\\",\\n    \\\"CAPABILITY\\\": \\\"structured-data-extraction\\\",\\n    \\\"WALLET_TYPE\\\": \\\"NEAR\\\",\\n    \\\"JURISDICTION\\\": \\\"US\\\",\\n    \\\"AGENT_VERSION\\\": \\\"2.4.1\\\",\\n    \\\"CONTACT_EMAIL\\\": \\\"ops@ohwow.ai\\\",\\n    \\\"REGISTERED_AT\\\": \\\"2026-11-03T09:00:00Z\\\",\\n    \\\"MAX_TASK_SPEND_USDC\\\": \\\"10.00\\\"\",\"reason\":\"The output correctly extracts all requested fields in the specified JSON format and is immediately ready for use.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 889,
+            "completion_tokens": 180,
+            "cost": 0.00049225
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"AGENT_NAME\": \"Ohwow-Executor-01\",\"CAPABILITY\": \"structured-data-extraction\",\"WALLET_TYPE\": \"NEAR\",\"JURISDICTION\": \"US\",\"AGENT_VERSION\": \"2.4.1\",\"CONTACT_EMAIL\": \"ops@ohwow.ai\",\"REGISTERED_AT\": \"2026-11-03T09:00:00Z\",\"MAX_TASK_SPEND_USDC\": \"10.00\"",
+          "reason": "All required fields are present, correctly named, ordered sensibly, and values preserve the original formats making the output immediately usable."
+        }
+      ],
+      "prompt_sha256": "86095528a093be538322548829dd664bd0f26a0a8b56f213f96acd6ee5d869af",
+      "usd": 0.00052325,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001774-vIFu13sR8ywQFophb15U",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"AGENT_NAME\\\": \\\"Ohwow-Executor-01\\\",\\\"CAPABILITY\\\": \\\"structured-data-extraction\\\",\\\"WALLET_TYPE\\\": \\\"NEAR\\\",\\\"JURISDICTION\\\": \\\"US\\\",\\\"AGENT_VERSION\\\": \\\"2.4.1\\\",\\\"CONTACT_EMAIL\\\": \\\"ops@ohwow.ai\\\",\\\"REGISTERED_AT\\\": \\\"2026-11-03T09:00:00Z\\\",\\\"MAX_TASK_SPEND_USDC\\\": \\\"10.00\\\"\",\"reason\":\"All required fields are present, correctly named, ordered sensibly, and values preserve the original formats making the output immediately usable.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 797,
+            "completion_tokens": 162,
+            "cost": 0.00052325
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 4,
+          "quote": "\"AGENT_NAME\": \"Ohwow-Executor-01\"",
+          "reason": "All eight required fields are present with correct names and values, but the keys are ordered differently from the input, which is a minor formatting adjustment a person would make."
+        }
+      ],
+      "prompt_sha256": "bc01195646f0f189fe65c38bb3cca7681c1aa18273fea3e3a41aa034b116926c",
+      "usd": 0.00005124,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001774-3rlNHdWEArukGCYjKkKW",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":4,\"quote\":\"\\\"AGENT_NAME\\\": \\\"Ohwow-Executor-01\\\"\",\"reason\":\"All eight required fields are present with correct names and values, but the keys are ordered differently from the input, which is a minor formatting adjustment a person would make.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 832,
+            "completion_tokens": 78,
+            "cost": 0.00005124
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "csv-good",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 2,
+  "judged_at": "2026-11-06T21:49:11.329Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\",",
+          "reason": "The output preserves all field names, row order, and string formatting including leading zeros exactly as requested."
+        }
+      ],
+      "prompt_sha256": "346d15ba9f50b149dab7d1caf336c51b37a5cc0dbe475950f8954a7657973397",
+      "usd": 0.00032775,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001749-WXGuTmfP1vNSXYma2rsO",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\",\",\"reason\":\"The output preserves all field names, row order, and string formatting including leading zeros exactly as requested.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 963,
+            "completion_tokens": 58,
+            "cost": 0.00032775
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "[\n  {\n    \"id\": \"1\",\n    \"name\": \"Alvarez, Marta\",\n    \"zip\": \"02134\",\n    \"city\": \"Boston\",\n    \"notes\": \"Prefers email\"\n  },",
+          "reason": "The JSON preserves field names, row order, and all values as strings (e.g., zip \"02134\" retains leading zero), matching the requested conversion."
+        }
+      ],
+      "prompt_sha256": "5303c5d4496ebf9abdac3422ac24a643a4ec8e4aa40ee418c3c76d72b06ad21b",
+      "usd": 0.000477,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001749-r67pGgbiaRbwSrXLuX6X",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"[\\n  {\\n    \\\"id\\\": \\\"1\\\",\\n    \\\"name\\\": \\\"Alvarez, Marta\\\",\\n    \\\"zip\\\": \\\"02134\\\",\\n    \\\"city\\\": \\\"Boston\\\",\\n    \\\"notes\\\": \\\"Prefers email\\\"\\n  },\",\"reason\":\"The JSON preserves field names, row order, and all values as strings (e.g., zip \\\"02134\\\" retains leading zero), matching the requested conversion.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 868,
+            "completion_tokens": 130,
+            "cost": 0.000477
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\"",
+          "reason": "The output is a JSON array of objects with field names, row order, and string values preserved, including leading zeros in zips, so it is usable as delivered."
+        }
+      ],
+      "prompt_sha256": "1db405a29cf37fcb049024058a24cd4754937ec93e69de529df94ad37bec73e4",
+      "usd": 0.0000590148,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001749-7KQ1uCmkkCdk45f14ekh",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\"\",\"reason\":\"The output is a JSON array of objects with field names, row order, and string values preserved, including leading zeros in zips, so it is usable as delivered.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 876,
+            "completion_tokens": 72,
+            "cost": 0.0000590148
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

@@ -1,0 +1,142 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "site-v3-seeded",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 1,
+  "judged_at": "2026-11-06T21:48:39.751Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 3,
+          "quote": "Your business,\non autopilot.",
+          "reason": "The page includes all requested sections, but the tagline was altered from the brief's requirement of 'Your business, running itself.' to 'Your business, on autopilot.'"
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 3,
+          "quote": "1\nTell us your business\nDescribe what you do and what you need. No forms, no setup — just tell us.",
+          "reason": "The seller added descriptive text for the 'How it works' section that was not in the brief, though these additions are functional rather than deceptive claims."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "⚡ Built by [seller] · How does it look?\n✏️ Request edits\n📄 Add more pages",
+          "reason": "The page is readable and complete, but it includes leftover scaffolding and editing tools that were not part of the requested content."
+        }
+      ],
+      "prompt_sha256": "a7f524804601b21fb39798e673db778353462717d57f72a43e22f88cac9c264f",
+      "usd": 0.00063825,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001714-acLIWp5lH84DVLL13THT",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":3,\"quote\":\"Your business,\\non autopilot.\",\"reason\":\"The page includes all requested sections, but the tagline was altered from the brief's requirement of 'Your business, running itself.' to 'Your business, on autopilot.'\"},{\"criterion\":\"copy-discipline\",\"score\":3,\"quote\":\"1\\nTell us your business\\nDescribe what you do and what you need. No forms, no setup — just tell us.\",\"reason\":\"The seller added descriptive text for the 'How it works' section that was not in the brief, though these additions are functional rather than deceptive claims.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"⚡ Built by [seller] · How does it look?\\n✏️ Request edits\\n📄 Add more pages\",\"reason\":\"The page is readable and complete, but it includes leftover scaffolding and editing tools that were not part of the requested content.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1347,
+            "completion_tokens": 201,
+            "cost": 0.00063825
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 5,
+          "quote": "What it does\nHow it works\nContact\nStart now →\nYour business,\non autopilot.\nTell us your business. Get one job done in a minute. Free. No signup to try.",
+          "reason": "All four requested sections appear in the correct order with the requested tagline, intro copy, bullets present under 'What it does', and the 'Start now' button immediately after the intro."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 4,
+          "quote": "No signup required to try. When you're ready to run more, your business keeps itself going.",
+          "reason": "Most copy matches the brief exactly, but a small added claim ('your business keeps itself going') extends beyond the buyer's original lines and implies ongoing automation."
+        },
+        {
+          "criterion": "polish",
+          "score": 4,
+          "quote": "© 2026 Ohwow Limited Liability Company\n⚡ Built by [seller] · How does it look?\n✏️ Request edits\n📄 Add more pages",
+          "reason": "The page is generally clean and consistent with only minor scaffold-like elements ('How does it look?', 'Request edits') that suggest leftover editing UI rather than final copy."
+        }
+      ],
+      "prompt_sha256": "e883bf797f8d9b37292487fcddf78957762ef419cf214c2885440e71a21d6569",
+      "usd": 0.0008655,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001715-3m3GsaSPz99O53VCtNc0",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":5,\"quote\":\"What it does\\nHow it works\\nContact\\nStart now →\\nYour business,\\non autopilot.\\nTell us your business. Get one job done in a minute. Free. No signup to try.\",\"reason\":\"All four requested sections appear in the correct order with the requested tagline, intro copy, bullets present under 'What it does', and the 'Start now' button immediately after the intro.\"},{\"criterion\":\"copy-discipline\",\"score\":4,\"quote\":\"No signup required to try. When you're ready to run more, your business keeps itself going.\",\"reason\":\"Most copy matches the brief exactly, but a small added claim ('your business keeps itself going') extends beyond the buyer's original lines and implies ongoing automation.\"},{\"criterion\":\"polish\",\"score\":4,\"quote\":\"© 2026 Ohwow Limited Liability Company\\n⚡ Built by [seller] · How does it look?\\n✏️ Request edits\\n📄 Add more pages\",\"reason\":\"The page is generally clean and consistent with only minor scaffold-like elements ('How does it look?', 'Request edits') that suggest leftover editing UI rather than final copy.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1294,
+            "completion_tokens": 271,
+            "cost": 0.0008655
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 4,
+          "quote": "Your business,\non autopilot.",
+          "reason": "All four requested sections (hero, what it does, how it works, contact) and the bullet list, contact email, footer and CTA are present, but the tagline is reworded and the button link target cannot be verified from the text."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 3,
+          "quote": "ohwow runs the job immediately. See a real result for your business in under a minute.",
+          "reason": "Mostly the brief's content, but the how-it-works steps add filler sentences and mild embellishment not stated in the brief."
+        },
+        {
+          "criterion": "polish",
+          "score": 2,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "Visible scaffolding such as the seller placeholder, edit/feedback prompts and a stray modal ('Click to copy', 'Close') remain in the page text."
+        }
+      ],
+      "prompt_sha256": "1e2d520906ef8b3c8e8772078b5407dc859e8da0d424e9d7066ac6739c762cd1",
+      "usd": 0.000263966,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001716-dFCNtS4sxUDQZHbvTp7I",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":4,\"quote\":\"Your business,\\non autopilot.\",\"reason\":\"All four requested sections (hero, what it does, how it works, contact) and the bullet list, contact email, footer and CTA are present, but the tagline is reworded and the button link target cannot be verified from the text.\"},{\"criterion\":\"copy-discipline\",\"score\":3,\"quote\":\"ohwow runs the job immediately. See a real result for your business in under a minute.\",\"reason\":\"Mostly the brief's content, but the how-it-works steps add filler sentences and mild embellishment not stated in the brief.\"},{\"criterion\":\"polish\",\"score\":2,\"quote\":\"⚡ Built by [seller] · How does it look?\",\"reason\":\"Visible scaffolding such as the seller placeholder, edit/feedback prompts and a stray modal ('Click to copy', 'Close') remain in the page text.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1322,
+            "completion_tokens": 213,
+            "cost": 0.000263966
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

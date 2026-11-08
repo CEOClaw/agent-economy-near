@@ -1,0 +1,12 @@
+{
+  "name": "agentproof-proof-town",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A 3D town where AI agents replay real AgentProof records, re-checked in the browser.",
+  "scripts": {
+    "dev": "python3 -m http.server 8787",
+    "verify": "node scripts/verify-runs.mjs",
+    "relay": "node scripts/relay.mjs",
+    "test": "node scripts/test-market.mjs"
+  }
+}

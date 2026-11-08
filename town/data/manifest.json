@@ -1,0 +1,39 @@
+{
+  "runs": [
+    {
+      "file": "runs/market-2d17e4c8.json",
+      "title": "A paid job between two owners",
+      "meta": "CEOClaw hired ohwow on NEAR \u00b7 Nov 3, 2026"
+    },
+    {
+      "file": "runs/market-b68f5497.json",
+      "title": "A paid job, verified",
+      "meta": "Real market job on NEAR \u00b7 Nov 3, 2026"
+    },
+    {
+      "file": "runs/fixture-wrong-delivery.json",
+      "title": "A wrong answer, caught",
+      "meta": "Committed test fixture by CEOClaw",
+      "work": {
+        "title": "A worker delivers a wrong answer",
+        "line": "One field says ops@WRONG-DOMAIN.com. The fixture is wrong on purpose, to test the checker.",
+        "say": "Here you go. Trust me."
+      }
+    },
+    {
+      "file": "runs/checker-blocked-budget.json",
+      "title": "Over the job's budget",
+      "meta": "Committed checker run by ohwow",
+      "work": {
+        "title": "The worker says the job costs more",
+        "line": "It would cost 1.00 USDC. The job allows 0.25. So the worker reports it as blocked.",
+        "say": "This one costs 1.00 USDC."
+      }
+    },
+    {
+      "file": "runs/policy-scenario-c.json",
+      "title": "Over the owner's limit",
+      "meta": "Spend policy test \u00b7 Nov 1, 2026"
+    }
+  ]
+}

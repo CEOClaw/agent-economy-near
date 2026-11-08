@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "fe-wrong",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 3,
+  "judged_at": "2026-11-06T21:49:37.988Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 3,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "The output is mostly usable but contains a critical data error in the email field that requires manual correction."
+        }
+      ],
+      "prompt_sha256": "f534aa7d06daf9ad3603264b195c2247e4a8e5672ffeb6c91940a6f667edd11a",
+      "usd": 0.000317,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001775-6BnKGqGkB01uMduUmyXV",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":3,\"quote\":\"\\\"CONTACT_EMAIL\\\": \\\"ops@WRONG-DOMAIN.com\\\"\",\"reason\":\"The output is mostly usable but contains a critical data error in the email field that requires manual correction.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 890,
+            "completion_tokens": 63,
+            "cost": 0.000317
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 3,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\",\"JURISDICTION\": \"US\",\"MAX_TASK_SPEND_USDC\": \"10.00\"",
+          "reason": "Most fields match the required names, order, and formats, but CONTACT_EMAIL is incorrect which requires a small fix."
+        }
+      ],
+      "prompt_sha256": "79263d9e68d41a847ea7727c17555ea51680fd5b733fd6eee34e39394c489a08",
+      "usd": 0.000407,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001775-XgGaYO1XRXgC4BT8CpNF",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":3,\"quote\":\"\\\"CONTACT_EMAIL\\\": \\\"ops@WRONG-DOMAIN.com\\\",\\\"JURISDICTION\\\": \\\"US\\\",\\\"MAX_TASK_SPEND_USDC\\\": \\\"10.00\\\"\",\"reason\":\"Most fields match the required names, order, and formats, but CONTACT_EMAIL is incorrect which requires a small fix.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 804,
+            "completion_tokens": 103,
+            "cost": 0.000407
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 3,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "All field names, ordering and value formats match the input, but the CONTACT_EMAIL value is wrong (ops@WRONG-DOMAIN.com instead of ops@ohwow.ai), a small fix a person would need to make before the output is usable."
+        }
+      ],
+      "prompt_sha256": "c562586b552b70ae9ff865e791912498d279134c6435e065cfc2251d91809832",
+      "usd": 0.00017381,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001776-kBUTVu6v0IB8OwZFLSZO",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":3,\"quote\":\"\\\"CONTACT_EMAIL\\\": \\\"ops@WRONG-DOMAIN.com\\\"\",\"reason\":\"All field names, ordering and value formats match the input, but the CONTACT_EMAIL value is wrong (ops@WRONG-DOMAIN.com instead of ops@ohwow.ai), a small fix a person would need to make before the output is usable.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 832,
+            "completion_tokens": 101,
+            "cost": 0.00017381
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

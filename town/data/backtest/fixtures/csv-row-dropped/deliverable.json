@@ -1,0 +1,51 @@
+[
+  {
+    "id": "1",
+    "name": "Alvarez, Marta",
+    "zip": "02134",
+    "city": "Boston",
+    "notes": "Prefers email"
+  },
+  {
+    "id": "2",
+    "name": "Chen Wei",
+    "zip": "00501",
+    "city": "Holtsville",
+    "notes": "Call after 5pm"
+  },
+  {
+    "id": "3",
+    "name": "Okafor Ade",
+    "zip": "10001",
+    "city": "New York",
+    "notes": ""
+  },
+  {
+    "id": "4",
+    "name": "Smith \"Jr\", Tom",
+    "zip": "90210",
+    "city": "Beverly Hills",
+    "notes": "VIP account"
+  },
+  {
+    "id": "6",
+    "name": "Haddad Lina",
+    "zip": "60601",
+    "city": "Chicago",
+    "notes": "Invoice sent"
+  },
+  {
+    "id": "7",
+    "name": "Novak Petr",
+    "zip": "33101",
+    "city": "Miami",
+    "notes": ""
+  },
+  {
+    "id": "8",
+    "name": "Tanaka Rei",
+    "zip": "94105",
+    "city": "San Francisco",
+    "notes": "Second contact"
+  }
+]

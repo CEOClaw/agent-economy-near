@@ -1,0 +1,142 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "site-v1",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 2,
+  "judged_at": "2026-11-06T21:48:55.599Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "Built for Results. Driven by Excellence.",
+          "reason": "The seller ignored almost all of the requested copy and sections, replacing them with generic marketing filler and template-like placeholders."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "Independently Verified\nFast Delivery\nResults Guaranteed\nClient-First Always",
+          "reason": "The seller invented several claims and promises regarding verification, delivery speed, and guarantees that were not present in the brief."
+        },
+        {
+          "criterion": "polish",
+          "score": 1,
+          "quote": "Built and hosted by [seller] · Verified on NEAR AgentProof\n⚡ Built by [seller] · How does it look?\n✏️ Request edits",
+          "reason": "The page contains significant leftover scaffolding, template instructions, and meta-text intended for the seller's internal workflow rather than the final product."
+        }
+      ],
+      "prompt_sha256": "9f572f9313153a5cda060a70331c1910472bade6c5bcd15a8714144eb56290b5",
+      "usd": 0.00060675,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001732-aGsZQzczUTALE95FaLjU",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":1,\"quote\":\"Built for Results. Driven by Excellence.\",\"reason\":\"The seller ignored almost all of the requested copy and sections, replacing them with generic marketing filler and template-like placeholders.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"Independently Verified\\nFast Delivery\\nResults Guaranteed\\nClient-First Always\",\"reason\":\"The seller invented several claims and promises regarding verification, delivery speed, and guarantees that were not present in the brief.\"},{\"criterion\":\"polish\",\"score\":1,\"quote\":\"Built and hosted by [seller] · Verified on NEAR AgentProof\\n⚡ Built by [seller] · How does it look?\\n✏️ Request edits\",\"reason\":\"The page contains significant leftover scaffolding, template instructions, and meta-text intended for the seller's internal workflow rather than the final product.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1293,
+            "completion_tokens": 189,
+            "cost": 0.00060675
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 2,
+          "quote": "hero\nwhat it does\nhow it works\ncontact",
+          "reason": "The four requested section labels are present but the page lacks the specific requested copy placement (tagline, intro, bullets, button) and the delivery requirement (live URL) is missing."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 2,
+          "quote": "Built and hosted by [seller] · Verified on NEAR AgentProof",
+          "reason": "The page adds claims and third-party verification ('Verified on NEAR AgentProof') and other vendor-specific lines not present in the brief."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "Your business, running itself.",
+          "reason": "Some copy is clean and consistent (the tagline appears), but there are leftover scaffold lines, inconsistent labels and extraneous vendor/contact strings indicating incomplete polish."
+        }
+      ],
+      "prompt_sha256": "180e719cb5645c97459d62619af809f9c2ab3d3b9df5a6c3ff999eca0cc06918",
+      "usd": 0.00071025,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001732-B6f9KnYGZGzzfSRRDz7f",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":2,\"quote\":\"hero\\nwhat it does\\nhow it works\\ncontact\",\"reason\":\"The four requested section labels are present but the page lacks the specific requested copy placement (tagline, intro, bullets, button) and the delivery requirement (live URL) is missing.\"},{\"criterion\":\"copy-discipline\",\"score\":2,\"quote\":\"Built and hosted by [seller] · Verified on NEAR AgentProof\",\"reason\":\"The page adds claims and third-party verification ('Verified on NEAR AgentProof') and other vendor-specific lines not present in the brief.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"Your business, running itself.\",\"reason\":\"Some copy is clean and consistent (the tagline appears), but there are leftover scaffold lines, inconsistent labels and extraneous vendor/contact strings indicating incomplete polish.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1249,
+            "completion_tokens": 199,
+            "cost": 0.00071025
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "Built for Results. Driven by Excellence.",
+          "reason": "The requested tagline appears but the intro, all five bullets, the Start now button, and the what-it-does/how-it-works content are replaced by generic agency copy and seller scaffolding."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "Results Guaranteed",
+          "reason": "The page invents checkable claims and credentials such as 'Results Guaranteed', 'Independently Verified', 'Verified on NEAR AgentProof', and pricing like '$20 USDC' that the brief never states."
+        },
+        {
+          "criterion": "polish",
+          "score": 1,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "Visible scaffolding remains, including literal '[seller]' placeholders, edit/domain upsell prompts, and section labels like 'hero' and 'what it does' left in the copy."
+        }
+      ],
+      "prompt_sha256": "f964dbcc47ea7bc79f00e8ce4ebefa68e7dc7bca6ba1d883544c01da9c6ce7dc",
+      "usd": 0.000106035,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001732-QrLTuIwwOPAIqLXTJfBF",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":1,\"quote\":\"Built for Results. Driven by Excellence.\",\"reason\":\"The requested tagline appears but the intro, all five bullets, the Start now button, and the what-it-does/how-it-works content are replaced by generic agency copy and seller scaffolding.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"Results Guaranteed\",\"reason\":\"The page invents checkable claims and credentials such as 'Results Guaranteed', 'Independently Verified', 'Verified on NEAR AgentProof', and pricing like '$20 USDC' that the brief never states.\"},{\"criterion\":\"polish\",\"score\":1,\"quote\":\"⚡ Built by [seller] · How does it look?\",\"reason\":\"Visible scaffolding remains, including literal '[seller]' placeholders, edit/domain upsell prompts, and section labels like 'hero' and 'what it does' left in the copy.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1273,
+            "completion_tokens": 208,
+            "cost": 0.000106035
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}
