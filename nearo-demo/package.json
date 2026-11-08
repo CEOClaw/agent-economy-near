@@ -1,0 +1,25 @@
+{
+  "name": "nearo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "bash tests/run-nov7-suite.sh",
+    "test:invariants": "bash tests/run-nov7-suite.sh",
+    "build": "bash tests/build-nov7.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Peregrines-AI-Inc/NEARO.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Peregrines-AI-Inc/NEARO/issues"
+  },
+  "homepage": "https://github.com/Peregrines-AI-Inc/NEARO#readme",
+  "dependencies": {}
+}
