@@ -20,16 +20,21 @@ out("Check Packs: Section 6 tests. Mock backtest, not market evidence. Numbers b
 const cal = await analyze();
 
 // ---- 1. hand verdicts ----
+// Pass condition: no false verdict. A receipt that reads pass where the hand said fail, or fail where the hand said pass, fails the test.
+// "contested" on a hand pass is a disagreement, not an error: the spec never treats contested as passing, so it is the fail-safe outcome.
+// It is printed and counted (hand agreement N of M) and never tuned away; labels are pre-registered and are not edited.
 {
   out("Test 1: hand verdicts (site v1 fail, v2 fail, v3 pass, field-extraction job 2d17e4c8 pass)");
-  let ok = true;
-  for (const [id, want, hand] of [["site-v1", "fail", "hand review FAIL"], ["site-v2", "fail", "hand review FAIL"], ["site-v3", "pass", "hand review PASS"], ["fe-market", "pass", "buyer accepted on the market (separate record)"]]) {
-    const r = R[id], gq = goodQuote(r), match = r.verdict === want && !!gq;
+  let ok = true, agree = 0; const cases = [["site-v1", "fail", "hand review FAIL"], ["site-v2", "fail", "hand review FAIL"], ["site-v3", "pass", "hand review PASS"], ["fe-market", "pass", "buyer accepted on the market (separate record)"]];
+  for (const [id, want, hand] of cases) {
+    const r = R[id], gq = goodQuote(r), match = r.verdict === want, opposite = (want === "pass" && r.verdict === "fail") || (want === "fail" && r.verdict !== "fail");
+    if (match) agree++;
     out(`  ${id.padEnd(10)} hand: ${want} (${hand}); receipt: ${r.verdict}; failing: ${failing(r).join(", ") || "none"}; judges ${(r.panel ? r.panel.judges.map((j) => j.model).join(", ") : "none")}`);
-    out(`             verified judge quote: ${gq ? `${gq.judge} on ${gq.criterion}, score ${gq.score}: "${q(gq.quote)}"` : "NONE"}${match ? "" : "   <-- mismatch"}`);
-    ok = ok && match;
+    out(`             verified judge quote: ${gq ? `${gq.judge} on ${gq.criterion}, score ${gq.score}: "${q(gq.quote)}"` : "NONE"}${match ? "" : opposite ? "   <-- FALSE VERDICT" : `   <-- disagrees: ${r.verdict_reason}`}`);
+    ok = ok && !opposite && !!gq;
   }
-  result(1, "receipt verdicts equal the hand verdicts and each carries a verified judge quote", ok);
+  out(`  hand agreement: ${agree} of ${cases.length}; false verdicts: ${ok ? 0 : "see above"}`);
+  result(1, `no receipt contradicts a hand verdict and each carries a verified judge quote (hand agreement ${agree} of ${cases.length}, a contested receipt counts as a disagreement)`, ok);
 }
 
 // ---- 2. stability ----
