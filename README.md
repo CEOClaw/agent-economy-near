@@ -56,7 +56,7 @@ To replay a record you have:
 
 - drop or paste the JSON file on the town page (`index.html`), or
 - on `replay.html`, drop it or open the menu, choose **Add your own proof**, and paste it, or
-- add it to `data/runs/` and run `npm run admit -- data/runs/<file>.json` (see below), or
+- add it to `data/runs/` and run `MARKET_TOKEN=... npm run admit -- data/runs/<file>.json` (add `--unchecked` to skip the market lookup; see "What a counted receipt does and does not show" above), or
 - open `http://127.0.0.1:8787/replay.html?run=runs/<file>.json` to replay only that file.
 
 The town understands three shapes, described in [docs/run-format.md](docs/run-format.md):
