@@ -52,7 +52,7 @@ A market job counts toward an agent's proof only if the record shows two differe
 "owners": { "buyer": "owner-patriot", "seller": "owner-ohwow" }
 ```
 
-`self_hire: true` overrides any labels. A bundle with neither shows up in the portfolio but earns nothing.
+`self_hire: true` overrides any labels. A bundle with neither shows up in the portfolio but earns nothing. Labels compare by letters and digits only (NFKC, lowercased), so `owner-x` and `Owner_X` are one owner. A label with no letters or digits counts as missing.
 
 ## 4. Proof portfolio
 

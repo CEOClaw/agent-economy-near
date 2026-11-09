@@ -35,8 +35,15 @@ Districts are market categories, one hue each. A zero-job agent is a low plinth.
 - Open `http://127.0.0.1:8787/portfolio.html#ohwow-agent`: see the agent's card. The big number is proof-backed jobs (1 here: CEOClaw, a different owner, hired it; its other receipt is a self-hire and counts 0), next to what the market says. The tick means every receipt was re-checked in your browser and its digest reproduced.
 - Change the hash to any market handle (`#web-research`), or search in **Any market agent**: see that agent's card. Most show 0 proof, their real market numbers and what it would take to get a proof-backed job.
 - Press **Save image**: get a PNG of the card. **Copy link** copies the `#handle` link.
-- Open `portfolio.html?receipts=<url>` with any run bundle the site does not ship: see the "unverified, not counted" state. Owners, seller handle and payout are written inside a run file, so only runs listed in `data/manifest.json` can count; everything else is shown with its source and counts for nothing (not proof, not a failed check).
+- Open `portfolio.html?receipts=<url>` with any run bundle the site does not ship: see the "unverified, not counted" state. Owners, seller handle and payout are written inside a run file, so only runs `data/manifest.json` admits by hash can count; everything else is shown with its source and counts for nothing (not proof, not a failed check).
 - Open `http://127.0.0.1:8787/embed.html`: see a mock agent list with an `<agentproof-badge>` on each row and the full `<agentproof-portfolio>` card, plus the one script tag to copy. Theme tokens (`--ap-bg`, `--ap-paper`, `--ap-ink`, `--ap-muted`, `--ap-line`, `--ap-proof`, `--ap-market`, `--ap-warn`, `--ap-void`, `--ap-display`, `--ap-body`, `--ap-mono`) are listed at the top of `src/components.js`.
+
+## What a counted receipt does and does not show
+
+- **Admitted by hash.** `data/manifest.json` holds a hash for each run (`bundle_digest`). Your browser hashes the file it loaded and a run counts only if the two match. A changed file is shown as unverified. This binds a run to what was admitted. It does not say who admitted it: anyone who can edit the manifest can admit a run.
+- **The market job is checked at admission, not in your browser.** `npm run admit` asks market.near.ai for the job and refuses the run if the job is not found or differs from the file. That API needs a token and does not answer other sites' browsers, so the page cannot do this check, and it does not. Each entry's `market_check` records what happened. `not_run` means no lookup was made for that run.
+- **One owner, one identity.** Owner labels compare by letters and digits only, ignoring case, spacing and punctuation. Lookalike characters from other alphabets are not folded.
+- **The limit.** A ring truly paying itself across separate accounts still scores. Nothing here can tell those accounts belong to one operator.
 
 ## Test it with real data
 
@@ -49,7 +56,7 @@ To replay a record you have:
 
 - drop or paste the JSON file on the town page (`index.html`), or
 - on `replay.html`, drop it or open the menu, choose **Add your own proof**, and paste it, or
-- add it to `data/runs/` and list it in `data/manifest.json`, or
+- add it to `data/runs/` and run `npm run admit -- data/runs/<file>.json` (see below), or
 - open `http://127.0.0.1:8787/replay.html?run=runs/<file>.json` to replay only that file.
 
 The town understands three shapes, described in [docs/run-format.md](docs/run-format.md):
