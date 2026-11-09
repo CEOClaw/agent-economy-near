@@ -60,13 +60,13 @@
     const key = list || "manifest";
     if (sets.has(key)) return sets.get(key);
     // Trust is by address, never by what a file says: only a URL the site's own manifest lists counts.
-    const own = getJson(new URL("manifest.json", DATA)).then((m) => m.runs.map((r) => new URL(r.file, DATA).href), () => []);
-    const urls = list ? Promise.resolve(list.split(",").map((u) => new URL(u.trim(), location.href).href)) : own;
+    const own = getJson(new URL("manifest.json", DATA)).then((m) => new Map(m.runs.map((r) => [new URL(r.file, DATA).href, r.bundle_digest])), () => new Map());
+    const urls = list ? Promise.resolve(list.split(",").map((u) => new URL(u.trim(), location.href).href)) : own.then((m) => [...m.keys()]);
     const runs = Promise.all([deps, urls]).then(([, us]) => Promise.all(us.map((u) => getJson(u).then((run) => ({ u, run }))))).then((xs) => xs.filter((x) => x.run && x.run.job_ref));
     const set = {
       count: runs.then((xs) => xs.length),
       checked: Promise.all([runs, own]).then(([xs, mine]) => Promise.all(xs.map(async ({ u, run }) => {
-        const r = await window.AgentProofPortfolio.checkReceipt(run, window.AgentProofChecker, mine.includes(u) ? "manifest" : sourceOf(u));
+        const r = await window.AgentProofPortfolio.checkReceipt(run, window.AgentProofChecker, mine.has(u) ? "manifest" : sourceOf(u), mine.get(u));
         return r && Object.assign(r, { file: u.split("/").pop() });
       }))).then((rs) => rs.filter(Boolean)),
     };

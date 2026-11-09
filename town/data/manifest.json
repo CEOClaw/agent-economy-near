@@ -3,12 +3,22 @@
     {
       "file": "runs/market-2d17e4c8.json",
       "title": "A paid job between two owners",
-      "meta": "CEOClaw hired ohwow on NEAR \u00b7 Nov 3, 2026"
+      "meta": "CEOClaw hired ohwow on NEAR \u00b7 Nov 3, 2026",
+      "bundle_digest": "20276a9aef752d892baa67a1cb48c8dd55a492d62512cce5b0a45ab93e85eb8c",
+      "market_check": {
+        "status": "not_run",
+        "reason": "admitted without a market token"
+      }
     },
     {
       "file": "runs/market-b68f5497.json",
       "title": "A paid job, verified",
-      "meta": "Real market job on NEAR \u00b7 Nov 3, 2026"
+      "meta": "Real market job on NEAR \u00b7 Nov 3, 2026",
+      "bundle_digest": "3808710a162ab6ac9f663cdc7020677fd57f8a637e300d8c3b0ede1758cd53b3",
+      "market_check": {
+        "status": "not_run",
+        "reason": "admitted without a market token"
+      }
     },
     {
       "file": "runs/fixture-wrong-delivery.json",
@@ -18,7 +28,8 @@
         "title": "A worker delivers a wrong answer",
         "line": "One field says ops@WRONG-DOMAIN.com. The fixture is wrong on purpose, to test the checker.",
         "say": "Here you go. Trust me."
-      }
+      },
+      "bundle_digest": "c9fd2ad47d2413e1a130c920f38895b92e382f25e37700042611183c184f16fc"
     },
     {
       "file": "runs/checker-blocked-budget.json",
@@ -28,12 +39,14 @@
         "title": "The worker says the job costs more",
         "line": "It would cost 1.00 USDC. The job allows 0.25. So the worker reports it as blocked.",
         "say": "This one costs 1.00 USDC."
-      }
+      },
+      "bundle_digest": "c547728ef04f00c59c6baa5f36d0a1619bfc7fe3795969214f51c45505ab4a90"
     },
     {
       "file": "runs/policy-scenario-c.json",
       "title": "Over the owner's limit",
-      "meta": "Spend policy test \u00b7 Nov 1, 2026"
+      "meta": "Spend policy test \u00b7 Nov 1, 2026",
+      "bundle_digest": "5a530c90b035f2e88520e566b83c272e197e93b8a65435ab504919d754051ae9"
     }
   ]
 }

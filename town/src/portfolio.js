@@ -1,7 +1,7 @@
 // Proof portfolio: what the market reports about an agent next to what its
 // receipts prove. Works in the browser (window.AgentProofPortfolio) and in Node.
 // A receipt is a market job run bundle (job_ref). It counts toward proof only if
-// it is one of the site's own runs (listed in data/manifest.json), the checker,
+// it is one of the site's own runs (data/manifest.json lists it and holds its hash), the checker,
 // re-run here, reproduces the stored digest AND the buyer's owner differs from the
 // seller's. Owners, seller handle and payout are written inside the file itself, so
 // a run from anywhere else (a dropped file, a ?receipts= URL) is unverified: shown
@@ -9,11 +9,15 @@
 // Anything the record does not show is null, not 0.
 (function (root) {
   const pick = (v) => (v === undefined ? null : v);
+  // One owner written two ways ("owner-x", "Owner_X", " owner x ") must stay one owner, so owners
+  // compare by letters and digits only. -> the key, or null when nothing is left.
+  const ownerKey = (v) => (typeof v === "string" && v.normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "")) || null;
 
   // Re-runs the checker on one run bundle. -> receipt, or null if not a market job.
   // `checker` is src/checker.js. `source` is where the caller loaded the run from:
   // "manifest" only for a run listed in data/manifest.json; anything else is unverified.
-  async function checkReceipt(run, checker, source) {
+  // `admitted` is the bundle_digest the manifest holds for that run: a listed file with any other hash is unverified too.
+  async function checkReceipt(run, checker, source, admitted) {
     const ref = run && run.job_ref;
     if (!ref) return null;
     let env = run.envelope || (run.extracted_input && run.extracted_input.envelope);
@@ -22,16 +26,20 @@
     const stored = pick(ref.delivery && ref.delivery.checker && ref.delivery.checker.evidence_digest);
     const result = env && out ? (await checker.check(env, out)).result : null;
     const owners = run.owners || {};
-    const src = source || "unknown source";
+    // Whole-file fingerprint: two copies with one job id but different contents differ here.
+    const bundle_digest = await checker.sha256Hex(checker.canonicalJson(run));
+    const listed = source === "manifest", trusted = listed && bundle_digest === admitted;
+    const src = listed && !trusted ? "a changed copy of a manifest run" : source || "unknown source";
     return {
       source: src,
-      trusted: src === "manifest",
-      // Whole-file fingerprint: two copies with one job id but different contents differ here.
-      bundle_digest: await checker.sha256Hex(checker.canonicalJson(run)),
+      trusted,
+      bundle_digest,
       id: pick((ref.job && ref.job.id) || (ref.hire && ref.hire.job_id)),
       seller_handle: pick((ref.executor && ref.executor.handle) || (out && out.executor_agent_id)),
-      buyer_owner: pick(owners.buyer),
-      seller_owner: pick(owners.seller),
+      buyer_owner: ownerKey(owners.buyer),
+      seller_owner: ownerKey(owners.seller),
+      buyer_owner_label: pick(owners.buyer),
+      seller_owner_label: pick(owners.seller),
       self_hire: run.self_hire === true,
       outcome: result ? result.outcome : null,
       failure_reason: result ? pick(result.failure_reason || result.blocked_reason) : null,

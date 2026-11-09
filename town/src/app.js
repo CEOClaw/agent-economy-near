@@ -392,8 +392,8 @@ let MANIFEST = [], EXTRA = []; // EXTRA: blob URLs of dropped run files, so the 
 let receiptsDone; const receiptsReady = new Promise((ok) => (receiptsDone = ok));
 // Re-checks one run bundle in this browser and keeps it. -> { rd } | { dup } | null (not a market job record)
 // { clash } is a copy with a known job id whose contents differ from the one on the map.
-async function addRun(run, file, source) {
-  const rc = await P.checkReceipt(run, C, source); if (!rc) return null;
+async function addRun(run, file, source, admitted) {
+  const rc = await P.checkReceipt(run, C, source, admitted); if (!rc) return null;
   const same = rc.id != null && RD.find((x) => x.rc.id === rc.id);
   if (same) return same.rc.bundle_digest === rc.bundle_digest ? { dup: rc } : { clash: rc, have: same.rc };
   const rd = { rc, run, file, drawn: false, reveal: null }; RD.push(rd); return { rd };
@@ -409,7 +409,7 @@ async function loadReceipts() {
   try {
     const man = await getJ("data/manifest.json"); MANIFEST = (man.runs || []).map((r) => r.file);
     for (const r of man.runs || []) {
-      const got = await addRun(await getJ(`data/${r.file}`), r.file, "manifest"); if (!got || !got.rd) continue;
+      const got = await addRun(await getJ(`data/${r.file}`), r.file, "manifest", r.bundle_digest); if (!got || !got.rd) continue;
       drawReceipt(got.rd); receiptsChanged();
     }
   } catch (e) { console.warn("receipts not loaded", e); }
@@ -505,7 +505,7 @@ async function playOne(e, alive) {
   r.reveal = 1;
   // The tag is this browser's checker, run again now on the same record: nothing here is a stored string.
   step.phase = "check"; setTag(e.seller, "re-checking...", "");
-  const t0 = performance.now(), rc2 = await P.checkReceipt(r.run, C, r.rc.source);
+  const t0 = performance.now(), rc2 = await P.checkReceipt(r.run, C, r.rc.source, r.rc.bundle_digest);
   await sleep(Math.max(0, T.recheck - (performance.now() - t0))); if (!alive()) return;
   if (!rc2) { setTag(e.seller, "nothing to re-check", "bad"); await sleep(T.result); setTag(null, ""); haloAt = null; return; }
   tour.check = { id: rc2.id, outcome: rc2.outcome, recomputed_digest: rc2.recomputed_digest, stored_digest: rc2.stored_digest, reproduced: rc2.reproduced };
@@ -922,7 +922,7 @@ const teachHooks = {
     for (const r of RD) r.reveal = 1; refreshSeals(); nameLabels();
     await focusOn([seller], T.tourFly); if (my !== teachTok) return; highlight([seller], T.green);
     if (!rd) return { stored: null, recomputed: null, match: false };
-    setTag(seller, "re-checking...", ""); const rc2 = await P.checkReceipt(rd.run, C, rd.rc.source); if (my !== teachTok) return;
+    setTag(seller, "re-checking...", ""); const rc2 = await P.checkReceipt(rd.run, C, rd.rc.source, rd.rc.bundle_digest); if (my !== teachTok) return;
     setTag(seller, rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} matches` : `seal ${d8(rc2.recomputed_digest)} does not match`, rc2.reproduced ? "ok" : "bad");
     return { stored: rc2.stored_digest, recomputed: rc2.recomputed_digest, match: !!rc2.reproduced };
   },
