@@ -14,7 +14,7 @@ const json = async (f) => JSON.parse(await readFile(path.join(root, f), "utf8"))
 const snap = await json("data/market-snapshot.json");
 const receipts = [];
 for (const r of (await json("data/manifest.json")).runs) {
-  const run = await json("data/" + r.file), rc = await PF.checkReceipt(run, CHK, "manifest");
+  const run = await json("data/" + r.file), rc = await PF.checkReceipt(run, CHK, "manifest", r.bundle_digest);
   if (rc) receipts.push({ ...rc, file: r.file, price_usdc: run.job_ref?.hire?.amount != null ? Number(run.job_ref.hire.amount) : null });
 }
 const s = AN.compute(snap.agents, receipts), h = AN.headline(s);

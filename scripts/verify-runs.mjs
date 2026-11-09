@@ -12,14 +12,15 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..")
 const req = createRequire(import.meta.url);
 const CHK = req(path.join(root, "src/checker.js")), MKT = req(path.join(root, "src/market.js")), PF = req(path.join(root, "src/portfolio.js"));
 globalThis.crypto ??= (await import("node:crypto")).webcrypto;
-const own = JSON.parse(await readFile(path.join(root, "data/manifest.json"), "utf8")).runs.map((r) => path.join(root, "data", r.file));
-const files = process.argv.slice(2).length ? process.argv.slice(2).map((f) => path.resolve(f)) : own;
+const own = new Map(JSON.parse(await readFile(path.join(root, "data/manifest.json"), "utf8")).runs.map((r) => [path.join(root, "data", r.file), r.bundle_digest]));
+const files = process.argv.slice(2).length ? process.argv.slice(2).map((f) => path.resolve(f)) : [...own.keys()];
 let bad = 0; const receipts = [];
 for (const f of files) {
   const o = JSON.parse(await readFile(f, "utf8")); const name = path.basename(f);
-  // Only a file the manifest lists can count; any other file's owners are self-asserted.
-  const rc = await PF.checkReceipt(o, CHK, own.includes(f) ? "manifest" : f); if (rc) receipts.push(rc);
-  if (rc && !rc.trusted) console.log(`NOTE  ${name}: not listed in data/manifest.json, so it is unverified and never counts toward a portfolio`);
+  // Only a file the manifest admits by hash can count; any other file's owners are self-asserted.
+  if (own.has(f) && own.get(f) !== await CHK.sha256Hex(CHK.canonicalJson(o))) { bad++; console.log(`FAIL  ${name}: its hash is not the one data/manifest.json admits`); }
+  const rc = await PF.checkReceipt(o, CHK, own.has(f) ? "manifest" : f, own.get(f)); if (rc) receipts.push(rc);
+  if (rc && !rc.trusted) console.log(`NOTE  ${name}: not admitted by data/manifest.json, so it is unverified and never counts toward a portfolio`);
   if (o.job_ref) {
     let env = o.envelope || o.extracted_input?.envelope; if (typeof env === "string") env = JSON.parse(env);
     const out = o.job_ref.delivery?.output, stored = o.job_ref.delivery?.checker?.evidence_digest;

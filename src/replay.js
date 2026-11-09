@@ -260,7 +260,7 @@ async function runMarket(B, entry) {
   const live = env && out ? await CHK.check(env, out) : null; const pass = live?.result.outcome === "pass";
   const src = provLabel(B.provenance); const amt = `${jr.hire?.amount ?? jr.job?.budget_amount ?? "?"} ${jr.hire?.token || jr.job?.budget_token || ""}`.trim();
   const accepted = jr.hire?.accepted_at || ev("hire.accepted")?.received_at; const paid = so ? parseFloat(so.payout_usdc) : accepted ? parseFloat(jr.hire?.amount) || 0 : 0;
-  // A record that did not ship in data/manifest.json is unverified: its owners and payout are self-asserted, so it earns nothing.
+  // A record the manifest does not admit by hash is unverified: its owners and payout are self-asserted, so it earns nothing.
   const unv = entry.trusted !== true, points = accepted && pass && !B.self_hire && !unv ? 1 : 0;
   const start = snapNow(); bump(ex, "rec"); if (live) bump(ex, pass ? "pass" : "caught"); if (accepted) bump(ex, "paid", paid); bump(rq, "rec"); REP += points; const end = snapNow();
   const eh = homeOf(ex), rh = homeOf(rq); const nf = env?.required_fields?.length; const beats = [];
@@ -468,7 +468,7 @@ function frame() {
 (async () => {
   const only = new URLSearchParams(location.search).get("run");
   const manifest = await getJSON("manifest.json"); const entries = only ? [{ file: only }] : manifest.runs;
-  for (const [i, entry] of entries.entries()) { try { (await fromAny(await getJSON(entry.file), { id: "m" + i, ...entry, trusted: manifest.runs.some((m) => m.file === entry.file) })).forEach((r) => RUNS.push(r)); } catch (err) { console.error("Could not load run", entry.file, err); } }
+  for (const [i, entry] of entries.entries()) { try { const run = await getJSON(entry.file), admitted = manifest.runs.find((m) => m.file === entry.file)?.bundle_digest; (await fromAny(run, { id: "m" + i, ...entry, trusted: !!admitted && admitted === await CHK.sha256Hex(canon(run)) })).forEach((r) => RUNS.push(r)); } catch (err) { console.error("Could not load run", entry.file, err); } }
   AGENTS.forEach((a) => { if (a.logo) { CUSTOM[a.id] = { logo: new URL(a.logo, DATA).href }; applyCustom(a.id); } });
   if (!RUNS.length) { $("loading").textContent = "No runs loaded. Check data/manifest.json and the browser console."; return; }
   document.fonts?.ready.then(() => { Object.values(ROBOTS).forEach(chestDraw); boardKey = ""; drawBoard(RUNS[ri].startSnap); });
