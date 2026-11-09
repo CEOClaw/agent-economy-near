@@ -26,7 +26,7 @@ console.log("histogram: " + s.histogram.map((b) => `${b.label}=${b.count}`).join
 console.log("categories (delivered/proven/agents): " + s.categories.map((c) => `${c.category} ${c.delivered}/${c.proven}/${c.agents}`).join(", "));
 console.log("response median by category: " + s.response_by_category.map((c) => `${c.category} ${c.median_s}s(n=${c.n})`).join(", "));
 console.log(`scatter: ${s.scatter.length} points, ${s.scatter.filter((p) => p.delivered === 1 && p.success_rate === 100).length} at 100% on 1 job`);
-for (const r of s.receipts) console.log(`receipt ${String(r.id).slice(0, 8)} ${r.seller_handle} ${r.buyer_owner}->${r.seller_owner} self_hire=${r.self_hire} price=${r.price_usdc} ${r.outcome} stored=${String(r.stored_digest).slice(0, 8)} recomputed=${String(r.recomputed_digest).slice(0, 8)} counted=${r.counted}`);
+for (const r of s.receipts) console.log(`receipt ${String(r.id).slice(0, 8)} ${r.seller_handle} ${r.buyer_owner_label}->${r.seller_owner_label} self_hire=${r.self_hire} price=${r.price_usdc} ${r.outcome} stored=${String(r.stored_digest).slice(0, 8)} recomputed=${String(r.recomputed_digest).slice(0, 8)} counted=${r.counted}`);
 console.log("panel strings: " + JSON.stringify(h));
 
 // Expected values come straight from the snapshot, so a refresh cannot leave them stale.

@@ -34,6 +34,7 @@
     }
     const receipts = rcs.map((r) => ({
       id: r.id ?? null, seller_handle: r.seller_handle ?? null, buyer_owner: r.buyer_owner ?? null, seller_owner: r.seller_owner ?? null,
+      buyer_owner_label: r.buyer_owner_label ?? null, seller_owner_label: r.seller_owner_label ?? null,
       self_hire: r.self_hire === true, price_usdc: num(r.price_usdc), outcome: r.outcome ?? null,
       stored_digest: r.stored_digest ?? null, recomputed_digest: r.recomputed_digest ?? null, reproduced: !!r.reproduced, counted: counted(r),
       trusted: r.trusted === true, source: r.source ?? null,
@@ -230,7 +231,7 @@
       const same = r.stored_digest && r.recomputed_digest && r.stored_digest === r.recomputed_digest;
             // An unverified row's owners and price are only what its file claims: greyed and labelled, not stated as fact.
       const cl = (x) => (r.trusted ? x : `<span style="color:var(--faint)">claims ${x}</span>`);
-      return `<tr><td class="mono">${esc(String(r.id || "").slice(0, 8) || "none")}</td><td>${cl(esc(r.buyer_owner ?? "not observed"))}</td><td>${esc(r.seller_handle ?? "not observed")}<br><span class="mono" style="color:var(--dim)">${cl(esc(r.seller_owner ?? "not observed"))}</span></td><td>${r.trusted ? own : cl(own.replace("an-tag ok", "an-tag nil"))}</td><td class="mono">${cl(r.price_usdc == null ? "not observed" : "$" + r.price_usdc)}</td><td>${v}<br><span style="color:var(--dim)">checker: ${esc(r.outcome ?? "none")}</span></td><td class="mono">${esc(short(r.stored_digest))}<br>${esc(short(r.recomputed_digest))}<br><span style="color:${same ? "var(--ok)" : "var(--fail)"}">${same ? "match" : "no match"}</span></td></tr>`;
+      return `<tr><td class="mono">${esc(String(r.id || "").slice(0, 8) || "none")}</td><td>${cl(esc(r.buyer_owner_label ?? "not observed"))}</td><td>${esc(r.seller_handle ?? "not observed")}<br><span class="mono" style="color:var(--dim)">${cl(esc(r.seller_owner_label ?? "not observed"))}</span></td><td>${r.trusted ? own : cl(own.replace("an-tag ok", "an-tag nil"))}</td><td class="mono">${cl(r.price_usdc == null ? "not observed" : "$" + r.price_usdc)}</td><td>${v}<br><span style="color:var(--dim)">checker: ${esc(r.outcome ?? "none")}</span></td><td class="mono">${esc(short(r.stored_digest))}<br>${esc(short(r.recomputed_digest))}<br><span style="color:${same ? "var(--ok)" : "var(--fail)"}">${same ? "match" : "no match"}</span></td></tr>`;
     }).join("");
     return sec(s.proven_total ? `${fmt(s.proven_total)} receipt${s.proven_total === 1 ? "" : "s"} survive${s.proven_total === 1 ? "s" : ""} the checker and the owner test` : "No receipt survives the checker and the owner test",
       "A receipt counts only if it is one of this site's runs, the checker re-run here gives the stored digest, the outcome is pass, and the buyer's owner differs from the seller's. A dropped file is unverified: its owners are only what it says.",

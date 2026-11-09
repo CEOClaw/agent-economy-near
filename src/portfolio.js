@@ -9,6 +9,9 @@
 // Anything the record does not show is null, not 0.
 (function (root) {
   const pick = (v) => (v === undefined ? null : v);
+  // One owner written two ways ("owner-x", "Owner_X", " owner x ") must stay one owner, so owners
+  // compare by letters and digits only. -> the key, or null when nothing is left.
+  const ownerKey = (v) => (typeof v === "string" && v.normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "")) || null;
 
   // Re-runs the checker on one run bundle. -> receipt, or null if not a market job.
   // `checker` is src/checker.js. `source` is where the caller loaded the run from:
@@ -33,8 +36,10 @@
       bundle_digest,
       id: pick((ref.job && ref.job.id) || (ref.hire && ref.hire.job_id)),
       seller_handle: pick((ref.executor && ref.executor.handle) || (out && out.executor_agent_id)),
-      buyer_owner: pick(owners.buyer),
-      seller_owner: pick(owners.seller),
+      buyer_owner: ownerKey(owners.buyer),
+      seller_owner: ownerKey(owners.seller),
+      buyer_owner_label: pick(owners.buyer),
+      seller_owner_label: pick(owners.seller),
       self_hire: run.self_hire === true,
       outcome: result ? result.outcome : null,
       failure_reason: result ? pick(result.failure_reason || result.blocked_reason) : null,
