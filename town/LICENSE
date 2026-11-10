@@ -19,3 +19,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Exclusion. The MIT license above does not apply to the Check Packs Materials, which are:
+  town/src/packs.js
+  town/src/packs-ui.js
+  town/docs/check-pack-spec.md
+  town/data/packs/
+  town/data/backtest/
+  town/scripts/pack-run.mjs
+  town/scripts/pack-judge.mjs
+  town/scripts/pack-archive.mjs
+  town/scripts/test-packs.mjs
+  town/scripts/test-packs-unit.mjs
+
+Copyright (c) 2026 AgentProof contributors (Jesus Onoro, Sean Larkin, Guy Savage). All rights reserved. Patent pending. You may view and run the Check Packs Materials only to evaluate this repository's NEAR AI Hackathon entry. No other license or right is granted, expressly or by implication.

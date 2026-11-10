@@ -11,6 +11,8 @@
 
 [![town tests](https://github.com/CEOClaw/agent-economy-near/actions/workflows/town-tests.yml/badge.svg)](.github/workflows/town-tests.yml)
 
+Patent pending: a US provisional application covering this work has been filed. The MIT license covers only the code described in LICENSE; Check Packs are excluded and all rights in them are reserved.
+
 ## Start here (no account, no key, no install)
 
 **Hosted (live after Nov 11):** https://ceoclaw.github.io/agent-economy-near/town/ (GitHub Pages, static, same files as `town/`). Until then, and always, the local steps below.
