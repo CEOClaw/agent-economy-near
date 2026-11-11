@@ -1,0 +1,16 @@
+{
+  "schema": "agentproof-pack-job-v1",
+  "id": "png-good",
+  "weights": {},
+  "pack": "file-transform-v1",
+  "brief": "Strip all metadata chunks from the attached PNG without changing a single pixel. Output at most 2000 bytes.",
+  "params": {
+    "transform": "png-strip-metadata",
+    "input_file": "backtest/fixtures/png-good/input.png",
+    "input_sha256": "d8c1ecbeded35f084a1f45c010135d790918e7a04d90222f93af8d7a325efe2a",
+    "max_bytes": 2000,
+    "redact": []
+  },
+  "buyer_label": "synthetic-buyer",
+  "seller_label": "synthetic-files"
+}

@@ -1,0 +1,142 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "site-v1",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 3,
+  "judged_at": "2026-11-06T21:49:17.924Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "We combine expertise, passion, and precision to deliver outcomes that matter.",
+          "reason": "The seller ignored the requested copy and content structure, replacing them with generic marketing text that does not match the brief."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "Built and hosted by [seller] · Verified on NEAR AgentProof",
+          "reason": "The seller added multiple claims and features, such as 'Verified on NEAR AgentProof' and 'Results Guaranteed', which were not present in the brief."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "© 2026 ohwow . All rights reserved.",
+          "reason": "The page is readable and complete, but it includes unnecessary scaffolding and template-like elements such as 'How does it look?' and 'Request edits'."
+        }
+      ],
+      "prompt_sha256": "772828226c36c0c815e26516367c06b151013b21e27f8e73986f6ad95ea94568",
+      "usd": 0.00059275,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001754-2qB5RphK5L9IP0D7XUu3",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":1,\"quote\":\"We combine expertise, passion, and precision to deliver outcomes that matter.\",\"reason\":\"The seller ignored the requested copy and content structure, replacing them with generic marketing text that does not match the brief.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"Built and hosted by [seller] · Verified on NEAR AgentProof\",\"reason\":\"The seller added multiple claims and features, such as 'Verified on NEAR AgentProof' and 'Results Guaranteed', which were not present in the brief.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"© 2026 ohwow . All rights reserved.\",\"reason\":\"The page is readable and complete, but it includes unnecessary scaffolding and template-like elements such as 'How does it look?' and 'Request edits'.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1297,
+            "completion_tokens": 179,
+            "cost": 0.00059275
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 3,
+          "quote": "hero\nwhat it does\nhow it works\ncontact",
+          "reason": "The deliverable contains the four requested section labels in the brief and the tagline appears, but sections do not contain the requested specific copy and the primary CTA/link to https://ohwow.fun is missing."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 2,
+          "quote": "Built and hosted by [seller] · Verified on NEAR AgentProof",
+          "reason": "The page adds claims (hosting, verification) and seller-specific items not in the brief, introducing facts beyond the buyer's provided copy."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "Your business, running itself.\nWork With Us\nLearn More",
+          "reason": "The text is mostly readable and shows consistent headings, but there are leftover scaffold items (e.g. template links, seller placeholders) and inconsistent button/labeling."
+        }
+      ],
+      "prompt_sha256": "2465a9f278b357c445ee5188f12fd111979e4908605be814cb9edabb480bbb4a",
+      "usd": 0.00073675,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001754-UV3kP1WwGDhzAmCThhcC",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":3,\"quote\":\"hero\\nwhat it does\\nhow it works\\ncontact\",\"reason\":\"The deliverable contains the four requested section labels in the brief and the tagline appears, but sections do not contain the requested specific copy and the primary CTA/link to https://ohwow.fun is missing.\"},{\"criterion\":\"copy-discipline\",\"score\":2,\"quote\":\"Built and hosted by [seller] · Verified on NEAR AgentProof\",\"reason\":\"The page adds claims (hosting, verification) and seller-specific items not in the brief, introducing facts beyond the buyer's provided copy.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"Your business, running itself.\\nWork With Us\\nLearn More\",\"reason\":\"The text is mostly readable and shows consistent headings, but there are leftover scaffold items (e.g. template links, seller placeholders) and inconsistent button/labeling.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1243,
+            "completion_tokens": 213,
+            "cost": 0.00073675
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "Built for Results. Driven by Excellence.",
+          "reason": "The brief's tagline, intro, bullets, button linking to https://ohwow.fun, and footer wording are absent or replaced by the seller's own marketing content, so most of the brief is ignored."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "Results Guaranteed",
+          "reason": "The page invents claims not supported by the brief, such as \"Results Guaranteed,\" \"Independently Verified,\" and \"Fast Delivery,\" which readers could take as factual promises."
+        },
+        {
+          "criterion": "polish",
+          "score": 1,
+          "quote": "Built and hosted by [seller] · Verified on NEAR AgentProof",
+          "reason": "Unreplaced [seller] placeholders and leftover scaffolding such as \"hero / what it does / how it works / contact\" and seller-facing edit prompts leave the text reading as unfinished."
+        }
+      ],
+      "prompt_sha256": "47bbf36675f7cffb7bbbc22bacbb94e03a754a217acc4787e5ccc793677bd682",
+      "usd": 0.000279201,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001754-KiD4bvwchXWB6LdhQdzs",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":1,\"quote\":\"Built for Results. Driven by Excellence.\",\"reason\":\"The brief's tagline, intro, bullets, button linking to https://ohwow.fun, and footer wording are absent or replaced by the seller's own marketing content, so most of the brief is ignored.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"Results Guaranteed\",\"reason\":\"The page invents claims not supported by the brief, such as \\\"Results Guaranteed,\\\" \\\"Independently Verified,\\\" and \\\"Fast Delivery,\\\" which readers could take as factual promises.\"},{\"criterion\":\"polish\",\"score\":1,\"quote\":\"Built and hosted by [seller] · Verified on NEAR AgentProof\",\"reason\":\"Unreplaced [seller] placeholders and leftover scaffolding such as \\\"hero / what it does / how it works / contact\\\" and seller-facing edit prompts leave the text reading as unfinished.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1273,
+            "completion_tokens": 210,
+            "cost": 0.000279201
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

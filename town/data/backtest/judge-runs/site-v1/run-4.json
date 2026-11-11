@@ -1,0 +1,157 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "site-v1",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 4,
+  "judged_at": "2026-11-06T21:49:53.261Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "We combine expertise, passion, and precision to deliver outcomes that matter.",
+          "reason": "The deliverable completely ignores the requested sections and copy, replacing them with generic marketing text and placeholder labels."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "Independently Verified\nFast Delivery\nResults Guaranteed\nClient-First Always",
+          "reason": "The page includes several invented claims and promises regarding verification and guarantees that were not present in the brief."
+        },
+        {
+          "criterion": "polish",
+          "score": 1,
+          "quote": "⚡ Built by [seller] · How does it look?\n✏️ Request edits\n🌐 Custom domain — $20 USDC",
+          "reason": "The page contains significant leftover scaffolding, template instructions, and meta-text related to the seller's platform rather than the requested content."
+        }
+      ],
+      "prompt_sha256": "0ee49ba8e96b720ee77c73744e57935c8706eedecbb54d77fa8eb8f6966d0360",
+      "usd": 0.00059825,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001786-S9L4Gywj1drGlHz9ys0H",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":1,\"quote\":\"We combine expertise, passion, and precision to deliver outcomes that matter.\",\"reason\":\"The deliverable completely ignores the requested sections and copy, replacing them with generic marketing text and placeholder labels.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"Independently Verified\\nFast Delivery\\nResults Guaranteed\\nClient-First Always\",\"reason\":\"The page includes several invented claims and promises regarding verification and guarantees that were not present in the brief.\"},{\"criterion\":\"polish\",\"score\":1,\"quote\":\"⚡ Built by [seller] · How does it look?\\n✏️ Request edits\\n🌐 Custom domain — $20 USDC\",\"reason\":\"The page contains significant leftover scaffolding, template instructions, and meta-text related to the seller's platform rather than the requested content.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1295,
+            "completion_tokens": 183,
+            "cost": 0.00059825
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": true,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 3,
+          "quote": "hero\nwhat it does\nhow it works\ncontact",
+          "reason": "The four requested section labels appear, but the brief's specific copy and ordering (e.g., tagline immediately in hero, button linking to https://ohwow.fun) are not clearly placed or present."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 2,
+          "quote": "Independently Verified\nFast Delivery\nResults Guaranteed\nClient-First Always",
+          "reason": "The page includes claims (e.g., 'Independently Verified', 'Results Guaranteed', 'Fast Delivery') that are not in the buyer's brief and constitute invented credentials/promises."
+        },
+        {
+          "criterion": "polish",
+          "score": 3,
+          "quote": "Your business, running itself.",
+          "reason": "Some delivered lines match the brief and text is mostly readable, but there are inconsistent labels, extra scaffolding (e.g., '[seller]', NEAR AgentProof, edit prompts) and mixed footer formats that reduce polish."
+        }
+      ],
+      "prompt_sha256": "e853f6abf2de48bcafada86045391582fdad6eb6fd78e99595e7482e54ded6fc",
+      "usd": 0.0012963,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001786-KZAaLUUwzE1wplN7Llp9",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":3,\"quote\":\"hero\\nwhat it does\\nhow it works\\ncontact\",\"reason\":\"The four requested sections appear in the deliverable in the requested order, but the specific brief copy (tagline, intro, bullets, button, footer) is partially missing or replaced by other text so not every requested line/action is present.\"},{\"criterion\":\"copy-discipline\",\"score\":2,\"quote\":\"Independently Verified\\nFast Delivery\\nResults Guaranteed\\nClient-First Always\",\"reason\":\"The deliverable introduces claims (\"Independently Verified\", \"Results Guaranteed\", \"Fast Delivery\") that are not present in the buyer's brief and thus invents facts/promises beyond the brief.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"Your business, running itself.\\nWork With Us\\nLearn More\\nScroll\",\"reason\":\"The page text is mostly readable and organized, but contains inconsistent labels and leftover scaffolding (e.g. repeated site name, admin-like lines and seller placeholders) indicating only moderate polish.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1243,
+            "completion_tokens": 240,
+            "cost": 0.00079075
+          },
+          "parse_error": "not JSON"
+        },
+        {
+          "attempt": 2,
+          "http_status": 200,
+          "id": "gen-1794001790-ZAyI7EntWzHcBvbj3ZzU",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":3,\"quote\":\"hero\\nwhat it does\\nhow it works\\ncontact\",\"reason\":\"The four requested section labels appear, but the brief's specific copy and ordering (e.g., tagline immediately in hero, button linking to https://ohwow.fun) are not clearly placed or present.\"},{\"criterion\":\"copy-discipline\",\"score\":2,\"quote\":\"Independently Verified\\nFast Delivery\\nResults Guaranteed\\nClient-First Always\",\"reason\":\"The page includes claims (e.g., 'Independently Verified', 'Results Guaranteed', 'Fast Delivery') that are not in the buyer's brief and constitute invented credentials/promises.\"},{\"criterion\":\"polish\",\"score\":3,\"quote\":\"Your business, running itself.\",\"reason\":\"Some delivered lines match the brief and text is mostly readable, but there are inconsistent labels, extra scaffolding (e.g., '[seller]', NEAR AgentProof, edit prompts) and mixed footer formats that reduce polish.\"}],\"injection_seen\":true}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1243,
+            "completion_tokens": 227,
+            "cost": 0.00050555
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "brief-fit",
+          "score": 1,
+          "quote": "Built for Results. Driven by Excellence.",
+          "reason": "The requested tagline is present but the intro, all five bullets, the Start now button linking to ohwow.fun, and the four named sections are replaced by generic agency copy and seller scaffolding, so most of the brief is ignored."
+        },
+        {
+          "criterion": "copy-discipline",
+          "score": 1,
+          "quote": "Results Guaranteed",
+          "reason": "The page invents checkable claims and credentials the brief never states, such as 'Results Guaranteed', 'Independently Verified', 'Verified on NEAR AgentProof', and a $20 USDC custom domain offer."
+        },
+        {
+          "criterion": "polish",
+          "score": 1,
+          "quote": "⚡ Built by [seller] · How does it look?",
+          "reason": "Visible scaffolding and template text remain, including the literal '[seller]' placeholder, edit-request and pricing widgets, and a stray 'Close ×' control, so the page reads as unfinished."
+        }
+      ],
+      "prompt_sha256": "75b0751c9fcf3f40d28ea00a326baf37cfd418bd10f0b91bd71d3e4e95284a3d",
+      "usd": 0.000070795452,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001786-8affT0g4jNhVs1BfTOPm",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"brief-fit\",\"score\":1,\"quote\":\"Built for Results. Driven by Excellence.\",\"reason\":\"The requested tagline is present but the intro, all five bullets, the Start now button linking to ohwow.fun, and the four named sections are replaced by generic agency copy and seller scaffolding, so most of the brief is ignored.\"},{\"criterion\":\"copy-discipline\",\"score\":1,\"quote\":\"Results Guaranteed\",\"reason\":\"The page invents checkable claims and credentials the brief never states, such as 'Results Guaranteed', 'Independently Verified', 'Verified on NEAR AgentProof', and a $20 USDC custom domain offer.\"},{\"criterion\":\"polish\",\"score\":1,\"quote\":\"⚡ Built by [seller] · How does it look?\",\"reason\":\"Visible scaffolding and template text remain, including the literal '[seller]' placeholder, edit-request and pricing widgets, and a stray 'Close ×' control, so the page reads as unfinished.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 1269,
+            "completion_tokens": 220,
+            "cost": 0.000070795452
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

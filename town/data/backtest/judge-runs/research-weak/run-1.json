@@ -1,0 +1,124 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "research-weak",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 1,
+  "judged_at": "2026-11-06T21:48:44.385Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 1,
+          "quote": "RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications.",
+          "reason": "The findings provide background information about the RFC document rather than answering the specific question about character encoding and byte order marks."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 5,
+          "quote": "https://www.rfc-editor.org/rfc/rfc8259.txt",
+          "reason": "The sources provided are the primary, authoritative RFC document for the JSON specification."
+        }
+      ],
+      "prompt_sha256": "ff04536327199e311cba1065c5e8e73d2d90b832cd6d8cc7c1733b307159a140",
+      "usd": 0.000399,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001720-yOydKRFgqtELChXqfzdw",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":1,\"quote\":\"RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications.\",\"reason\":\"The findings provide background information about the RFC document rather than answering the specific question about character encoding and byte order marks.\"},{\"criterion\":\"source-quality\",\"score\":5,\"quote\":\"https://www.rfc-editor.org/rfc/rfc8259.txt\",\"reason\":\"The sources provided are the primary, authoritative RFC document for the JSON specification.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 900,
+            "completion_tokens": 116,
+            "cost": 0.000399
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 1,
+          "quote": "## Findings\n- RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications. [S1]",
+          "reason": "The findings do not state which character encoding must be used nor whether a byte order mark may be added, so they fail to answer the question."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 3,
+          "quote": "[S1] https://www.rfc-editor.org/rfc/rfc8259.txt \"This document removes inconsistencies with other specifications of JSON\"",
+          "reason": "The cited source is the authoritative RFC but the provided quotes are generic and do not include the specific encoding or BOM rules needed to fully support the claims."
+        }
+      ],
+      "prompt_sha256": "ac8512504836daae9e55e300a2dbb42db2e601a6b2fb8a9a8a102e779d21a68b",
+      "usd": 0.0005555,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001721-gF3VZuWOQHFTB9n6JOKl",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":1,\"quote\":\"## Findings\\n- RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications. [S1]\",\"reason\":\"The findings do not state which character encoding must be used nor whether a byte order mark may be added, so they fail to answer the question.\"},{\"criterion\":\"source-quality\",\"score\":3,\"quote\":\"[S1] https://www.rfc-editor.org/rfc/rfc8259.txt \\\"This document removes inconsistencies with other specifications of JSON\\\"\",\"reason\":\"The cited source is the authoritative RFC but the provided quotes are generic and do not include the specific encoding or BOM rules needed to fully support the claims.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 846,
+            "completion_tokens": 172,
+            "cost": 0.0005555
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "answers-question",
+          "score": 1,
+          "quote": "RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications.",
+          "reason": "The findings discuss the document's status and history rather than stating the required encoding or the byte order mark rule, so they do not answer the question."
+        },
+        {
+          "criterion": "source-quality",
+          "score": 3,
+          "quote": "https://www.rfc-editor.org/rfc/rfc8259.txt",
+          "reason": "The sources are the authoritative RFC and traceable, but the quoted passages are about the document's provenance rather than the encoding and BOM requirements they would need to support."
+        }
+      ],
+      "prompt_sha256": "a29794643803b097c683c16f93311f729943b7602515f37126cf3623a99ce1dd",
+      "usd": 0.000172459,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001721-DfhrWrNYolSfdZOoYLRl",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"answers-question\",\"score\":1,\"quote\":\"RFC 8259 replaces an earlier JSON specification and removes inconsistencies between specifications.\",\"reason\":\"The findings discuss the document's status and history rather than stating the required encoding or the byte order mark rule, so they do not answer the question.\"},{\"criterion\":\"source-quality\",\"score\":3,\"quote\":\"https://www.rfc-editor.org/rfc/rfc8259.txt\",\"reason\":\"The sources are the authoritative RFC and traceable, but the quoted passages are about the document's provenance rather than the encoding and BOM requirements they would need to support.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 853,
+            "completion_tokens": 141,
+            "cost": 0.000172459
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

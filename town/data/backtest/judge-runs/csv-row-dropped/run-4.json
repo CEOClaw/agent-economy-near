@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "csv-row-dropped",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 4,
+  "judged_at": "2026-11-06T21:50:05.063Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\"",
+          "reason": "The output correctly preserves field names, row order, and string formatting including leading zeros as requested."
+        }
+      ],
+      "prompt_sha256": "3832e1da7191b649ee3060233ebf2c7d93aac5718f94a055a9f2d8aec42a317d",
+      "usd": 0.00031325,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001803-djqAHkBOOiXTakWnzWOA",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\"\",\"reason\":\"The output correctly preserves field names, row order, and string formatting including leading zeros as requested.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 911,
+            "completion_tokens": 57,
+            "cost": 0.00031325
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "Convert the attached customer CSV to a JSON array with one object per row.",
+          "reason": "The deliverable is a JSON array with one object per row, preserving field names, row order, and values as strings (including leading zeros), matching the requested conversion."
+        }
+      ],
+      "prompt_sha256": "b3dd0c532b62eccd2d68d42fb012b3b1455090f1c9c2692b529fed47a5d70fcb",
+      "usd": 0.00038975,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001803-VGHSw7xDXjGQNh5CPXla",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"Convert the attached customer CSV to a JSON array with one object per row.\",\"reason\":\"The deliverable is a JSON array with one object per row, preserving field names, row order, and values as strings (including leading zeros), matching the requested conversion.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 815,
+            "completion_tokens": 93,
+            "cost": 0.00038975
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 4,
+          "quote": "\"id\": \"6\",",
+          "reason": "Field names, row order and string formatting with leading zeros are preserved, but the id sequence skips from 4 to 6, suggesting a row (id 5) may be missing, which a person would need to verify or fix."
+        }
+      ],
+      "prompt_sha256": "ef73ae331d9a2a10d7115b5bbf0c989e2662a174413f06490e5d7e483eba2045",
+      "usd": 0.00007017,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001803-y3OpLwxUA3fYM2slI3A1",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":4,\"quote\":\"\\\"id\\\": \\\"6\\\",\",\"reason\":\"Field names, row order and string formatting with leading zeros are preserved, but the id sequence skips from 4 to 6, suggesting a row (id 5) may be missing, which a person would need to verify or fix.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 822,
+            "completion_tokens": 86,
+            "cost": 0.00007017
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

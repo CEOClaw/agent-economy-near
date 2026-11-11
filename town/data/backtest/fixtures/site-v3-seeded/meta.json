@@ -1,0 +1,18 @@
+{
+  "input_origin": "derived-from-real",
+  "committed_at": "2026-11-06T21:44:52Z",
+  "delivered_at": null,
+  "before_delivery": false,
+  "note": "Synthetic deliverable written by the pack author after the pack: post-hoc backtest, not blind for the pack author. Judges are blind. Derived from site-v3 by replacing the tagline with a line the brief does not contain; declared_sha256 is the hash of these bytes so only required-copy is seeded.",
+  "evidence_note": "Mock backtest. Not market evidence. Synthetic input built by the pack author to test one failure mode.",
+  "deliverable": {
+    "file": "deliverable.html",
+    "media_type": "text/html"
+  },
+  "sources": [],
+  "witnesses": {},
+  "agent": {
+    "label": "synthetic-site",
+    "handle": null
+  }
+}

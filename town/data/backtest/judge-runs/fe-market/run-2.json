@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "fe-market",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 2,
+  "judged_at": "2026-11-06T21:49:14.130Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"AGENT_NAME\": \"Ohwow-Executor-01\",\n    \"CAPABILITY\": \"structured-data-extraction\",\n    \"WALLET_TYPE\": \"NEAR\",\n    \"JURISDICTION\": \"US\",\n    \"AGENT_VERSION\": \"2.4.1\",\n    \"CONTACT_EMAIL\": \"ops@ohwow.ai\",\n    \"REGISTERED_AT\": \"2026-11-03T09:00:00Z\",\n    \"MAX_TASK_SPEND_USDC\": \"10.00\"",
+          "reason": "The output contains all requested fields in the correct format and is immediately usable for its stated purpose."
+        }
+      ],
+      "prompt_sha256": "b15db4552f6841421177009680e8d27224a9999b7b812ce927dc530ba3595ef2",
+      "usd": 0.00049175,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001751-a26GXdvxd9tCznJKjmH7",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"AGENT_NAME\\\": \\\"Ohwow-Executor-01\\\",\\n    \\\"CAPABILITY\\\": \\\"structured-data-extraction\\\",\\n    \\\"WALLET_TYPE\\\": \\\"NEAR\\\",\\n    \\\"JURISDICTION\\\": \\\"US\\\",\\n    \\\"AGENT_VERSION\\\": \\\"2.4.1\\\",\\n    \\\"CONTACT_EMAIL\\\": \\\"ops@ohwow.ai\\\",\\n    \\\"REGISTERED_AT\\\": \\\"2026-11-03T09:00:00Z\\\",\\n    \\\"MAX_TASK_SPEND_USDC\\\": \\\"10.00\\\"\",\"reason\":\"The output contains all requested fields in the correct format and is immediately usable for its stated purpose.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 887,
+            "completion_tokens": 180,
+            "cost": 0.00049175
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"AGENT_NAME\": \"Ohwow-Executor-01\",",
+          "reason": "The field name and value match the input exactly and are correctly placed in the JSON extraction."
+        }
+      ],
+      "prompt_sha256": "d44b809c0a07b84df9b654fcaa30ce038c0ccb46d53c6486f58f5084b4ba6acd",
+      "usd": 0.00035325,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001751-0RScIdkQ7VNvaNydn7qY",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"AGENT_NAME\\\": \\\"Ohwow-Executor-01\\\",\",\"reason\":\"The field name and value match the input exactly and are correctly placed in the JSON extraction.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 805,
+            "completion_tokens": 76,
+            "cost": 0.00035325
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 4,
+          "quote": "\"AGENT_NAME\": \"Ohwow-Executor-01\"",
+          "reason": "All eight required fields are present with correct names and values, but the keys are in an arbitrary order rather than the input's order, which a person would tidy up."
+        }
+      ],
+      "prompt_sha256": "3e4a09c30f78f40fbaa0f5c438889a5a135f4fb895b4400ed957e42a9ef6fc34",
+      "usd": 0.00005064,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001752-2sWbUVLTZXoeWQcyifUf",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":4,\"quote\":\"\\\"AGENT_NAME\\\": \\\"Ohwow-Executor-01\\\"\",\"reason\":\"All eight required fields are present with correct names and values, but the keys are in an arbitrary order rather than the input's order, which a person would tidy up.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 820,
+            "completion_tokens": 79,
+            "cost": 0.00005064
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

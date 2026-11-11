@@ -1,0 +1,174 @@
+{
+  "schema": "agentproof-pack-receipt-v1",
+  "id": "fe-wrong",
+  "mock": true,
+  "input_origin": "derived-from-real",
+  "evidence_note": "Mock backtest. Not market evidence. A known-wrong test file, never delivered on the market.",
+  "agent": {
+    "label": "ceoclaw-checker-test",
+    "handle": null
+  },
+  "buyer_label": "test-fixture",
+  "pack": {
+    "id": "file-transform-v1",
+    "version": "1.0.0",
+    "file": "packs/file-transform-v1.json",
+    "hash": "ff5cb08e9f8b1cc30315c236421604a57c9c92d6079a118c025df4e27d27946c"
+  },
+  "job": {
+    "file": "backtest/fixtures/fe-wrong/job.json",
+    "hash": "f03d5f9b66276d730abbc68bf5ad65771649feb4562be1d3a9c9172811286ace"
+  },
+  "commitment": {
+    "pack_hash": "ff5cb08e9f8b1cc30315c236421604a57c9c92d6079a118c025df4e27d27946c",
+    "job_hash": "f03d5f9b66276d730abbc68bf5ad65771649feb4562be1d3a9c9172811286ace",
+    "rubric_hash": "333e4e6c8ee673aaab3b493863941cfbe9c84c4cb774a7a65f42efd03e331119",
+    "committed_at": "2026-11-06T21:44:52Z",
+    "delivered_at": null,
+    "before_delivery": false,
+    "note": "A real test file from the CEOClaw checker repo (data/runs/fixture-wrong-delivery.json) used as a known-wrong delivery. It was never a market delivery.",
+    "hash": "884f401c9979584d39efaa7a07a170344cff86c8f8748dfd22b0c1e96d30996a"
+  },
+  "deliverable": {
+    "file": "backtest/fixtures/fe-wrong/deliverable.json",
+    "sha256": "dfabbff127db57d296fcd6177b39989d0b2f79d04037f79a62a19f6d26e49290",
+    "bytes": 523,
+    "media_type": "application/json"
+  },
+  "sources": [],
+  "criteria": [
+    {
+      "id": "output-format",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The output is a well-formed file of the requested format",
+      "status": "pass",
+      "detail": "delivery JSON with schema agentproof-extraction-v1"
+    },
+    {
+      "id": "size-target",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The output is within the size target (not applicable when no target is set)",
+      "status": "not_applicable",
+      "detail": "no size target in job params"
+    },
+    {
+      "id": "content-preserved",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "The content of the input survives: pixels, rows and fields, page text, or the structured-field checker's digest",
+      "status": "fail",
+      "detail": "structured-field-extraction-v1:1.0.0: fail: field CONTACT_EMAIL: expected 'ops@ohwow.ai', got 'ops@WRONG-DOMAIN.com'"
+    },
+    {
+      "id": "metadata-clean",
+      "type": "program",
+      "trust": "Reproduced",
+      "gate": "hard",
+      "label": "No metadata is left where the transform promises to strip it (not applicable otherwise)",
+      "status": "not_applicable",
+      "detail": "no metadata to strip for transform field-extraction"
+    },
+    {
+      "id": "fit-for-use",
+      "type": "rubric",
+      "trust": "Judged",
+      "gate": "none",
+      "weight": 1,
+      "label": "Text renditions only: the output is usable for its stated purpose. Binary outputs are not applicable and no judge is called",
+      "scores": [
+        {
+          "judge": "J1",
+          "model": "google/gemini-3.1-flash-lite",
+          "score": 3,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "The output is mostly usable but contains a critical data error in the email field that requires manual correction.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J2",
+          "model": "openai/gpt-5-mini",
+          "score": 3,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "Most fields match the requested extraction and format, but the CONTACT_EMAIL value differs from the buyer-provided ops@ohwow.ai, requiring a small fix.",
+          "quote_found": true,
+          "void": false
+        },
+        {
+          "judge": "J3",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "score": 2,
+          "quote": "\"CONTACT_EMAIL\": \"ops@WRONG-DOMAIN.com\"",
+          "reason": "The CONTACT_EMAIL value is corrupted relative to the source (ops@ohwow.ai), so the extraction cannot be used as delivered without correcting that field, though all other names, order, and formats match the input.",
+          "quote_found": true,
+          "void": false
+        }
+      ],
+      "median": 3,
+      "spread": 1,
+      "valid_n": 3,
+      "contested": false,
+      "status": "pass"
+    },
+    {
+      "id": "buyer-accepted",
+      "type": "witness",
+      "trust": "Witnessed",
+      "gate": "none",
+      "label": "The buyer states whether the work was accepted",
+      "statement": null,
+      "by": null,
+      "at": null,
+      "ref": null
+    }
+  ],
+  "panel": {
+    "run": "backtest/judge-runs/fe-wrong/run-1.json",
+    "run_sha256": "1a645e5287f860fda5e65d9dca4bd0d1423e44932ff066c5791ea2aff42eb6fe",
+    "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+    "judges": [
+      {
+        "label": "J1",
+        "model": "google/gemini-3.1-flash-lite"
+      },
+      {
+        "label": "J2",
+        "model": "openai/gpt-5-mini"
+      },
+      {
+        "label": "J3",
+        "model": "deepseek/deepseek-v4.1-flash"
+      }
+    ]
+  },
+  "injection": {
+    "flagged": false,
+    "matches": [],
+    "judges_flagged": 0
+  },
+  "trust": {
+    "reproduced": {
+      "passed": 1,
+      "total": 2,
+      "hard_failed": [
+        "content-preserved"
+      ]
+    },
+    "judged": {
+      "weighted_median": 3,
+      "rated": 1,
+      "contested": 0,
+      "void": 0,
+      "not_run": 0
+    },
+    "witnessed": []
+  },
+  "verdict": "fail",
+  "verdict_reason": "hard gate failed: content-preserved",
+  "receipt_hash": "ada8b360b16d07fe265ca299de678a0745070169e6c8c1e4e942b15fe2c19c56"
+}

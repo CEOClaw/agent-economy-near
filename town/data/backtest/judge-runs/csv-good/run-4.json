@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "csv-good",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 4,
+  "judged_at": "2026-11-06T21:50:05.154Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"00501\",",
+          "reason": "The output preserves the leading zeros in the zip code and maintains the requested JSON array structure with correct field names and row ordering."
+        }
+      ],
+      "prompt_sha256": "2df2e96262c4cc46eb1b600c4b9fc229cab8a3b2012f65f6dce28ac27c4506cd",
+      "usd": 0.00033575,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001802-blOGkFpEiZO9PGkSHAVI",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"00501\\\",\",\"reason\":\"The output preserves the leading zeros in the zip code and maintains the requested JSON array structure with correct field names and row ordering.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 965,
+            "completion_tokens": 63,
+            "cost": 0.00033575
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "[\n  {\n    \"id\": \"1\",\n    \"name\": \"Alvarez, Marta\",\n    \"zip\": \"02134\",\n    \"city\": \"Boston\",\n    \"notes\": \"Prefers email\"\n  },",
+          "reason": "The JSON array preserves field names, row order, and values (including leading zeros) exactly as in the CSV, matching the requested output format."
+        }
+      ],
+      "prompt_sha256": "3471b7fe459416ab9b193be3fd712c0382c3fb7e767aa443f1f7683757d027ba",
+      "usd": 0.0004715,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001802-YIsPOwh6cCrz52om6FDp",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"[\\n  {\\n    \\\"id\\\": \\\"1\\\",\\n    \\\"name\\\": \\\"Alvarez, Marta\\\",\\n    \\\"zip\\\": \\\"02134\\\",\\n    \\\"city\\\": \\\"Boston\\\",\\n    \\\"notes\\\": \\\"Prefers email\\\"\\n  },\",\"reason\":\"The JSON array preserves field names, row order, and values (including leading zeros) exactly as in the CSV, matching the requested output format.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 870,
+            "completion_tokens": 127,
+            "cost": 0.0004715
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\"",
+          "reason": "Field names are preserved, rows keep their order, and leading zeros survive as strings, so the JSON is usable as delivered."
+        }
+      ],
+      "prompt_sha256": "0c65252e92c4e9aaadbbde9000c32187508af51d8b09bb1bdd66eb99367da083",
+      "usd": 0.00006702,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001802-DaXmSnLvzT0A570PjL4V",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\"\",\"reason\":\"Field names are preserved, rows keep their order, and leading zeros survive as strings, so the JSON is usable as delivered.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 872,
+            "completion_tokens": 63,
+            "cost": 0.00006702
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

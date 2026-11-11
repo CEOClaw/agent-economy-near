@@ -1,0 +1,36 @@
+{
+  "schema": "agentproof-check-pack-v1",
+  "id": "research-brief-v1",
+  "version": "1.0.0",
+  "title": "Research brief",
+  "summary": "A short sourced answer in Markdown: every claim cites a source, every cited page was archived and resolves, and every quoted passage is in the archived page.",
+  "criteria": [
+    { "id": "required-sections", "type": "program", "check": "md_sections", "gate": "hard", "label": "Has a Question section, a Findings section with claims, and a Sources section with [S1] <url> \"quote\" lines" },
+    { "id": "every-claim-cited", "type": "program", "check": "claims_cited", "gate": "hard", "label": "Every claim in Findings ends with a citation that is listed in Sources" },
+    { "id": "urls-resolve", "type": "source_replay", "check": "urls_resolve", "gate": "hard", "label": "Every cited URL has an archived record with a 2xx status" },
+    { "id": "quotes-in-source", "type": "source_replay", "check": "quotes_in_source", "gate": "hard", "label": "Every quoted passage is found in the archived page it is attributed to" },
+    { "id": "answers-question", "type": "rubric", "gate": { "min": 3 }, "weight": 3, "weight_adjustable": false, "label": "The findings answer the question that was asked",
+      "anchors": {
+        "1": "The findings are about something else, or are so general that they could answer any question on the topic.",
+        "3": "The findings address the question and give a usable answer. Part of it is missing, vague or only implied.",
+        "5": "The findings answer the question directly and completely, and a reader could act on them without searching further."
+      },
+      "examples": {
+        "1": "The question asks which field a standard requires. The findings describe the standard's history.",
+        "3": "The question asks for two requirements. The findings state one clearly and only hint at the other.",
+        "5": "The question asks for two requirements. Each is stated plainly in its own claim with its source."
+      } },
+    { "id": "source-quality", "type": "rubric", "gate": "none", "weight": 2, "weight_adjustable": true, "label": "The sources fit the stakes of the question",
+      "anchors": {
+        "1": "Sources are anonymous, unrelated to the claim, or a restatement of another source.",
+        "3": "Sources are relevant and traceable but secondary, or one claim leans on a weak source.",
+        "5": "Sources are the primary or authoritative document for each claim, and each quote supports its claim."
+      },
+      "examples": {
+        "1": "A technical requirement is sourced to a forum post.",
+        "3": "A requirement is sourced to a tutorial that summarizes the standard.",
+        "5": "A requirement is sourced to the standard's own text."
+      } },
+    { "id": "buyer-accepted", "type": "witness", "gate": "none", "label": "The buyer states whether the work was accepted" }
+  ]
+}

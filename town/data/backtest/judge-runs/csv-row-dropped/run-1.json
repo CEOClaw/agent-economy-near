@@ -1,0 +1,106 @@
+{
+  "schema": "agentproof-judge-run-v1",
+  "job": "csv-row-dropped",
+  "prompt_version": "judge-prompt-v1:911cbf463b382b90",
+  "run": 1,
+  "judged_at": "2026-11-06T21:48:50.467Z",
+  "judges": [
+    {
+      "label": "J1",
+      "model": "google/gemini-3.1-flash-lite",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\",",
+          "reason": "The output correctly preserves field names, row order, and string formatting including leading zeros for zip codes."
+        }
+      ],
+      "prompt_sha256": "e552da46145fea36e28dcacde37d93e895d2be419db2e247bf569c21d7ba12d7",
+      "usd": 0.00031525,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001727-N2OSxW6UtAOUaFFLdiqL",
+          "model": "google/gemini-3.1-flash-lite",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\",\",\"reason\":\"The output correctly preserves field names, row order, and string formatting including leading zeros for zip codes.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 913,
+            "completion_tokens": 58,
+            "cost": 0.00031525
+          }
+        }
+      ]
+    },
+    {
+      "label": "J2",
+      "model": "openai/gpt-5-mini",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"00501\",\"city\": \"Holtsville\",\"notes\": \"Call after 5pm\"",
+          "reason": "The JSON preserves field names, row order, and values as strings (including leading zero in zip 00501), matching the requested conversion."
+        }
+      ],
+      "prompt_sha256": "0411171a7ffa1781d36d015d50a77ca5e32d50ecaaf7824145d23667f55e6b19",
+      "usd": 0.00039725,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001728-50qSav7NE68afDN5r39D",
+          "model": "openai/gpt-5-mini",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"00501\\\",\\\"city\\\": \\\"Holtsville\\\",\\\"notes\\\": \\\"Call after 5pm\\\"\",\"reason\":\"The JSON preserves field names, row order, and values as strings (including leading zero in zip 00501), matching the requested conversion.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 821,
+            "completion_tokens": 96,
+            "cost": 0.00039725
+          }
+        }
+      ]
+    },
+    {
+      "label": "J3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "ok": true,
+      "injection_seen": false,
+      "scores": [
+        {
+          "criterion": "fit-for-use",
+          "score": 5,
+          "quote": "\"zip\": \"02134\"",
+          "reason": "Field names are preserved, rows appear in order, and leading zeros in zip values survive as strings, matching the stated purpose."
+        }
+      ],
+      "prompt_sha256": "4e3654e64d6c6cb51d3560a5f4cd262acd3083ede696bd302209d2cfc55b49a9",
+      "usd": 0.00014755,
+      "raw": [
+        {
+          "attempt": 1,
+          "http_status": 200,
+          "id": "gen-1794001728-WFmkSnkqjWv1URrzbYeA",
+          "model": "deepseek/deepseek-v4.1-flash",
+          "finish_reason": "stop",
+          "content": "{\"scores\":[{\"criterion\":\"fit-for-use\",\"score\":5,\"quote\":\"\\\"zip\\\": \\\"02134\\\"\",\"reason\":\"Field names are preserved, rows appear in order, and leading zeros in zip values survive as strings, matching the stated purpose.\"}],\"injection_seen\":false}",
+          "error": null,
+          "usage": {
+            "prompt_tokens": 820,
+            "completion_tokens": 63,
+            "cost": 0.00014755
+          }
+        }
+      ]
+    }
+  ],
+  "not_run": []
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "agentproof-pack-job-v1",
+  "id": "site-v2",
+  "weights": {},
+  "pack": "site-brief-v1",
+  "brief": "SITE_NAME: ohwow\nPURPOSE: product page\nSECTIONS: hero, what it does, how it works, contact\nSTYLE: dark\nDOMAIN: ceoclaw.ai/for/ohwow\nCOPY:\nTagline: Your business, running itself.\nIntro: Tell us your business. Get one job done in a minute. Free. No signup to try.\nBullets:\n- Websites, chatbots and voice agents\n- WhatsApp agents, email outreach and lead follow-up\n- Appointment booking and customer support\n- Marketing, content and social posts\n- CRM, automations and reports\nButton: Start now, links to https://ohwow.fun\nContact: ogsus@ohwow.fun\nFooter: 2026 Ohwow Limited Liability Company\nDelivery: please submit the live URL on this market job so it can be accepted here.",
+  "params": {
+    "required_copy": [
+      "Your business, running itself.",
+      "Tell us your business. Get one job done in a minute. Free. No signup to try.",
+      "Websites, chatbots and voice agents",
+      "WhatsApp agents, email outreach and lead follow-up",
+      "Appointment booking and customer support",
+      "Marketing, content and social posts",
+      "CRM, automations and reports",
+      "ogsus@ohwow.fun",
+      "2026 Ohwow Limited Liability Company"
+    ],
+    "cta": {
+      "text": "Start now",
+      "href": "https://ohwow.fun"
+    },
+    "sections": [
+      "hero",
+      "what it does",
+      "how it works",
+      "contact"
+    ],
+    "style": "dark",
+    "declared_sha256": "1fdc340e9f5e10a73af781aaf290ae958565d22966a3987b80aaf3c104d36426",
+    "redact": [
+      "CEOClaw",
+      "ceoclaw"
+    ]
+  },
+  "buyer_label": "owner-ohwow",
+  "seller_label": "ceoclaw-web"
+}

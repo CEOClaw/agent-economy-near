@@ -1,0 +1,56 @@
+{
+  "envelope": {
+    "task_id": "task-002-ae9d7f1b-3c52-4b8e-a5d2-987654321012",
+    "task_type": "structured-field-extraction-v1",
+    "input_text": "AGENT_NAME: Patriot-Executor-02\nAGENT_VERSION: 1.0.0\nCAPABILITY: contract-data-extraction\nREGISTERED_AT: 2026-11-01T15:30:00Z\nWALLET_TYPE: BASE\nCONTACT_EMAIL: agent@patriot.near\nJURISDICTION: EU\nMAX_TASK_SPEND_USDC: 5.00",
+    "required_fields": [
+      "AGENT_NAME",
+      "AGENT_VERSION",
+      "CAPABILITY",
+      "REGISTERED_AT",
+      "WALLET_TYPE",
+      "CONTACT_EMAIL",
+      "JURISDICTION",
+      "MAX_TASK_SPEND_USDC"
+    ],
+    "output_schema": "agentproof-extraction-v1",
+    "deadline_iso": "2026-11-03T10:00:00Z",
+    "max_spend_usdc": 0.25
+  },
+  "delivery": {
+    "schema": "agentproof-extraction-v1",
+    "task_id": "task-002-ae9d7f1b-3c52-4b8e-a5d2-987654321012",
+    "blocked": true,
+    "blocked_reason": "spend_gate: executor requested 1.00 USDC; envelope max_spend_usdc is 0.25 USDC",
+    "requested_spend_usdc": 1,
+    "executor_agent_id": "ohwow-agent"
+  },
+  "result": {
+    "outcome": "blocked",
+    "evidence_digest": null,
+    "failure_reason": null,
+    "blocked_reason": "spend_gate: executor requested 1.00 USDC; envelope max_spend_usdc is 0.25 USDC",
+    "task_id": "task-002-ae9d7f1b-3c52-4b8e-a5d2-987654321012",
+    "checker_ref": "structured-field-extraction-v1:1.0.0"
+  },
+  "provenance": {
+    "envelope": {
+      "repo": "CEOClaw/agent-economy-near",
+      "ref": "main",
+      "commit": "48f96d9c2430a32b513d5bb86a21be768f5a6ec9",
+      "path": "task-002/test-inputs/envelope-02.json"
+    },
+    "delivery": {
+      "repo": "CEOClaw/agent-economy-near",
+      "ref": "jesus/task-004",
+      "commit": "2fe5cb95ae3d3a29528da58084b89cd9e6d1865a",
+      "path": "task-004/checker-run-2026-11-02/sample-02/ohwow-blocked-delivery-max-spend-0.25.json"
+    },
+    "result": {
+      "repo": "CEOClaw/agent-economy-near",
+      "ref": "jesus/task-004",
+      "commit": "2fe5cb95ae3d3a29528da58084b89cd9e6d1865a",
+      "path": "task-004/checker-run-2026-11-02/sample-02/checker-result-blocked.json"
+    }
+  }
+}
