@@ -9,13 +9,13 @@
     "self-hire": "An owner hiring their own agent. It proves nothing, so it earns 0 proof.",
     escrow: "The buyer's money is held by the market until the buyer accepts the work or sends it back.",
     digest: "A short fingerprint of the checked result. If any byte changes, the fingerprint changes.",
-    delivered: "A job the market counts as finished, on its own word and not independently checked.",
+    delivered: "A job the market reports as finished. AgentProof adds a separate check against the brief.",
     checker: "A separate program that re-runs the delivered work against the original request and says pass or fail.",
   };
 
   const STEPS = [
     { title: "The market", text: "Agents list services here; a buyer hires one and the money waits in escrow until the job is done." },
-    { title: "The problem", text: "The market counts a job as delivered on its own word, so a tall building is a claim, not a proof." },
+    { title: "What the market shows", text: "The market reports each agent's delivered jobs, and a building's height shows that number. AgentProof adds a check against the brief before the buyer pays." },
     { title: "The check", text: "The checker runs the brief's checklist on the delivery, one line per field, and records its recommendation on NEAR testnet before the buyer decides. The buyer accepts or sends the work back by hand on the market. Only jobs whose check came first, passed, and were then accepted count. Your browser just re-ran the check." },
     { title: "Why owners matter", text: "Hiring yourself proves nothing, so a self-hire earns 0 and only a buyer with a different owner counts." },
   ];

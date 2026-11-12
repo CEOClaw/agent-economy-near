@@ -191,7 +191,7 @@
     const alt = s.categories.map((c) => `${nice(c.category)}: ${c.delivered} delivered, ${c.checked} checked before paid`).join("; ");
     return sec(s.checked_total ? `Only ${fmt(s.checked_total)} of ${fmt(s.delivered_total)} delivered jobs were checked before the buyer paid` : `None of ${fmt(s.delivered_total)} delivered jobs has been checked before the buyer paid yet`,
       "Per category: jobs the market says were delivered (blue) next to jobs checked before paid (green): a pass from the checker, recorded on NEAR before the buyer accepted, between different owners. The small number is the agent count.",
-      `<div class="an-key"><span><i style="background:var(--an-mk)"></i>delivered, on the market's word</span><span><i style="background:var(--an-pv)"></i>checked before paid</span></div><ul class="an-rows" role="img" aria-label="${esc(alt)}">${rows}</ul>`, src);
+      `<div class="an-key"><span><i style="background:var(--an-mk)"></i>delivered, as the market reports</span><span><i style="background:var(--an-pv)"></i>checked before paid</span></div><ul class="an-rows" role="img" aria-label="${esc(alt)}">${rows}</ul>`, src);
   }
 
   function scatter(s, src) {
@@ -222,7 +222,7 @@
 
   function availability(s, src) {
     const on = s.available.share * 100, h = headline(s);
-    return sec(`${pct(s.available.share)} of agents say they can take a job right now`, "Agents whose listing says available now.",
+    return sec(`${pct(s.available.share)} of agents are listed as available right now`, "Agents whose listing says available now.",
       `<div class="an-stack" role="img" aria-label="${esc(`${h.available} available now`)}"><i class="on" style="width:${on}%"></i><i class="off" style="width:${100 - on}%"></i></div>
       <div class="an-key"><span><i style="background:var(--an-mk)"></i>available now: <b class="an-num">${esc(h.available)}</b></span><span><i style="background:var(--wash);border:1px solid var(--line)"></i>not available: <b class="an-num">${fmt(s.n - s.available.count)}</b></span></div>`, src);
   }
@@ -253,7 +253,7 @@
     container.setAttribute("aria-label", "Analysis: the market's numbers next to the proof");
     const kpi = (k, v, sub, cls) => `<div class="an-kpi ${cls || ""}"><dt>${k}</dt><dd>${esc(v)}${sub ? `<small>${esc(sub)}</small>` : ""}</dd></div>`;
     container.innerHTML = `<div class="an-head"><div><h2 id="an-title">What the numbers say</h2><p>${esc(src)}</p></div><button type="button" class="an-x" aria-label="Close analysis">&times;</button></div>
-    <div class="an-body" role="region" aria-labelledby="an-title"><section><dl class="an-kpis">${kpi("agents listed", h.n)}${kpi("delivered, market's word", h.delivered_total)}${kpi("never delivered", pct(s.zero.share), `${fmt(s.zero.count)} of ${fmt(s.n)}`)}${kpi("available now", pct(s.available.share), `${fmt(s.available.count)} of ${fmt(s.n)}`)}${kpi("checked before paid", h.checked_total, "pass on chain before the buyer accepted", "ok")}${kpi("proven receipts", h.proven_total, "re-check, pass, two owners")}${kpi("proven, not checked before paid", String(s.proven_total - s.checked_total), "re-check, two owners, no earlier check")}</dl><p class="an-src">${esc(src)}</p></section>
+    <div class="an-body" role="region" aria-labelledby="an-title"><section><dl class="an-kpis">${kpi("agents listed", h.n)}${kpi("delivered, as reported", h.delivered_total)}${kpi("never delivered", pct(s.zero.share), `${fmt(s.zero.count)} of ${fmt(s.n)}`)}${kpi("available now", pct(s.available.share), `${fmt(s.available.count)} of ${fmt(s.n)}`)}${kpi("checked before paid", h.checked_total, "pass on chain before the buyer accepted", "ok")}${kpi("proven receipts", h.proven_total, "re-check, pass, two owners")}${kpi("proven, not checked before paid", String(s.proven_total - s.checked_total), "re-check, two owners, no earlier check")}</dl><p class="an-src">${esc(src)}</p></section>
     ${histogram(s, src)}${categories(s, src)}${scatter(s, src)}${response(s, src)}${availability(s, src)}${receiptsTable(s)}</div>`;
     // Hiding is the host's job; this only tells it the viewer asked to close.
     container.querySelector(".an-x").addEventListener("click", () => { container.hidden = true; container.dispatchEvent(new CustomEvent("analysis:close", { bubbles: true })); });

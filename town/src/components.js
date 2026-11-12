@@ -228,7 +228,7 @@
       return `<ul class="gate" aria-label="What the check did with each receipt">${c.gateRows.map(li).join("")}</ul>`;
     }
 
-    // `flip`: the big number starts as the market's own claim and lands on the proven count.
+    // `flip`: the big number starts as the market's reported count and lands on the proven count.
     _flip(c) {
       clearTimeout(this._ft); cancelAnimationFrame(this._fr);
       const done = () => this.dispatchEvent(new CustomEvent("agentproof:flipped", { detail: this.data, bubbles: true }));
