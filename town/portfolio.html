@@ -32,6 +32,8 @@ section{border-top:1px solid var(--line);padding-top:18px}
 ul.rc{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 ul.rc li{display:flex;gap:10px;align-items:center;font:400 13px var(--mono);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
 ul.rc .v{margin-left:auto;font-weight:600}
+ul.rc li{flex-wrap:wrap}
+ul.rc .g{flex-basis:100%;display:grid;gap:2px;font:400 12px/1.4 var(--body);color:var(--muted)}ul.rc .g a{color:var(--market)}
 .ok{color:var(--proof)}.bad{color:var(--warn)}.dim{color:var(--muted)}
 input[type=search]{width:100%;font-weight:400;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 </style>
@@ -46,12 +48,12 @@ input[type=search]{width:100%;font-weight:400;background:var(--paper);border:1px
   </div>
   <p class="note" id="src"></p>
   <section>
-    <h2>Receipts behind it</h2>
+    <h2>Receipts and what the check did with them</h2>
     <ul class="rc" id="receipts"><li class="dim">re-checking</li></ul>
   </section>
   <section>
     <h2>Any market agent</h2>
-    <label for="pick" class="note">Search the agents on market.near.ai. Most have no receipts yet, so they show 0 proof.</label>
+    <label for="pick" class="note">Search the agents on market.near.ai. Most have no receipts yet, so they show 0 jobs checked before paid.</label>
     <input type="search" id="pick" list="agents" placeholder="handle or name" autocomplete="off">
     <datalist id="agents"></datalist>
   </section>
@@ -70,15 +72,25 @@ const show = () => { const h = fromHash(); card.setAttribute("agent", h); docume
 addEventListener("hashchange", show);
 show();
 
-card.addEventListener("agentproof:ready", (e) => {
+card.addEventListener("agentproof:ready", async (e) => {
   const { receipts, market } = e.detail;
+  const gv = AgentProofGateView, ctx = await gv.load(new URL("data/", location.href).href);
+  // Per receipt: the checker's verdict, what the checker recommended, what the buyer did, and where the check lives (a nearblocks link once it is on chain).
+  const gate = (r) => {
+    if (!r.trusted) return "";
+    const g = gv.describe(r, ctx), a = (p) => (p.href ? ` <a href="${esc(p.href)}" target="_blank" rel="noopener">${esc(p.link)}</a>` : "");
+    return `<span class="g">${g.parts.map((p) => `<span>${esc(p.k)}: ${esc(p.v)}${a(p)}</span>`).join("")}</span>`;
+  };
   $("receipts").innerHTML = receipts.length ? receipts.map((r) => {
     // A run the site's manifest does not list is never proof, whatever the checker says about it.
-    const v = !r.trusted ? `<span class="v bad">unverified, from ${esc(r.source)}: not counted</span>` : r.reproduced && r.outcome === "pass" ? '<span class="v ok">digest reproduced</span>' : `<span class="v bad">failed check${r.outcome ? " (" + esc(r.outcome) + ")" : ""}</span>`;
-    return `<li><span title="job id">${esc(String(r.id || "no id").slice(0, 8))}</span>${r.self_hire ? '<span class="dim">self-hire, 0 pts</span>' : ""}${v}</li>`;
+    const v = !r.trusted ? `<span class="v bad">unverified, from ${esc(r.source)}: not counted</span>` : r.reproduced && r.outcome === "pass" ? `<span class="v ${r.check && r.check.counted ? "ok" : "dim"}">${r.check && r.check.counted ? "checked before paid" : "re-checked, not checked before paid"}</span>` : `<span class="v bad">failed check${r.outcome ? " (" + esc(r.outcome) + ")" : ""}</span>`;
+    return `<li><span title="job id">${esc(String(r.id || "no id").slice(0, 8))}</span>${r.self_hire ? '<span class="dim">self-hire, 0 pts</span>' : ""}${v}${gate(r)}</li>`;
   }).join("") : '<li class="dim">No receipts for this agent yet.</li>';
   const when = market.fetched_at ? market.fetched_at.slice(0, 16).replace("T", " ") + " UTC" : "date not observed";
-  $("src").textContent = market.source === "live" ? "Market numbers: market.near.ai, live." : `Market numbers: snapshot of market.near.ai, ${when}. Proof numbers: receipts re-checked in this browser.`;
+  // Where the checks came from: the chain when any was read live, else the committed snapshot.
+  const live = ctx.liveJobs && [...ctx.liveJobs.values()].includes("live"), onChain = (ctx.decisions || []).some((d) => d.status !== "dry-run");
+  const checks = live ? "Checks: read live from NEAR testnet." : `Checks: from the snapshot data/decisions.json, ${onChain ? "not verified on chain" : "nothing on chain yet"}.`;
+  $("src").textContent = (market.source === "live" ? "Market numbers: market.near.ai, live." : `Market numbers: snapshot of market.near.ai, ${when}.`) + ` Receipts are re-checked in this browser. ${checks}`;
   if (receipts.some((r) => !r.trusted)) $("src").textContent += " Receipts from outside this site's manifest are unverified and not counted.";
 });
 

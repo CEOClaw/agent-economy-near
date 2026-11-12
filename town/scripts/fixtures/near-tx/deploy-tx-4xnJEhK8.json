@@ -1,0 +1,14 @@
+{
+  "_note": "Read-only facts of a real testnet DeployContract tx (EXPERIMENTAL_tx_status). The tx carries exactly one action, DeployContract; the RPC shows its code only as sha256, which equals the committed file named in code_file, so the file is the code (not stored twice). reference_block_hash found by walking back from the inclusion block (height 277269861) until the borsh hash matched. No secrets.",
+  "tx_hash": "4xnJEhK8VeaMXHkmb3GLrWocDtNb1gGb8xFzBrscngwJ",
+  "signer_id": "agentproof-town.testnet",
+  "public_key": "ed25519:WYSjk2jKpmDCcfmFdEySnH6cdch3pCQXieFsKPAYsR5",
+  "nonce": "277269851000001",
+  "receiver_id": "agentproof-town.testnet",
+  "reference_block_hash": "5WPssCtDwXUGSUt86swnxw8APN55pNMQkYXccirdzFMu",
+  "reference_block_height": 277269858,
+  "code_file": "contract/v1/agentproof_anchor.wasm",
+  "code_sha256_hex": "46e73740a2f090ae392955e617ef53589f636f523cf46755b9cb0a9b8fe06dfe",
+  "signature": "ed25519:4Skifaza7crCdv5oyfBmYddkgsP72msziw6Lw4LNp8Vbn8jdrtNw7nZiiEMAsHXh5NEsAUHqXcekp7UFWsFeBS4u",
+  "included_in_block": "HioR32FA3G13Z2GH61WUDtPQRUwJDXUYyJptYgq6aqzo"
+}

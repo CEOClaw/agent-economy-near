@@ -1,0 +1,15 @@
+{
+  "_note": "Read-only copy of a real testnet tx (EXPERIMENTAL_tx_status). reference_block_hash is the block the tx names as its anchor, found by walking back from the inclusion block until the borsh hash matched. No secrets.",
+  "tx_hash": "4BgoH9VgdpALFpsBi3fG4svybiiPP4APZCTw6hH6S5pa",
+  "signer_id": "agentproof-town.testnet",
+  "public_key": "ed25519:WYSjk2jKpmDCcfmFdEySnH6cdch3pCQXieFsKPAYsR5",
+  "nonce": "277269851000002",
+  "receiver_id": "agentproof-town.testnet",
+  "reference_block_hash": "EtBUKssKds7x9K2Sk6x8S2ywyboLy7WU4Q6P569dkvVL",
+  "method_name": "record",
+  "args_base64": "eyJjaGVja2VyX3ZlcnNpb24iOiJzdHJ1Y3R1cmVkLWZpZWxkLWV4dHJhY3Rpb24tdjE6MS4wLjAiLCJkaWdlc3QiOiI4OWM5YjgxM2Y0YTIyNzc2Mjg5NTdiNjU4MTM2ZDI4ZTZkYTIzY2QyMDllNjM1MjZlNThmMTQyM2QzNDM5ZTJlIiwiam9iX2lkIjoiMmQxN2U0YzgtMDk4NC00YTYzLWFjYWMtOTE0NjBmNjVjYjhhIn0=",
+  "gas": "30000000000000",
+  "deposit": "0",
+  "signature": "ed25519:5Jgz9MbLLGSWZ89vh1DuxuVPAWjReRqee2pJDhgh5za8fT49R4XifJ4Brj3V15pYGpE1aQq3C36H1GmYLjHXhtyB",
+  "included_in_block": "HJ2UjQgmtUvQmFaAscj5zbQrYpTeHpkrkcYYTAgYp7NQ"
+}

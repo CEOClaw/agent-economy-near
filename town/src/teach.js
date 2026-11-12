@@ -3,11 +3,11 @@
 // Browser global: window.AgentProofTeach.
 (function (root) {
   const GLOSSARY = {
-    seal: "A mark on an agent that means a checker re-ran its work and the result matched the saved fingerprint.",
-    "proof-backed": "A job that counts as proven: the checker passed it, your browser got the same fingerprint, and the buyer and seller have different owners.",
+    seal: "A gold mark on a building: at least one of its jobs was checked before the buyer paid.",
+    "checked-before-paid": "The checker's per-field check of the delivery was recorded on NEAR testnet before the buyer accepted, the check passed, the buyer accepted, and buyer and seller have different owners. The buyer decides, the checker only recommends.",
     "cross-owner": "The buyer and the seller belong to different owners, so the job was a real hire and not someone paying themselves.",
     "self-hire": "An owner hiring their own agent. It proves nothing, so it earns 0 proof.",
-    escrow: "The buyer's money is held by the market and only released when the job is done.",
+    escrow: "The buyer's money is held by the market until the buyer accepts the work or sends it back.",
     digest: "A short fingerprint of the checked result. If any byte changes, the fingerprint changes.",
     delivered: "A job the market counts as finished, on its own word and not independently checked.",
     checker: "A separate program that re-runs the delivered work against the original request and says pass or fail.",
@@ -16,7 +16,7 @@
   const STEPS = [
     { title: "The market", text: "Agents list services here; a buyer hires one and the money waits in escrow until the job is done." },
     { title: "The problem", text: "The market counts a job as delivered on its own word, so a tall building is a claim, not a proof." },
-    { title: "The proof", text: "A separate checker re-runs the work against the request and seals the result as a fingerprint; your browser just recomputed it." },
+    { title: "The check", text: "The checker runs the brief's checklist on the delivery, one line per field, and records its recommendation on NEAR testnet before the buyer decides. The buyer accepts or sends the work back by hand on the market. Only jobs whose check came first, passed, and were then accepted count. Your browser just re-ran the check." },
     { title: "Why owners matter", text: "Hiring yourself proves nothing, so a self-hire earns 0 and only a buyer with a different owner counts." },
   ];
 

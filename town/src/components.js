@@ -31,12 +31,14 @@
     const l = document.createElement("link"); l.rel = "stylesheet"; l.href = FONTS; document.head.appendChild(l);
   }
 
+  const GV = { describe: (...a) => window.AgentProofGateView.describe(...a) };
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const getJson = async (url) => { const r = await fetch(url); if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`); return r.json(); };
   const loadScript = (name, global) => window[global] ? Promise.resolve() : new Promise((ok, bad) => {
     const s = document.createElement("script"); s.src = new URL(name, SRC).href; s.onload = ok; s.onerror = () => bad(new Error("could not load " + name)); document.head.appendChild(s);
   });
-  const deps = Promise.all([loadScript("checker.js", "AgentProofChecker"), loadScript("market.js", "AgentProofMarket"), loadScript("portfolio.js", "AgentProofPortfolio")]);
+  const deps = Promise.all([loadScript("checker.js", "AgentProofChecker"), loadScript("market.js", "AgentProofMarket"), loadScript("portfolio.js", "AgentProofPortfolio"),
+    loadScript("gate.js", "AgentProofGate"), loadScript("decisions.js", "AgentProofDecisions"), loadScript("anchors.js", "AgentProofAnchors"), loadScript("gate-view.js", "AgentProofGateView")]);
 
   // Shared across every element on the page: one market read, one cast read.
   let base;
@@ -68,7 +70,13 @@
       checked: Promise.all([runs, own]).then(([xs, mine]) => Promise.all(xs.map(async ({ u, run }) => {
         const r = await window.AgentProofPortfolio.checkReceipt(run, window.AgentProofChecker, mine.has(u) ? "manifest" : sourceOf(u), mine.get(u));
         return r && Object.assign(r, { file: u.split("/").pop() });
-      }))).then((rs) => rs.filter(Boolean)),
+      }))).then((rs) => rs.filter(Boolean)).then(async (rs) => {
+        // The check: a receipt counts toward reputation only with the checker's pass on chain before the buyer paid (src/gate.js).
+        const ctx = await window.AgentProofGateView.load(DATA.href);
+        await ctx.readLive(rs.map((r) => r.id));
+        window.AgentProofGate.attach(rs, ctx.decisions);
+        return rs;
+      }),
     };
     sets.set(key, set);
     return set;
@@ -117,10 +125,14 @@
 .vs{margin-top:18px;display:flex;justify-content:space-between;gap:10px;font-size:13px;background:var(--bg);border-radius:12px;padding:10px 12px}
 .vs b{color:var(--market)}
 .why{margin:14px 0 0;font-size:13px;line-height:1.45;color:var(--muted)}
+.gate{list-style:none;margin:12px 0 0;padding:0;font-size:12px;line-height:1.45;color:var(--muted)}
+.gate li{border-top:1px solid var(--line);padding:6px 0;display:flex;flex-wrap:wrap;gap:2px 10px}
+.gate li b{font:600 12px var(--mono);color:var(--ink)}
+.gate a{color:var(--market)}
 .foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font:400 11px var(--mono);color:var(--muted);gap:10px;flex-wrap:wrap}`;
 
   // Everything the card shows, as plain values. The canvas export draws from this too.
-  function cardModel(p, owner, receipts, marketAgent) {
+  function cardModel(p, owner, receipts, marketAgent, ctx) {
     const q = p.proof, m = p.market;
     const mine = receipts.filter((r) => r.seller_handle === p.handle && r.trusted === true);
     const unv = receipts.filter((r) => r.seller_handle === p.handle && r.trusted !== true);
@@ -130,20 +142,27 @@
     const last = q.last_verified_at ? "last verified " + q.last_verified_at.slice(0, 10)
       : q.self_hires.length ? "self-hire, " + ((mine.find((r) => r.self_hire) || {}).verified_at || "").slice(0, 10).replace(/^$/, "date not observed")
       : mine.length ? "no counted receipts" : ""; // no receipts at all: the status pill already says so
-    const earned = q.verified_jobs && q.earned_usdc != null ? "$" + q.earned_usdc : null;
+    const earned = q.checked_before_paid && q.earned_usdc != null ? "$" + q.earned_usdc : null;
+    // What the check did with each of this agent's own receipts (src/gate-view.js says it in words).
+    const rows = mine.filter((r) => !r.self_hire).map((r) => GV.describe(r, ctx)), selfRows = mine.filter((r) => r.self_hire).map((r) => GV.describe(r, ctx));
+    const nProven = q.proven_receipts;
+    const provenText = nProven > q.checked_before_paid ? `${nProven} proven ${nProven === 1 ? "receipt" : "receipts"}, ${q.checked_before_paid} checked before paid. ` : "";
+    // Buyer overrides are shown, never counted.
+    const ovText = (q.overrides || []).map((o) => `${String(o.id).slice(0, 8)}: ${o.state === "accepted_although_failed" ? "accepted although the check failed" : "sent back although it passed"}. `).join("");
     return {
       owner, handle: p.handle,
-      big: q.verified_jobs,
+      big: q.checked_before_paid,
       owners: q.distinct_owners,
       earned,
       // Zero proof is "none", not a pending state; a counted job with no payout seen is "not recorded".
-      earnedText: q.verified_jobs ? earned || "not recorded" : "none",
-      why: (unvText + (q.verified_jobs ? "" : (q.self_hires.length ? "Its self-hire does not count. " : "") + "To get a proof-backed job: a buyer with a different owner hires this agent, and the checker passes the delivery.")).trim() || null,
+      earnedText: q.checked_before_paid ? earned || "not recorded" : "none",
+      why: (unvText + provenText + ovText + (q.checked_before_paid ? "" : (q.self_hires.length ? "Its self-hire does not count. " : "") + "To get a job checked before paid: a buyer with a different owner hires this agent, the checker's pass is recorded on NEAR, and then the buyer accepts by hand.")).trim() || null,
+      gateRows: rows.concat(selfRows), proven: nProven,
       foot: mine.length ? "AgentProof · re-checked in your browser" : unv.length ? "AgentProof · unverified data, not proof" : "AgentProof", // zero receipts: said once, in the status pill
       self: q.self_hires.length,
       listed: !!marketAgent,
       delivered: m.delivered_jobs, rate: m.success_rate,
-      status: q.failed_checks ? { kind: "bad", text: "receipt failed check" } : mine.length ? { kind: "ok", text: "✓ verified in your browser" } : unv.length ? { kind: "unv", text: "unverified, not counted" } : { kind: "", text: "no receipts" },
+      status: q.failed_checks ? { kind: "bad", text: "receipt failed check" } : q.checked_before_paid ? { kind: "ok", text: "✓ checked before paid, re-checked here" } : nProven ? { kind: "", text: "proven, not checked before paid" } : mine.length ? { kind: "", text: "checked, none before paid" } : unv.length ? { kind: "unv", text: "unverified, not counted" } : { kind: "", text: "no receipts" },
       last,
     };
   }
@@ -164,12 +183,15 @@
         this._checking(count);
         const [b, receipts] = await Promise.all([loadBase(), set.checked]);
         if (n !== this._n) return;
+        const ctx = await window.AgentProofGateView.load(DATA.href);
+        await Promise.race([Promise.all(receipts.map((r) => ctx.verifyAnchor(r))), new Promise((ok) => setTimeout(ok, 2500))]); // the label says "read live" only if the chain answered in time
+        if (n !== this._n) return;
         const marketAgent = b.byHandle.get(handle) || null;
         const portfolio = window.AgentProofPortfolio.buildPortfolio(handle, marketAgent, receipts);
         const owner = ownerFor(handle, marketAgent, b.cast);
         const mine = receipts.filter((r) => r.seller_handle === handle);
         this.data = { portfolio, receipts: mine, market: { source: b.market.source, fetched_at: b.market.fetched_at, agent: marketAgent }, owner };
-        this._render(cardModel(portfolio, owner, receipts, marketAgent));
+        this._render(cardModel(portfolio, owner, receipts, marketAgent, ctx));
         this.dispatchEvent(new CustomEvent("agentproof:ready", { detail: this.data, bubbles: true }));
       } catch (e) {
         if (n !== this._n) return;
@@ -192,11 +214,18 @@
       const logo = o.logo ? `style="background-color:${esc(o.color)};background-image:url('${esc(o.logo)}')"` : `style="background:${esc(o.color)}"`;
       const market = c.listed ? `<span>${nil(c.delivered)} delivered · ${c.rate == null ? nil(null) : `<b class="num">${esc(c.rate)}%</b>`} success</span>` : `<span class="nil">not listed</span>`;
       this._shell(`<article class="A" part="card"><div class="who"><div class="logo" ${logo}>${o.logo ? "" : esc(o.letter)}</div><div><div class="nm" title="${esc(o.name)}">${esc(o.name)}</div><div class="hd">${esc(c.handle)} · market.near.ai</div></div></div>
-<div class="row"><div class="big num"><span class="bn">${c.big}</span><small>proof-backed ${c.big === 1 ? "job" : "jobs"}</small></div><span class="st ${c.status.kind}" data-status="${c.status.kind || "none"}">${esc(c.status.text)}</span></div>
+<div class="row"><div class="big num"><span class="bn">${c.big}</span><small>${"checked before paid"}</small></div><span class="st ${c.status.kind}" data-status="${c.status.kind || "none"}">${esc(c.status.text)}</span></div>
 <div class="stats"><div><b class="num">${c.owners}</b><span>${c.owners === 1 ? "outside owner" : "outside owners"}</span></div><div>${c.earned == null ? `<b class="nil${c.earnedText === "not recorded" ? " sm" : ""}">${esc(c.earnedText)}</b>` : `<b class="num">${esc(c.earned)}</b>`}<span>payout as recorded</span></div><div><b class="num">${c.self}</b><span>${c.self === 1 ? "self-hire" : "self-hires"}, 0 pts</span></div></div>
-<div class="vs"><span>Market says</span>${market}</div>${c.why ? `<p class="why">${esc(c.why)}</p>` : ""}
+<div class="vs"><span>Market says</span>${market}</div>${c.why ? `<p class="why">${esc(c.why)}</p>` : ""}${this._gate(c)}
 <div class="foot"><span>${esc(c.foot)}</span><span>${esc(c.last)}</span></div></article>`);
       this._flip(c);
+    }
+
+    // One list item per receipt: the checker's verdict, what the buyer did, and where the check lives.
+    _gate(c) {
+      if (!c.gateRows.length) return "";
+      const li = (r) => `<li><b>${esc(r.job)}</b> ${r.parts.map((p) => `<span>${esc(p.k)}: ${esc(p.v)}${p.href ? ` <a href="${esc(p.href)}" target="_blank" rel="noopener">${esc(p.link)}</a>` : ""}</span>`).join(" ")}</li>`;
+      return `<ul class="gate" aria-label="What the check did with each receipt">${c.gateRows.map(li).join("")}</ul>`;
     }
 
     // `flip`: the big number starts as the market's own claim and lands on the proven count.
@@ -205,12 +234,12 @@
       const done = () => this.dispatchEvent(new CustomEvent("agentproof:flipped", { detail: this.data, bubbles: true }));
       if (!this.hasAttribute("flip")) return;
       const root = this.shadowRoot, big = root.querySelector(".big"), bn = root.querySelector(".bn"), lab = root.querySelector(".big small");
-      const proven = () => { big.classList.remove("mk"); bn.textContent = c.big; lab.textContent = "Proven · proof-backed " + (c.big === 1 ? "job" : "jobs"); big.dataset.flip = "proven"; };
+      const proven = () => { big.classList.remove("mk"); bn.textContent = c.big; lab.textContent = "checked before paid"; big.dataset.flip = "proven"; };
       if (!c.listed || c.delivered == null || matchMedia("(prefers-reduced-motion: reduce)").matches) { proven(); done(); return; }
       big.classList.add("mk"); big.dataset.flip = "market"; bn.textContent = c.delivered; lab.textContent = "Market says " + c.delivered + " delivered";
       this._ft = setTimeout(() => {
         const from = Number(c.delivered), t0 = performance.now(), D = 700;
-        big.dataset.flip = "flipping"; big.classList.remove("mk"); lab.textContent = "Proven · proof-backed " + (c.big === 1 ? "job" : "jobs");
+        big.dataset.flip = "flipping"; big.classList.remove("mk"); lab.textContent = "checked before paid";
         const tick = (now) => {
           const k = from === c.big ? 1 : Math.min(1, (now - t0) / D);
           bn.textContent = Math.round(from + (c.big - from) * (1 - Math.pow(1 - k, 3)));
@@ -234,7 +263,7 @@
       // The explainer wraps by measured width, so the card grows by exactly the lines it needs.
       mx.font = `400 13px ${F.body}`;
       const whyLines = [];
-      if (c.why) { let cur = ""; for (const w of c.why.split(" ")) { const nx = cur ? cur + " " + w : w; if (cur && mx.measureText(nx).width > W - 2 * P) { whyLines.push(cur); cur = w; } else cur = nx; } whyLines.push(cur); }
+      for (const para of [c.why].concat(c.gateRows.map((r) => r.line)).filter(Boolean)) { let cur = ""; for (const w of para.split(" ")) { const nx = cur ? cur + " " + w : w; if (cur && mx.measureText(nx).width > W - 2 * P) { whyLines.push(cur); cur = w; } else cur = nx; } whyLines.push(cur); }
       const whyH = whyLines.length ? WHY_GAP + whyLines.length * WHY_LH : 0;
       const H = 384 + (wrap ? 17 : 0) + whyH;
       const cv = document.createElement("canvas"); cv.width = (W + 2 * M) * scale; cv.height = (H + 2 * M) * scale;
@@ -263,7 +292,7 @@
       // big number + status pill
       const bigTop = P + 44 + 22;
       text(c.big, P, bigTop + 60, `800 76px ${F.display}`, t("--ink"));
-      text(c.big === 1 ? "proof-backed job" : "proof-backed jobs", P, bigTop + 68 + 8 + 10, `600 15px ${F.body}`, t("--muted"));
+      text("checked before paid", P, bigTop + 68 + 8 + 10, `600 15px ${F.body}`, t("--muted"));
       x.font = `600 11px ${F.mono}`; const sw = x.measureText(c.status.text).width + 18;
       rr(P + inner - sw, bigTop + 2, sw, 23, 12); x.fillStyle = c.status.kind === "bad" ? t("--warn") : c.status.kind === "unv" ? t("--paper") : t("--bg"); x.fill();
       if (c.status.kind === "unv") { x.save(); x.setLineDash([4, 3]); x.lineWidth = 1.5; x.strokeStyle = t("--warn"); x.stroke(); x.restore(); }
@@ -308,10 +337,11 @@
     _error() { this._pill("bad", "proof unavailable"); }
     _render(c) {
       const n = c.big, m = c.owners;
-      if (n) this._pill("ok", `proof-backed: ${n} from ${m} ${m === 1 ? "owner" : "owners"}`);
+      if (n) this._pill("ok", `checked before paid: ${n} from ${m} ${m === 1 ? "owner" : "owners"}`);
       else if (c.status.kind === "bad") this._pill("bad", "receipt failed check");
-      else if (c.status.kind === "unv") this._pill("", "no proof yet (unverified data)");
-      else this._pill("", "no proof yet");
+      else if (c.status.kind === "unv") this._pill("", "none checked before paid (unverified data)");
+      else if (c.proven) this._pill("", "proven, none checked before paid yet");
+      else this._pill("", "none checked before paid yet");
     }
   }
 

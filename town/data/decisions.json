@@ -1,0 +1,286 @@
+{
+  "network": "testnet",
+  "contract": "agentproof-town.testnet",
+  "rpc": [
+    "https://rpc.testnet.fastnear.com",
+    "https://rpc.testnet.near.org",
+    "https://test.rpc.fastnear.com"
+  ],
+  "explorer": "https://testnet.nearblocks.io",
+  "contract_has_decisions": true,
+  "snapshot_at": "2026-11-12T00:05:05Z",
+  "decisions": [
+    {
+      "run": "runs/market-2d17e4c8.json",
+      "job_id": "2d17e4c8-0984-4a63-acac-91460f65cb8a",
+      "n": 0,
+      "delivery_digest": "5a92d7c04e1fd1f5d2236275c6242fd55e5ed3c6b0493be6697f32422e41bbe1",
+      "checker_version": "structured-field-extraction-v1:1.0.0",
+      "verdict": "pass",
+      "action": "accept",
+      "buyer_owner": "ownerceoclaw",
+      "seller_owner": "ownerohwow",
+      "status": "dry-run",
+      "tx": null,
+      "block_height": null,
+      "block_timestamp_ms": null,
+      "checklist": [
+        {
+          "item": "AGENT_NAME",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "AGENT_VERSION",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "CAPABILITY",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "REGISTERED_AT",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "WALLET_TYPE",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "CONTACT_EMAIL",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "JURISDICTION",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "MAX_TASK_SPEND_USDC",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "no extra fields",
+          "ok": true,
+          "note": null
+        }
+      ],
+      "buyer": null,
+      "note": "paid on the market 2026-11-04, before any check"
+    },
+    {
+      "run": "runs/fixture-wrong-delivery.json",
+      "job_id": null,
+      "n": 0,
+      "delivery_digest": "3087ea2212aff33b6f584191b8dc3bf8cd1eae74f857dff51a1e7fdcbb308271",
+      "checker_version": "structured-field-extraction-v1:1.0.0",
+      "verdict": "fail",
+      "action": "request_changes",
+      "buyer_owner": null,
+      "seller_owner": null,
+      "status": "dry-run",
+      "tx": null,
+      "block_height": null,
+      "block_timestamp_ms": null,
+      "checklist": [
+        {
+          "item": "AGENT_NAME",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "AGENT_VERSION",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "CAPABILITY",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "REGISTERED_AT",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "WALLET_TYPE",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "CONTACT_EMAIL",
+          "ok": false,
+          "note": "field CONTACT_EMAIL: expected 'ops@ohwow.ai', got 'ops@WRONG-DOMAIN.com'"
+        },
+        {
+          "item": "JURISDICTION",
+          "ok": null,
+          "note": null
+        },
+        {
+          "item": "MAX_TASK_SPEND_USDC",
+          "ok": null,
+          "note": null
+        },
+        {
+          "item": "no extra fields",
+          "ok": null,
+          "note": null
+        }
+      ],
+      "buyer": null,
+      "note": "test fixture, not a market job, never recorded"
+    },
+    {
+      "run": "runs/market-8a20efe5.json",
+      "job_id": "8a20efe5-6011-4009-9580-cd47661264de",
+      "n": 0,
+      "delivery_digest": "a1672bc7c2053001364a5698c14360fd6e19441abebc9c62e8d0bbfa0b60e6f6",
+      "checker_version": "structured-field-extraction-v1:1.0.0",
+      "verdict": "pass",
+      "action": "accept",
+      "buyer_owner": "ownerohwow",
+      "seller_owner": "owneralexpavliuk",
+      "status": "recorded",
+      "tx": "SjL5D7nmgphzPrzrJFKF47nidjZmCYJyVxVfn5VUFGe",
+      "block_height": 277282896,
+      "block_timestamp_ms": 1794439802755,
+      "checklist": [
+        {
+          "item": "AGENT_NAME",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "AGENT_VERSION",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "CAPABILITY",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "REGISTERED_AT",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "WALLET_TYPE",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "CONTACT_EMAIL",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "JURISDICTION",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "MAX_TASK_SPEND_USDC",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "no extra fields",
+          "ok": true,
+          "note": null
+        }
+      ],
+      "buyer": {
+        "action": "accepted",
+        "followed": true,
+        "market_accepted_at": "2026-11-11T23:32:41.618120Z",
+        "market_accepted_at_source": "get_job.updated_at",
+        "read_at": "2026-11-11T23:37:47Z",
+        "job_status": "completed",
+        "assignment_state": "accepted"
+      },
+      "note": "recorded on chain; the buyer accepted on market.near.ai at 2026-11-11T23:32:41.618120Z"
+    },
+    {
+      "run": "runs/market-34d0f7a5.json",
+      "job_id": "34d0f7a5-83ba-46e9-9c64-9d14b8cb87c7",
+      "n": 0,
+      "delivery_digest": "3f791b9d67b8cc3e8a5ca3661b0aa21d4a029d8683e0392195856a6b09d5ca3b",
+      "checker_version": "structured-field-extraction-v1:1.0.0",
+      "verdict": "pass",
+      "action": "accept",
+      "buyer_owner": "ownerohwow",
+      "seller_owner": "ownercitruscoastai",
+      "status": "recorded",
+      "tx": "9EBhyxkbRFKsmJFEM2mEM1Wox8drkogyUUf9VsZUjh9p",
+      "block_height": 277285351,
+      "block_timestamp_ms": 1794441271298,
+      "checklist": [
+        {
+          "item": "AGENT_NAME",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "AGENT_VERSION",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "CAPABILITY",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "REGISTERED_AT",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "WALLET_TYPE",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "CONTACT_EMAIL",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "JURISDICTION",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "MAX_TASK_SPEND_USDC",
+          "ok": true,
+          "note": null
+        },
+        {
+          "item": "no extra fields",
+          "ok": true,
+          "note": null
+        }
+      ],
+      "buyer": {
+        "action": "accepted",
+        "followed": true,
+        "market_accepted_at": "2026-11-12T00:04:46.010398Z",
+        "market_accepted_at_source": "get_job.updated_at",
+        "read_at": "2026-11-12T00:05:05Z",
+        "job_status": "completed",
+        "assignment_state": "accepted"
+      },
+      "note": "recorded on chain; the buyer accepted on market.near.ai at 2026-11-12T00:04:46.010398Z"
+    }
+  ]
+}

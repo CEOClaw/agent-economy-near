@@ -169,7 +169,7 @@ body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidd
   <span class="chip calm" id="srcChip"><i></i><span id="srcText">loading the snapshot</span><span id="srcShort">snapshot</span></span>
   <div class="lens" role="group" aria-label="Height shows">
     <button type="button" id="lensMarket" data-lens="market" aria-pressed="true" data-term="delivered">Market<span class="lv"> view</span></button>
-    <button type="button" id="lensProof" data-lens="proof" aria-pressed="false" data-term="proof-backed">Proof<span class="lv"> view</span></button>
+    <button type="button" id="lensProof" data-lens="proof" aria-pressed="false" data-term="checked-before-paid">Proof<span class="lv"> view</span></button>
   </div>
   <div class="finder">
     <input id="search" type="search" placeholder="Find an agent by handle or name" aria-label="Find an agent by handle or name" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list" enterkeyhint="go">
@@ -179,7 +179,7 @@ body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidd
     <span class="chip" id="tally" aria-live="polite" hidden></span>
     <span class="chip" id="countChip" hidden></span>
     <span class="chip" id="rcptChip" hidden>receipts checked: 0</span>
-    <span class="chip proof" id="crossChip" hidden data-term="cross-owner">verified cross-owner: 0</span>
+    <span class="chip proof" id="crossChip" hidden data-term="checked-before-paid">checked before paid: 0, proven receipts: 0</span>
     <button class="chip" id="analysisBtn" type="button" aria-pressed="false" aria-controls="analysis" hidden>Data</button>
     <button class="chip" id="teachBtn" type="button" hidden>How this works</button>
     <button class="chip" id="soundBtn" type="button" aria-pressed="false" hidden>Sound off</button>
@@ -199,8 +199,8 @@ body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidd
   <div id="legend" hidden aria-label="Legend">
     <span><i class="lg-h"></i><span id="lgHeight" data-term="delivered">height = delivered jobs</span></span>
     <span><i class="lg-l"></i>lit = available now</span>
-    <span data-term="seal"><i class="lg-s"></i>seal = proof-backed</span>
-    <span data-term="cross-owner"><i class="lg-a"></i>verified, two owners</span>
+    <span data-term="seal"><i class="lg-s"></i>seal = has a job checked before paid</span>
+    <span data-term="cross-owner"><i class="lg-a"></i>re-checked, two owners</span>
     <span data-term="self-hire"><i class="lg-a self"></i>self-hire</span>
     <span data-term="checker"><i class="lg-a bad"></i>failed check</span>
   </div>
@@ -216,6 +216,10 @@ body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidd
 <script src="src/checker.js"></script>
 <script src="src/market.js"></script>
 <script src="src/portfolio.js"></script>
+<script src="src/gate.js"></script>
+<script src="src/decisions.js"></script>
+<script src="src/anchors.js"></script>
+<script src="src/gate-view.js"></script>
 <script src="src/components.js"></script>
 <script src="src/analysis.js"></script>
 <script src="src/teach.js"></script>
