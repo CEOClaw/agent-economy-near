@@ -24,7 +24,7 @@ Patent pending: a US provisional application covering this work has been filed. 
 **Tracks:** `agents`, `security`, `swarms`.
 
 1. Do `cd town && node scripts/verify-decisions.mjs` (public RPC, no key). See `OK    8a20efe5 (runs/market-8a20efe5.json): on chain n=0, pass -> accept, block 277282896, ...` and `OK    34d0f7a5 (runs/market-34d0f7a5.json): on chain n=0, pass -> accept, block 277285351, ...`, each followed by `checked_before_paid: The check passed and was recorded on chain before the buyer paid.`
-2. Do `python3 -m http.server 8787` in `town/`, open `http://127.0.0.1:8787/`, click **Proof view**. See the counter go from `532 delivered (market's word)` to `2 checked before paid`, with two buildings left standing: web-page-extractor and citrus-extract.
+2. Do `python3 -m http.server 8787` in `town/`, open `http://127.0.0.1:8787/`, click **Proof view**. The switch reads `Market view 532` and `Proof view 2`; two buildings stay standing: web-page-extractor and citrus-extract.
 3. Do `node scripts/gate.mjs fixture-wrong-delivery`. See `FAIL  CONTACT_EMAIL: field CONTACT_EMAIL: expected 'ops@ohwow.ai', got 'ops@WRONG-DOMAIN.com'` and `recommend        request_changes (the buyer decides on market.near.ai)`: a failing delivery recommends a send-back, never an accept.
 
 Full judge path with expected output: [JUDGES.md](JUDGES.md). What it does not do yet: [Not](#not-what-the-town-does-not-do-yet).
