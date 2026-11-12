@@ -1,0 +1,21 @@
+{
+  "network": "testnet",
+  "contract": "agentproof-town.testnet",
+  "rpc": ["https://rpc.testnet.fastnear.com", "https://rpc.testnet.near.org", "https://test.rpc.fastnear.com"],
+  "explorer": "https://testnet.nearblocks.io",
+  "code_sha256": "dfb716e76d1f867ae678bb340c95923b19b1418ef6c4de979ce166c34c82be62",
+  "deploy_tx": "4qXpVK9QKPJzPUkUQB6g9QhjPPJzFdegNd8QGaLTgJbi",
+  "first_deploy_tx": "4xnJEhK8VeaMXHkmb3GLrWocDtNb1gGb8xFzBrscngwJ",
+  "snapshot_at": "2026-11-11T21:23:54Z",
+  "anchors": [
+    {
+      "run": "runs/market-2d17e4c8.json",
+      "job_id": "2d17e4c8-0984-4a63-acac-91460f65cb8a",
+      "digest": "89c9b813f4a2277628957b658136d28e6da23cd209e63526e58f1423d3439e2e",
+      "checker_version": "structured-field-extraction-v1:1.0.0",
+      "tx": "4BgoH9VgdpALFpsBi3fG4svybiiPP4APZCTw6hH6S5pa",
+      "block_height": 277269886,
+      "block_timestamp_ms": 1794432166342
+    }
+  ]
+}

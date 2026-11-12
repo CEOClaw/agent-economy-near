@@ -1,0 +1,6 @@
+[build]
+target = "wasm32v1-none"
+
+[target.wasm32v1-none]
+# The NEAR host functions are imports resolved by the runtime, not by the linker.
+rustflags = ["-C", "link-arg=--import-undefined", "-C", "link-arg=-zstack-size=16384"]

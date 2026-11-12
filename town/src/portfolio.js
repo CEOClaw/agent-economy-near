@@ -6,6 +6,9 @@
 // seller's. Owners, seller handle and payout are written inside the file itself, so
 // a run from anywhere else (a dropped file, a ?receipts= URL) is unverified: shown
 // with its source, never counted, never a failed check against the agent either.
+// Reputation needs one more thing: the receipt must be CHECKED BEFORE PAID (src/gate.js): the checker's recommendation for this
+// delivery was on chain before the buyer paid. The caller sets receipt.check (gate.attach); without it nothing counts.
+// A proven receipt that was not checked before paid is shown as proven, never counted toward reputation.
 // Anything the record does not show is null, not 0.
 (function (root) {
   const pick = (v) => (v === undefined ? null : v);
@@ -26,6 +29,7 @@
     const stored = pick(ref.delivery && ref.delivery.checker && ref.delivery.checker.evidence_digest);
     const result = env && out ? (await checker.check(env, out)).result : null;
     const owners = run.owners || {};
+    const hire = ref.hire || {};
     // Whole-file fingerprint: two copies with one job id but different contents differ here.
     const bundle_digest = await checker.sha256Hex(checker.canonicalJson(run));
     const listed = source === "manifest", trusted = listed && bundle_digest === admitted;
@@ -46,13 +50,19 @@
       stored_digest: stored,
       recomputed_digest: result ? pick(result.evidence_digest) : null,
       reproduced: !!(result && stored && result.evidence_digest === stored),
+      checker_version: checker.CHECKER_REF,
+      delivery_digest: out ? await checker.sha256Hex(checker.canonicalJson(out)) : null,
+      accepted_at: pick(hire.accepted_at),
+      market_accepted: hire.state === "accepted" || hire.market_status === "accepted",
       verified_at: pick((ref.hire && ref.hire.accepted_at) || (ref.delivery && ref.delivery.checker && ref.delivery.checker.judged_at)),
       payout_usdc: run.settlement_observed && run.settlement_observed.payout_usdc != null ? Number(run.settlement_observed.payout_usdc) : null,
     };
   }
 
   const crossOwner = (r) => !r.self_hire && r.buyer_owner != null && r.seller_owner != null && r.buyer_owner !== r.seller_owner;
-  const counts = (r) => r.trusted === true && r.reproduced && r.outcome === "pass" && crossOwner(r);
+  // proven = the old rule: a site run, reproduced, pass, two owners. counts = proven AND checked before paid (reputation).
+  const proven = (r) => r.trusted === true && r.reproduced && r.outcome === "pass" && crossOwner(r);
+  const counts = (r) => proven(r) && !!r.check && r.check.counted === true;
   const day = (iso) => iso.slice(0, 10);
 
   // Consecutive UTC days with at least one counted receipt, ending on the latest one.
@@ -66,7 +76,7 @@
   function buildPortfolio(handle, marketAgent, receipts) {
     const all = (receipts || []).filter((r) => r && r.seller_handle === handle);
     const mine = all.filter((r) => r.trusted === true), unverified = all.filter((r) => r.trusted !== true);
-    const ok = mine.filter(counts);
+    const pv = mine.filter(proven), ok = mine.filter(counts);
     const times = ok.map((r) => r.verified_at).filter(Boolean);
     const m = marketAgent || {};
     return {
@@ -77,7 +87,8 @@
         median_s: pick(m.response_time_seconds_median),
       },
       proof: {
-        verified_jobs: ok.length,
+        checked_before_paid: ok.length,
+        proven_receipts: pv.length,
         distinct_owners: new Set(ok.map((r) => r.buyer_owner)).size,
         earned_usdc: ok.length === 0 || ok.some((r) => r.payout_usdc == null) ? null : Math.round(ok.reduce((s, r) => s + r.payout_usdc, 0) * 1e6) / 1e6,
         failed_checks: mine.filter((r) => (r.outcome != null && r.outcome !== "pass") || (r.stored_digest != null && !r.reproduced)).length,
@@ -85,13 +96,14 @@
         last_verified_at: times.length ? times.sort().at(-1) : null,
         streak_days: times.length ? streak(times) : 0,
         unverified: unverified.length,
+        overrides: mine.filter((r) => r.check && (r.check.state === "accepted_although_failed" || r.check.state === "sent_back_although_passed")).map((r) => ({ id: r.id, state: r.check.state })),
       },
       receipts: mine.map((r) => r.id),
       unverified: unverified.map((r) => ({ id: r.id, source: r.source })),
     };
   }
 
-  const api = { checkReceipt, buildPortfolio, counts };
+  const api = { checkReceipt, buildPortfolio, counts, proven, ownerKey };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.AgentProofPortfolio = api;
 })(typeof window !== "undefined" ? window : globalThis);

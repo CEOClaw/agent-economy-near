@@ -46,10 +46,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 #top>*{pointer-events:auto}
 .brand{font:700 19px/1 var(--display);white-space:nowrap;margin-right:4px}
 .chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font:600 12.5px/1.1 var(--body);box-shadow:0 2px 10px rgba(30,40,50,.08);white-space:nowrap}
-.chip i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--faint);margin-right:6px;vertical-align:1px}
-.chip.relay i{background:var(--ok)}
-.chip.proof{color:var(--ok)}
 button.chip{color:var(--request)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* the source dot: colour carries the state, the text is the title, the aria-label and a hidden span */
+#srcChip{flex:none;width:20px;height:20px;padding:5px;border-radius:50%;background:var(--faint);background-clip:content-box;cursor:help}
+#srcChip.relay{background-color:var(--ok)}
+#srcChip.stale{background-color:var(--gold)}
 .spacer{flex:1}
 .finder{position:relative;flex:0 1 300px;min-width:0}
 #search{display:block;width:100%;border:1.5px solid var(--request);background:var(--card);border-radius:999px;padding:8px 14px;font:600 13.5px/1.1 var(--body);box-shadow:0 2px 12px rgba(59,120,222,.18)}
@@ -64,11 +66,14 @@ button.chip{color:var(--request)}
 .lens button{border:0;background:transparent;border-radius:999px;padding:5px 11px;font:700 12.5px/1.1 var(--body);color:var(--dim);white-space:nowrap}
 .lens button[aria-pressed="true"]{background:var(--request);color:var(--on-accent)}
 .lens button[data-lens="proof"][aria-pressed="true"]{background:var(--ok)}
+.lens .n{font-variant-numeric:tabular-nums}
 #tools{display:contents}
-#tally{font-variant-numeric:tabular-nums;min-width:27ch;box-sizing:content-box} /* the lens flip swaps "delivered (market's word)" for "proven": a fixed width keeps the header from reflowing */
-.chip.calm i{background:var(--faint)}
-.chip.stale i{background:var(--gold)}
-#srcLine,#srcShort{display:none}
+/* the more menu: a small popover under the button (above it on a phone) */
+.pop{position:relative;display:inline-block}
+#moreMenu{position:absolute;z-index:12;top:calc(100% + 6px);right:0;min-width:210px;display:flex;flex-direction:column;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(30,40,50,.22)}
+#moreMenu .mi{display:block;width:100%;text-align:left;border:0;background:transparent;border-radius:9px;padding:9px 12px;font:600 13px/1.2 var(--body);color:var(--ink);text-decoration:none;white-space:nowrap}
+#moreMenu .mi:hover,#moreMenu .mi:focus-visible{background:var(--wash);text-decoration:none}
+#moreMenu .mi:disabled{opacity:.5;cursor:default}
 .replay{font:700 12.5px/1 var(--body);color:var(--request);text-decoration:none;padding:7px 4px;white-space:nowrap}
 .replay:hover{text-decoration:underline}
 button.chip[aria-pressed="true"]{background:var(--wash);border-color:var(--request)}
@@ -96,11 +101,11 @@ body.panel-open #dock{right:calc(var(--panel-w) + 12px)}body.analysis-open #dock
 #panel header a{white-space:nowrap;font:700 13px var(--body);color:var(--request);text-decoration:none}
 #panel header a:hover{text-decoration:underline}
 #panelBody{flex:1;overflow:auto;padding:14px;min-width:0}
-/* legend: one slim strip, bottom left, wraps on a phone */
+/* legend: a popover over the Legend button in the dock, only the entries the current view uses */
 /* bottom right: the teach card and its hint own the bottom left */
 #dock{position:fixed;z-index:4;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 392px);display:flex;flex-direction:column;gap:6px;align-items:flex-end;pointer-events:none}
 #dock>*{pointer-events:auto}
-#legend{max-width:100%;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px;font:600 12px/1.3 var(--body);color:var(--dim);box-shadow:0 2px 10px rgba(30,40,50,.08)}
+#legend{position:absolute;z-index:12;right:0;bottom:calc(100% + 6px);width:max-content;max-width:min(340px,calc(100vw - 24px));display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font:600 12px/1.3 var(--body);color:var(--dim);box-shadow:0 10px 30px rgba(30,40,50,.22)}
 #legend span{white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 #legend i{display:inline-block;flex:none}
 .lg-h{width:6px;height:13px;border-radius:2px 2px 0 0;background:var(--faint);box-shadow:-8px 5px 0 -1px var(--line)}
@@ -111,48 +116,47 @@ body.panel-open #dock{right:calc(var(--panel-w) + 12px)}body.analysis-open #dock
 .lg-a.bad{border-color:var(--fail)}
 [data-term]{cursor:help}
 /* ?demo=1: a clean frame for recording */
-.demo .finder,.demo .replay,.demo #replayBtn,.demo #analysisBtn,.demo #teachBtn,.demo #soundBtn,.demo #ticker{display:none!important}
+.demo .finder,.demo .replay,.demo #moreBtn,.demo #legendBtn,.demo #analysisBtn,.demo #ticker{display:none!important}
 .x{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;font:700 13px/1 var(--body)}
 /* the one-line summary and the Proof view caption sit just under the header */
 #sub{position:fixed;z-index:8;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:var(--top-h,56px);pointer-events:none}
 #sub p{margin:6px 0 0;width:fit-content;max-width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 12px;font:600 13px/1.35 var(--body);color:var(--dim);box-shadow:0 2px 10px rgba(30,40,50,.08)}
 #sub #lensCap{color:var(--ok)}
-/* the first-visit pill must never sit on a card number, the Data chart or the walkthrough */
-body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidden])) .tt-chip{display:none}
+/* the first-visit pill must never sit on a card number, the Data chart, the walkthrough or an open menu */
+body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidden])) .tt-chip,body:has(#moreMenu:not([hidden])) .tt-chip,body:has(#legend:not([hidden])) .tt-chip{display:none}
 /* the open card must not cover the header controls */
 @media (min-width:701px){body.panel-open #top{padding-right:calc(var(--panel-w) + 12px)}body.analysis-open #top{padding-right:calc(var(--analysis-w) + 12px)}body.panel-open .replay,body.analysis-open .replay{display:none}
-  /* a card or the Data panel is open: the header keeps to two rows, the summary line carries the counts */
+  /* a card or the Data panel is open: the header keeps to its row, the summary line moves left of it */
   body.panel-open #sub,body.analysis-open #sub{right:calc(var(--panel-w) + 12px)}body.analysis-open #sub{right:calc(var(--analysis-w) + 12px)}
   body.panel-open #top,body.analysis-open #top{gap:6px}
-  body.panel-open #countChip,body.analysis-open #countChip,body.panel-open #rcptChip,body.analysis-open #rcptChip,body.panel-open #soundBtn,body.analysis-open #soundBtn{display:none}
   body.panel-open .finder,body.analysis-open .finder{flex:0 1 220px}
 }
 @media (max-width:700px){
   #panel{top:auto;left:0;right:0;width:auto;height:44vh;max-height:44vh;border-radius:20px 20px 0 0;box-shadow:0 -10px 40px rgba(30,40,50,.2)}
   #panel[hidden]{transform:translateY(105%)}
-  /* header: brand, lens, search on row one, the source on row two. Counts and buttons move to the dock (app.js). */
+  /* header: one row, brand + dot, lens, search. Data and the more menu move to the dock (app.js). */
   #top{gap:4px 6px;align-items:center}
-  #srcChip{order:1;padding:5px 10px;font-size:11.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
   .brand{font-size:14.5px;margin-right:0}
-  .lv,#countChip,#rcptChip,#soundBtn{display:none}
-  #srcLine{display:none}
+  .lv{display:none}
   /* every tap target is at least 44 x 44 */
   .lens button{padding:0 10px;font-size:12px;min-height:44px;min-width:44px}
   .finder{flex:1 1 80px}
   #search{padding:0 10px;font-size:16px;min-height:44px;text-overflow:ellipsis}
   #results li{min-height:44px;align-items:center}
-  #dock button.chip:not(#soundBtn),#dock .replay{min-height:44px;display:inline-flex;align-items:center}
-  #dock .replay{padding:0 8px}
+  #dock button.chip{min-height:44px;display:inline-flex;align-items:center}
+  #moreMenu .mi{min-height:44px;display:flex;align-items:center}
+  #moreMenu{top:auto;right:auto;left:0;bottom:calc(100% + 6px)}
   #panel header{padding:6px 10px}
   #panel header .x,#panel header a{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center}
   #panel header a{padding:0 4px}
   .spacer{display:none}
-  #dock #tools{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+  #dock #tools{display:flex;gap:5px;align-items:center}
   #dock .chip{padding:0 12px;font-size:12px}
-  #dock{left:0;right:0;max-width:none;padding:0 12px;align-items:flex-start;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  #dock{left:0;right:0;max-width:none;padding:0 12px;flex-direction:row;flex-wrap:wrap;gap:5px;align-items:center;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  #dock #ticker{flex:0 0 100%}
+  #legend{position:fixed;left:12px;right:auto;bottom:calc(var(--dock-h,64px) + 4px);font-size:11.5px}
   body.panel-open #dock,body.analysis-open #dock{right:0;max-width:none}
   #ticker{max-width:none;align-items:flex-start;flex-direction:row;flex-wrap:wrap}
-  #legend{font-size:10.5px;gap:2px 9px;padding:5px 9px}
   #toast{top:96px}
 }
 @media (prefers-reduced-motion:reduce){#panel,#panel[hidden]{transition:none}#ticker li{animation:none}}
@@ -166,27 +170,27 @@ body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidd
 
 <div id="top">
   <div class="brand">Market Town</div>
-  <span class="chip calm" id="srcChip"><i></i><span id="srcText">loading the snapshot</span><span id="srcShort">snapshot</span></span>
+  <span class="calm" id="srcChip" role="img" tabindex="0" aria-label="loading the snapshot" title="loading the snapshot"><span class="sr" id="srcText">loading the snapshot</span></span>
   <div class="lens" role="group" aria-label="Height shows">
-    <button type="button" id="lensMarket" data-lens="market" aria-pressed="true" data-term="delivered">Market<span class="lv"> view</span></button>
-    <button type="button" id="lensProof" data-lens="proof" aria-pressed="false" data-term="proof-backed">Proof<span class="lv"> view</span></button>
+    <button type="button" id="lensMarket" data-lens="market" aria-pressed="true" data-term="delivered">Market<span class="lv"> view</span> <span class="n" id="nMarket"></span></button>
+    <button type="button" id="lensProof" data-lens="proof" aria-pressed="false" data-term="checked-before-paid">Proof<span class="lv"> view</span> <span class="n" id="nProof"></span></button>
   </div>
   <div class="finder">
     <input id="search" type="search" placeholder="Find an agent by handle or name" aria-label="Find an agent by handle or name" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list" enterkeyhint="go">
     <ul id="results" role="listbox" aria-label="Matching agents" hidden></ul>
   </div>
   <div id="tools">
-    <span class="chip" id="tally" aria-live="polite" hidden></span>
-    <span class="chip" id="countChip" hidden></span>
-    <span class="chip" id="rcptChip" hidden>receipts checked: 0</span>
-    <span class="chip proof" id="crossChip" hidden data-term="cross-owner">verified cross-owner: 0</span>
     <button class="chip" id="analysisBtn" type="button" aria-pressed="false" aria-controls="analysis" hidden>Data</button>
-    <button class="chip" id="teachBtn" type="button" hidden>How this works</button>
-    <button class="chip" id="soundBtn" type="button" aria-pressed="false" hidden>Sound off</button>
-    <button class="chip" id="replayBtn" type="button" hidden>Replay receipts</button>
-    <button class="chip" id="forgeBtn" type="button" hidden title="Edits one field of the cross-owner receipt and drops it on the town">Try a forged receipt</button>
-    <a class="replay" href="replay.html">older guided replay</a>
-    <span id="srcLine"></span>
+    <div class="pop">
+      <button class="chip" id="moreBtn" type="button" aria-label="More" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu" hidden>&#8943;</button>
+      <div id="moreMenu" role="menu" aria-label="More" hidden>
+        <button class="mi" id="teachBtn" type="button" role="menuitem" hidden>How this works</button>
+        <button class="mi" id="replayBtn" type="button" role="menuitem" hidden>Replay receipts</button>
+        <button class="mi" id="forgeBtn" type="button" role="menuitem" hidden title="Edits one field of the cross-owner receipt and drops it on the town">Try a forged receipt</button>
+        <button class="mi" id="soundBtn" type="button" role="menuitem" aria-pressed="false" hidden>Sound off</button>
+        <a class="mi" role="menuitem" href="replay.html">older guided replay</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -196,13 +200,16 @@ body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidd
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <div id="dock">
   <ul id="ticker" aria-label="Recent changes" hidden></ul>
-  <div id="legend" hidden aria-label="Legend">
-    <span><i class="lg-h"></i><span id="lgHeight" data-term="delivered">height = delivered jobs</span></span>
-    <span><i class="lg-l"></i>lit = available now</span>
-    <span data-term="seal"><i class="lg-s"></i>seal = proof-backed</span>
-    <span data-term="cross-owner"><i class="lg-a"></i>verified, two owners</span>
-    <span data-term="self-hire"><i class="lg-a self"></i>self-hire</span>
-    <span data-term="checker"><i class="lg-a bad"></i>failed check</span>
+  <div class="pop" id="legendWrap">
+    <button class="chip" id="legendBtn" type="button" aria-expanded="false" aria-controls="legend" hidden>Legend</button>
+    <div id="legend" hidden aria-label="Legend">
+      <span id="lgH"><i class="lg-h"></i><span id="lgHeight" data-term="delivered">height = delivered jobs</span></span>
+      <span id="lgL"><i class="lg-l"></i>lit = available now</span>
+      <span id="lgS" data-term="seal"><i class="lg-s"></i>seal = has a job checked before paid</span>
+      <span id="lgX" data-term="cross-owner"><i class="lg-a"></i>re-checked, two owners</span>
+      <span id="lgSelf" data-term="self-hire"><i class="lg-a self"></i>self-hire</span>
+      <span id="lgF" data-term="checker"><i class="lg-a bad"></i>failed check</span>
+    </div>
   </div>
 </div>
 
@@ -216,6 +223,10 @@ body.panel-open .tt-chip,body.analysis-open .tt-chip,body:has(.tt-card:not([hidd
 <script src="src/checker.js"></script>
 <script src="src/market.js"></script>
 <script src="src/portfolio.js"></script>
+<script src="src/gate.js"></script>
+<script src="src/decisions.js"></script>
+<script src="src/anchors.js"></script>
+<script src="src/gate-view.js"></script>
 <script src="src/components.js"></script>
 <script src="src/analysis.js"></script>
 <script src="src/teach.js"></script>

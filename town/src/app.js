@@ -5,7 +5,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-const M = window.AgentProofMarket, P = window.AgentProofPortfolio, C = window.AgentProofChecker;
+const M = window.AgentProofMarket, P = window.AgentProofPortfolio, C = window.AgentProofChecker, G = window.AgentProofGate, GV = window.AgentProofGateView;
 const $ = (id) => document.getElementById(id);
 
 /* ---------- design tokens: every magic number lives here ---------- */
@@ -208,7 +208,7 @@ function ensureCap(extra) { if (hw + extra - FREE.length > cap) { makeMeshes(Mat
 function syncTown() {
   town.count = [...BY.values()].length;
   town.handles = [...BY.keys()];
-  if (connected) { $("countChip").textContent = `${town.count} agents`; tally(); } // a sunk building leaves after its animation
+  if (connected) tally(); // a sunk building leaves after its animation
 }
 
 function fill(agents) {
@@ -293,7 +293,10 @@ function tick(now) {
 const RC = [], RD = []; // RC: drawn receipts (keyed by handle, never slot); RD: every re-checked receipt, so one can come back with its agent
 // RD.reveal (0..1) is how much of a receipt the tour has drawn: 0 until played, 1 after, or at once when the tour is skipped.
 // Only a run from data/manifest.json can count: a dropped file's owners are whatever the file says.
-const counted = (rc) => rc.trusted === true && rc.reproduced && rc.outcome === "pass" && !rc.self_hire && rc.buyer_owner != null && rc.seller_owner != null && rc.buyer_owner !== rc.seller_owner;
+// counted = CHECKED BEFORE PAID: proven (site run, reproduced, pass, two owners) AND the checker's pass was on chain before the buyer paid (src/gate.js).
+// A proven receipt that was not checked before paid (2d17e4c8 was paid before any check) is shown as proven and counts for nothing.
+const counted = (rc) => P.counts(rc), proven = (rc) => P.proven(rc);
+let GCTX = null; // data/decisions.json + data/anchors.json, read by src/gate-view.js
 const norm = (v) => String(v || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 // The buyer is an owner in data/agents.json (run.requester.agent). Its building is one of its executor_ids
@@ -389,11 +392,13 @@ function removeReceipts(h) {
 }
 const getJ = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: HTTP ${r.status}`); return r.json(); });
 let MANIFEST = [], EXTRA = []; // EXTRA: blob URLs of dropped run files, so the card re-checks them too
+let proofSeed = null; // checked-before-paid count read from data/decisions.json; used only until town.receiptsDone
 let receiptsDone; const receiptsReady = new Promise((ok) => (receiptsDone = ok));
 // Re-checks one run bundle in this browser and keeps it. -> { rd } | { dup } | null (not a market job record)
 // { clash } is a copy with a known job id whose contents differ from the one on the map.
 async function addRun(run, file, source, admitted) {
   const rc = await P.checkReceipt(run, C, source, admitted); if (!rc) return null;
+  if (GCTX) { await GCTX.readLive([rc.id]); G.attach([rc], GCTX.decisions); } // no check attached = nothing counts
   const same = rc.id != null && RD.find((x) => x.rc.id === rc.id);
   if (same) return same.rc.bundle_digest === rc.bundle_digest ? { dup: rc } : { clash: rc, have: same.rc };
   const rd = { rc, run, file, drawn: false, reveal: null }; RD.push(rd); return { rd };
@@ -401,12 +406,14 @@ async function addRun(run, file, source, admitted) {
 // Counted receipts per seller drive the Proof view; call after any receipt is added.
 function receiptsChanged() {
   PROOF.clear(); for (const r of RD) if (counted(r.rc)) PROOF.set(r.rc.seller_handle, (PROOF.get(r.rc.seller_handle) || 0) + 1);
-  town.receipts = RD.length; town.crossOwner = RD.filter((x) => counted(x.rc)).length;
-  $("rcptChip").textContent = `receipts checked: ${RD.length}`; $("crossChip").textContent = `verified cross-owner: ${town.crossOwner}`;
+  town.receipts = RD.length; town.checked = RD.filter((x) => counted(x.rc)).length; town.crossOwner = town.provenReceipts = RD.filter((x) => proven(x.rc)).length; // crossOwner keeps its old meaning (proven)
   retarget(); syncGlow(); tally(true); nameLabels(); refreshAnalysis();
 }
 async function loadReceipts() {
   try {
+    GCTX = await GV.load(new URL("data/", location.href).href);
+    // The snapshot's recorded passes are known long before the receipts finish re-checking: show them, not 0, until the live count takes over.
+    if (GCTX.snap && Array.isArray(GCTX.snap.decisions)) { proofSeed = GCTX.snap.decisions.filter((d) => d.status === "recorded" && d.verdict === "pass" && d.action === "accept").length; tally(); }
     const man = await getJ("data/manifest.json"); MANIFEST = (man.runs || []).map((r) => r.file);
     for (const r of man.runs || []) {
       const got = await addRun(await getJ(`data/${r.file}`), r.file, "manifest", r.bundle_digest); if (!got || !got.rd) continue;
@@ -414,10 +421,11 @@ async function loadReceipts() {
     }
   } catch (e) { console.warn("receipts not loaded", e); }
   town.receiptsDone = true; refreshSeals(); receiptsChanged(); receiptsDone();
+  if (GCTX) for (const x of RD) GCTX.verifyAnchor(x.rc).then((st) => st && refreshAnalysis()); // the anchor is read back from NEAR in the background; the table says "read live" once it answers
 }
 
 /* ---------- gold seals and name labels ---------- */
-const SEALS = new Map(); // seller handle -> { g, t0 }: a proof-backed receipt (counted) that the tour has shown
+const SEALS = new Map(); // seller handle -> { g, t0 }: a counted receipt (checked before paid) that the tour has shown
 const sealMat = new THREE.MeshStandardMaterial({ color: T.gold, metalness: .7, roughness: .3, emissive: T.gold, emissiveIntensity: .22 });
 const sealGeo = new THREE.CylinderGeometry(.2, .2, .05, 28).rotateX(Math.PI / 2), rimGeo = new THREE.TorusGeometry(.21, .03, 8, 28);
 function refreshSeals() {
@@ -504,16 +512,20 @@ async function playOne(e, alive) {
   await tween(REDUCED ? 0 : T.arcDraw, (k) => (r.reveal = k), alive); sparkE = null; if (!alive()) return;
   r.reveal = 1;
   // The tag is this browser's checker, run again now on the same record: nothing here is a stored string.
-  step.phase = "check"; setTag(e.seller, "re-checking...", "");
+  step.phase = "check"; setTag(e.seller, "checking against the brief...", "");
   const t0 = performance.now(), rc2 = await P.checkReceipt(r.run, C, r.rc.source, r.rc.bundle_digest);
   await sleep(Math.max(0, T.recheck - (performance.now() - t0))); if (!alive()) return;
   if (!rc2) { setTag(e.seller, "nothing to re-check", "bad"); await sleep(T.result); setTag(null, ""); haloAt = null; return; }
-  tour.check = { id: rc2.id, outcome: rc2.outcome, recomputed_digest: rc2.recomputed_digest, stored_digest: rc2.stored_digest, reproduced: rc2.reproduced };
+  if (GCTX) G.attach([rc2], GCTX.decisions);
+  tour.check = { id: rc2.id, outcome: rc2.outcome, recomputed_digest: rc2.recomputed_digest, stored_digest: rc2.stored_digest, reproduced: rc2.reproduced, counted: !!(rc2.check && rc2.check.counted), state: rc2.check ? rc2.check.state : null };
   const d8 = (x) => String(x).slice(0, 8), good = rc2.reproduced && rc2.outcome === "pass";
   const text = rc2.outcome == null ? "nothing to re-check" : rc2.outcome !== "pass" && !rc2.recomputed_digest ? `re-check failed: checker says ${rc2.outcome}${rc2.failure_reason ? ` (${rc2.failure_reason})` : ""}` : !rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} does not match ${rc2.stored_digest ? d8(rc2.stored_digest) : "a stored seal"}`
     : `seal ${d8(rc2.recomputed_digest)} matches${rc2.outcome !== "pass" ? `, checker says ${rc2.outcome}` : ""}`;
+  // The headline of a counted-looking receipt: was the check on chain before the buyer paid? The buyer decides, the checker only recommends.
+  const day = GV.monthDay(rc2.accepted_at), st = rc2.check && rc2.check.state;
+  const gateLine = st === "checked_before_paid" ? "pass: checked before the buyer paid" : st === "paid_before_check" ? `pass: paid ${day ? "on " + day + ", " : ""}before any check` : st === "accepted_although_failed" ? "accepted although the check failed" : st === "sent_back_although_passed" ? "sent back although it passed" : st === "checked_after_paid" ? `pass: paid ${day ? "on " + day + ", " : ""}before the check was on chain` : "pass: not checked before paid";
   if (!r.rc.trusted) setTag(e.seller, `${text}\nunverified: not one of this site's receipts, not counted`, "bad");
-  else setTag(e.seller, good && rc2.self_hire ? `checker passed, seal ${d8(rc2.recomputed_digest)} matches\nearns 0 reputation: same owner` : text, !good ? "bad" : rc2.self_hire ? "self" : "ok");
+  else setTag(e.seller, good && rc2.self_hire ? `checker passed, seal ${d8(rc2.recomputed_digest)} matches\nearns 0 reputation: same owner` : good ? `${text}\n${gateLine}` : text, !good ? "bad" : rc2.self_hire ? "self" : "ok");
   refreshSeals(); nameLabels();
   await sleep(T.result); if (!alive()) return;
   step.phase = "card"; select(e.seller);
@@ -531,7 +543,6 @@ function skipTour(why) {
 }
 async function autoTour() {
   $("replayBtn").hidden = !RC.length;
-  $("forgeBtn").hidden = !RC.length;
   while (ACTIVE.size && tour.state === "idle") await sleep(100); // let the town finish rising
   if (tour.state === "idle") playTour();
 }
@@ -686,46 +697,99 @@ document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".finder
 const utc = (iso) => (iso && !isNaN(Date.parse(iso)) ? new Date(iso).toISOString().slice(0, 16).replace("T", " ") + " UTC" : null);
 // cls: "calm" (snapshot), "relay" (live, green dot), "stale" (live paused, amber dot). Never red: a paused relay is not an error.
 function setSrc(text, short, cls, title) {
-  $("srcText").textContent = $("srcLine").textContent = text; $("srcShort").textContent = short; $("srcChip").className = "chip " + cls; $("srcChip").title = title || ""; layoutPhone();
+  const full = title ? `${text} (${title})` : text, el = $("srcChip");
+  $("srcText").textContent = text; el.className = cls; el.title = full; el.setAttribute("aria-label", full); layoutPhone();
 }
 function header(res) {
   const live = res.source === "relay" || res.source === "live", when = utc(res.fetched_at);
   setSrc(res.source === "relay" ? "live via relay" : res.source === "live" ? "live" : `snapshot from ${when || "an unknown time"}`, live ? "live" : "snapshot", live ? "relay" : "calm", res.fetched_at ? `fetched ${res.fetched_at}` : "");
-  $("countChip").textContent = `${town.count} agents`; town.source = res.source; town.fetched_at = res.fetched_at; if (connected) gist();
+  town.source = res.source; town.fetched_at = res.fetched_at; if (connected) gist();
 }
 function revealUI() {
-  for (const id of ["tally", "countChip", "rcptChip", "crossChip", "legend", "soundBtn"]) $(id).hidden = false;
+  for (const id of ["moreBtn", "legendBtn", "soundBtn"]) $(id).hidden = false;
   if (window.AgentProofAnalysis) $("analysisBtn").hidden = false;
   tally(); layoutPhone();
 }
-// Phone: one header row (brand, source, lens, search); counts and buttons live in the dock above the legend.
+// Phone: one header row (brand and dot, lens, search); Data and the more menu live in the dock beside Legend.
 const mqPhone = matchMedia("(max-width:700px)");
 let dockH = 0, topH = 0;
-function placeTools() { searchEl.placeholder = mqPhone.matches ? "Find agent" : "Find an agent by handle or name"; const t = $("tools"); if (mqPhone.matches) $("dock").insertBefore(t, $("legend")); else $("top").append(t); layoutPhone(); }
+function placeTools() { searchEl.placeholder = mqPhone.matches ? "Find" : "Find an agent by handle or name"; const t = $("tools"); if (mqPhone.matches) $("dock").insertBefore(t, $("legendWrap")); else $("top").append(t); layoutPhone(); }
 function layoutPhone() { dockH = $("dock").offsetHeight + 12; topH = $("top").offsetHeight + 8; document.documentElement.style.setProperty("--dock-h", dockH + "px"); document.documentElement.style.setProperty("--top-h", $("top").offsetHeight + "px"); } // --dock-h lets the first-visit hint sit above the dock
 if (window.ResizeObserver) { const ro = new ResizeObserver(() => layoutPhone()); ro.observe($("dock")); ro.observe($("top")); } // the dock grows as chips and notes arrive
 mqPhone.addEventListener("change", placeTools); placeTools();
 
+/* ---------- the more menu and the legend popover: click toggles, Esc and an outside press close ---------- */
+const moreBtn = $("moreBtn"), moreMenu = $("moreMenu"), legBtn = $("legendBtn"), legEl = $("legend");
+const menuItems = () => [...moreMenu.querySelectorAll('[role="menuitem"]:not([hidden])')];
+function setMore(open, back) {
+  if (open === !moreMenu.hidden) return; if (open) setLegend(false);
+  moreMenu.hidden = !open; moreBtn.setAttribute("aria-expanded", String(open));
+  if (open) { const f = menuItems()[0]; if (f) f.focus(); } else if (back) moreBtn.focus();
+}
+// Only the entries the current view uses; the nodes stay, so the glossary binding survives.
+function syncLegend() {
+  const proofV = lens === "proof", drawn = (f) => RC.some(f), show = (id, on) => ($(id).hidden = !on);
+  show("lgH", true); show("lgS", true); show("lgL", !proofV);
+  show("lgX", proofV || drawn((x) => x.loop === "verified")); show("lgSelf", !proofV && drawn((x) => x.kind === "self")); show("lgF", drawn((x) => x.loop === "failed"));
+}
+function setLegend(open, back) {
+  if (open === !legEl.hidden) return; if (open) { setMore(false); syncLegend(); }
+  legEl.hidden = !open; legBtn.setAttribute("aria-expanded", String(open)); if (!open && back) legBtn.focus();
+}
+moreBtn.addEventListener("click", () => setMore(moreMenu.hidden));
+legBtn.addEventListener("click", () => setLegend(legEl.hidden));
+moreMenu.addEventListener("click", (e) => e.target.closest('[role="menuitem"]') && setMore(false));
+moreMenu.addEventListener("focusout", (e) => { const to = e.relatedTarget; if (to && to !== moreBtn && !moreMenu.contains(to)) setMore(false); }); // Tab out closes it, as Esc does
+moreMenu.addEventListener("keydown", (e) => {
+  if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return; e.preventDefault();
+  const l = menuItems(), i = l.indexOf(document.activeElement), d = e.key === "ArrowDown" ? 1 : -1; if (l.length) l[(i + d + l.length) % l.length].focus();
+});
+addEventListener("keydown", (e) => {
+  if (e.key !== "Escape" || (moreMenu.hidden && legEl.hidden)) return; e.stopPropagation();
+  if (!moreMenu.hidden) setMore(false, true); if (!legEl.hidden) setLegend(false, true);
+}, true);
+document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".pop")) { setMore(false); setLegend(false); } });
+
 /* ---------- proof lens: Market view (delivered) <-> Proof view (counted receipts) ---------- */
 let tShown = null, tRun = 0;
 const deliveredTotal = () => { let n = 0; for (const i of BY.values()) if (S[i].kind !== "sink") n += S[i].agent.delivered_jobs || 0; return n; };
-const provenTotal = () => RD.filter((x) => counted(x.rc)).length;
+const checkedTotal = () => RD.filter((x) => counted(x.rc)).length, provenTotal = () => RD.filter((x) => proven(x.rc)).length;
+// Why a proven receipt is not counted, as one plain sentence. Empty when every proven receipt was checked before paid.
+function provenNote() {
+  const l = RD.filter((x) => x.rc.trusted && proven(x.rc) && !counted(x.rc)); if (!l.length) return "";
+  const early = l.every((x) => x.rc.check && x.rc.check.state === "paid_before_check"), one = l.length === 1, day = one && GV.monthDay(l[0].rc.accepted_at);
+  return `${one ? "The one cross-owner receipt" : `The ${l.length} cross-owner receipts`} re-check${one ? "s" : ""}, but ${one ? "it" : "they"} ${early ? `${one ? "was" : "were"} paid${day ? " on " + day : ""}, before any check` : `${one ? "was" : "were"} not checked before the buyer paid`}.`;
+}
 // One plain line for a cold open, computed from what the town shows right now.
+// What the page says was checked before paid: the snapshot's seed until the receipts are re-checked, then the live count. null = not known yet, never a 0.
+const proofShown = () => (town.receiptsDone ? checkedTotal() : proofSeed);
 function gist() {
-  const el = $("gist"), n = town.count, mk = deliveredTotal(), pf = provenTotal(), snap = town.source === "snapshot" && town.fetched_at && !isNaN(Date.parse(town.fetched_at));
+  const el = $("gist"), n = town.count, mk = deliveredTotal(), pf = proofShown(), snap = town.source === "snapshot" && town.fetched_at && !isNaN(Date.parse(town.fetched_at));
+  if (pf == null) return;
   const on = snap ? `On the ${new Date(town.fetched_at).toISOString().slice(0, 10)} snapshot, ` : "";
-  const body = `${n} agents say they delivered ${mk} ${mk === 1 ? "job" : "jobs"}. ${pf} ${pf === 1 ? "is" : "are"} proven.`;
-  el.textContent = on ? on + body : body[0].toUpperCase() + body.slice(1); el.hidden = false; layoutPhone();
+  const body = `${n} agents say they delivered ${mk} ${mk === 1 ? "job" : "jobs"}. ${pf} ${pf === 1 ? "was" : "were"} checked before the buyer paid.`;
+  el.textContent = "Check the work against the brief before you pay. " + (on ? on + body : body[0].toUpperCase() + body.slice(1)); syncSub();
+}
+// One line under the header: the Proof view caption takes the gist's place, never stacked on it.
+function syncSub() {
+  const cap = $("lensCap"), g = $("gist"), capUp = lens === "proof" && !!cap.textContent;
+  cap.hidden = !capUp; g.hidden = capUp || !g.textContent; layoutPhone();
+}
+const NUM = { market: { id: "nMarket", shown: null, run: 0 }, proof: { id: "nProof", shown: null, run: 0 } };
+function paintNum(k, to, anim) {
+  const o = NUM[k], el = $(o.id), run = ++o.run, paint = (n) => { o.shown = n; el.textContent = String(n); };
+  if (to == null) return;
+  if (!anim || REDUCED || o.shown == null || o.shown === to) return paint(to);
+  const from = o.shown; tween(T.lens, (e) => paint(Math.round(from + (to - from) * e)), () => run === o.run).then(() => run === o.run && paint(to));
 }
 function tally(anim) {
   if (!connected) return;
   gist();
-  const mk = deliveredTotal(), pf = provenTotal(), to = lens === "proof" ? pf : mk, unit = lens === "proof" ? "proven" : "delivered (market's word)", el = $("tally");
-  town.tally = { market: mk, proof: pf };
-  const paint = (n, u) => { tShown = n; el.textContent = u ? `${n} ${u}` : String(n); }, run = ++tRun;
-  if (!anim || REDUCED || tShown == null || tShown === to) return paint(to, unit);
-  const from = tShown; // bare number while counting, so no half-way figure wears the wrong unit
-  tween(T.lens, (k) => paint(Math.round(from + (to - from) * k)), () => run === tRun).then(() => run === tRun && paint(to, unit));
+  const mk = deliveredTotal(), pf = proofShown();
+  town.tally = { market: mk, proof: pf, checked: pf, proven: provenTotal() };
+  paintNum("market", mk, anim); paintNum("proof", pf, anim);
+  $("lensMarket").setAttribute("aria-label", `Market view, ${mk} delivered (market's word)`);
+  if (pf != null) $("lensProof").setAttribute("aria-label", `Proof view, ${pf} checked before paid`);
 }
 function retarget() {
   if (!bodies) return; const now = performance.now();
@@ -740,20 +804,25 @@ function setLens(l) {
   if ((l !== "market" && l !== "proof") || l === lens) return;
   lens = town.lens = l; document.documentElement.dataset.lens = l;
   for (const b of document.querySelectorAll(".lens button")) b.setAttribute("aria-pressed", String(b.dataset.lens === l));
-  $("lgHeight").textContent = l === "proof" ? "height = proof-backed jobs" : "height = delivered jobs"; $("lgHeight").dataset.term = l === "proof" ? "proof-backed" : "delivered";
+  syncSub(); syncLegend();
+  $("lgHeight").textContent = l === "proof" ? "height = jobs checked before paid" : "height = delivered jobs"; $("lgHeight").dataset.term = l === "proof" ? "checked-before-paid" : "delivered";
   retarget(); tally(true); nameLabels();
 }
 // Flipping to Proof view by hand: the camera eases to what is left standing and a caption says which and why.
 function proofView(on) {
   const cap = $("lensCap");
-  if (!on) { cap.hidden = true; cap.textContent = ""; if (!REDUCED) frameAll(false, T.flyHome); return; }
+  if (!on) { cap.textContent = ""; syncSub(); if (!REDUCED) frameAll(false, T.flyHome); return; }
   const seen = new Map(); // seller -> buyer owner names, counted receipts only
   for (const e of RC) if (e.kind === "arc" && e.loop === "verified" && counted(e.src.rc) && BY.has(e.seller)) { const l = seen.get(e.seller) || []; if (e.buyerName && !l.includes(e.buyerName)) l.push(e.buyerName); seen.set(e.seller, l); }
   const hs = [...seen.keys()];
-  if (!hs.length) { cap.textContent = "No building is proven yet."; cap.hidden = false; return; }
+  if (!hs.length) { cap.textContent = "Every building sank: no job has been checked before the buyer paid yet." + (town.receiptsDone && provenNote() ? " " + provenNote() : ""); syncSub(); return; }
   const by = hs.length === 1 && seen.get(hs[0]).length ? `, hired by ${seen.get(hs[0]).join(" and ")}, a different owner` : "";
-  cap.textContent = hs.length === 1 ? `1 building left: ${hs[0]}${by}` : `${hs.length} buildings left: ${hs.slice(0, 3).join(", ")}${hs.length > 3 ? ` and ${hs.length - 3} more` : ""}, each hired by a different owner`;
-  cap.hidden = false;
+  // "each hired by a different owner" read as two different buyers when one owner hired both, so name a shared buyer.
+  const top = hs.slice(0, 3), list = hs.length > 3 ? `${top.join(", ")} and ${hs.length - 3} more` : `${top.slice(0, -1).join(", ")} and ${top.at(-1)}`;
+  const buyers = [...new Set([...seen.values()].flat())], one = buyers.length === 1 && [...seen.values()].every((l) => l.length);
+  const whoAll = one ? `, ${hs.length === 2 ? "both" : "all"} hired by ${buyers[0]}, a different owner` : ", each hired by an owner other than the seller";
+  cap.textContent = hs.length === 1 ? `1 building has a job checked before the buyer paid: ${hs[0]}${by}` : `${hs.length} buildings have jobs checked before the buyer paid: ${list}${whoAll}`;
+  syncSub();
   if (!REDUCED) setTimeout(() => lens === "proof" && tour.state !== "playing" && !teachUI?.isOpen() && frameOn(hs.map((h) => S[BY.get(h)]), T.tourFly), T.lens * .6); // the other buildings sink first, then the camera arrives
 }
 for (const b of document.querySelectorAll(".lens button")) b.addEventListener("click", () => { const was = lens; setLens(b.dataset.lens); if (was !== lens) proofView(lens === "proof"); });
@@ -859,7 +928,7 @@ async function boot() {
 function verdictOf(rc) {
   const why = rc.outcome == null ? "had nothing to re-check" : rc.outcome !== "pass" ? `failed the checker (${rc.outcome}: ${rc.failure_reason || "no reason given"})` : !rc.reproduced ? "passed the checker, but its stored seal does not match the recomputed one" : null;
   if (!rc.trusted) return `is unverified and not counted: it is not one of this site's receipts, so its owners are only what the file says (checker: ${why ? why.replace(/^failed the checker /, "") : "pass"})`;
-  return counted(rc) ? "counts as proof" : why || (rc.self_hire ? "is a self-hire, so it earns 0" : "does not count (no two different owners)");
+  return counted(rc) ? "was checked before the buyer paid and counts" : proven(rc) ? "re-checks, but it was not checked before the buyer paid, so it does not count toward reputation" : why || (rc.self_hire ? "is a self-hire, so it earns 0" : "does not count (no two different owners)");
 }
 addEventListener("pagehide", () => { for (const u of EXTRA) URL.revokeObjectURL(u); });
 async function takeRun(text, name) {
@@ -900,7 +969,7 @@ function refreshAnalysis() {
   const stale = town.source === "stale";
   window.AgentProofAnalysis.render(anEl, {
     agents: curAgents, source: stale ? "relay" : town.source, fetched_at: stale ? goodAt : town.fetched_at,
-    receipts: RD.map((r) => { const b = buyerOf(r.run); return { ...r.rc, file: r.file, buyer_handle: b ? b.handle : null, price_usdc: priceOf(r.run) }; }),
+    receipts: RD.map((r) => { const b = buyerOf(r.run); return { ...r.rc, file: r.file, buyer_handle: b ? b.handle : null, price_usdc: priceOf(r.run), gate_row: GCTX ? GV.describe(r.rc, GCTX) : null }; }),
   });
 }
 function openAnalysis() { if (!window.AgentProofAnalysis) return; skipTour("data"); select(null); anEl.hidden = false; document.body.classList.add("analysis-open"); $("analysisBtn").setAttribute("aria-pressed", "true"); refreshAnalysis(); }
@@ -918,11 +987,11 @@ const teachHooks = {
   step1() { teachBegin(); const { buyer, seller } = hero(); frameAll(false, REDUCED ? 1 : T.flyHome); highlight([buyer], T.blue); highlight([seller], T.green, true); let n = 0; const go = () => { pulse(buyer); pulse(seller); }; go(); pTimer = setInterval(() => (++n >= 3 ? clearInterval(pTimer) : go()), 900); },
   step2() { teachBegin(); setLens("market"); frameAll(false, REDUCED ? 1 : T.flyHome); const top = [...BY.values()].map((i) => S[i]).filter((s) => s.kind !== "sink").sort((p, q2) => (q2.agent.delivered_jobs || 0) - (p.agent.delivered_jobs || 0) || (p.handle < q2.handle ? -1 : 1)).slice(0, 5).map((s) => s.handle); highlight(top, T.blue); top.forEach(pulse); },
   async step3() {
-    teachBegin(); const my = teachTok; await receiptsReady; if (my !== teachTok) return; const { seller } = hero(), rd = RD.find((x) => counted(x.rc) && x.rc.seller_handle === seller) || RD.find((x) => counted(x.rc));
+    teachBegin(); const my = teachTok; await receiptsReady; if (my !== teachTok) return; const { seller } = hero(), rd = RD.find((x) => proven(x.rc) && x.rc.seller_handle === seller) || RD.find((x) => proven(x.rc));
     for (const r of RD) r.reveal = 1; refreshSeals(); nameLabels();
     await focusOn([seller], T.tourFly); if (my !== teachTok) return; highlight([seller], T.green);
     if (!rd) return { stored: null, recomputed: null, match: false };
-    setTag(seller, "re-checking...", ""); const rc2 = await P.checkReceipt(rd.run, C, rd.rc.source, rd.rc.bundle_digest); if (my !== teachTok) return;
+    setTag(seller, "checking against the brief...", ""); const rc2 = await P.checkReceipt(rd.run, C, rd.rc.source, rd.rc.bundle_digest); if (my !== teachTok) return;
     setTag(seller, rc2.reproduced ? `seal ${d8(rc2.recomputed_digest)} matches` : `seal ${d8(rc2.recomputed_digest)} does not match`, rc2.reproduced ? "ok" : "bad");
     return { stored: rc2.stored_digest, recomputed: rc2.recomputed_digest, match: !!rc2.reproduced };
   },

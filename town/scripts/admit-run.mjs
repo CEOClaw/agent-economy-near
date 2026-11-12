@@ -7,6 +7,8 @@
 //   MARKET_TOKEN=aat_... node scripts/admit-run.mjs <run file>... [--title T] [--meta M]   admit or re-hash
 //   MARKET_TOKEN=aat_... node scripts/admit-run.mjs --check   re-check every listed run, never changes a hash
 //   node scripts/admit-run.mjs <run file>... --unchecked      no token: admit and record market_check not_run
+//   node scripts/admit-run.mjs <run file>... --market-mcp     a job where ohwow is the BUYER: the worker token cannot read it, so the
+//                                                             job is looked up read-only with the buyer's MCP token (get_job, scripts/market-login.mjs)
 import { readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -17,13 +19,14 @@ const API = process.env.MARKET_API || "https://market.near.ai/v1", TOKEN = proce
 const MANIFEST = path.join(root, "data/manifest.json");
 const argv = process.argv.slice(2), flag = (n) => { const i = argv.indexOf(n); return i < 0 ? false : argv.splice(i, 1).length > 0; };
 const opt = (n) => { const i = argv.indexOf(n); return i < 0 ? undefined : argv.splice(i, 2)[1]; };
-const CHECK = flag("--check"), UNCHECKED = flag("--unchecked"), title = opt("--title"), meta = opt("--meta");
+const CHECK = flag("--check"), UNCHECKED = flag("--unchecked"), MCP = flag("--market-mcp"), title = opt("--title"), meta = opt("--meta");
 const read = async (f) => JSON.parse(await readFile(f, "utf8"));
 const hashOf = (run) => CHK.sha256Hex(CHK.canonicalJson(run));
 
 // -> { market_check } to record, or { refuse } with the reason. Runs that are not market jobs have nothing to look up.
 async function marketCheck(run) {
   if (!run.job_ref) return {};
+  if (MCP) return marketCheckMcp(run);
   if (!TOKEN) return UNCHECKED ? { market_check: { status: "not_run", reason: "admitted without a market token" } } : { refuse: "MARKET_TOKEN is not set, so the job cannot be looked up" };
   const job = run.job_ref.job || {}, id = job.id || run.job_ref.hire?.job_id;
   if (!id) return { refuse: "the file names no job id" };
@@ -37,9 +40,21 @@ async function marketCheck(run) {
   return { market_check: { status: "found", checked_at: new Date().toISOString(), job_status: v.status ?? null } };
 }
 
+// Same comparison through MCP get_job (snake_case fields). The buyer's token answers only for the buyer's own jobs.
+async function marketCheckMcp(run) {
+  const job = run.job_ref.job || {}, id = job.id || run.job_ref.hire?.job_id;
+  if (!id) return { refuse: "the file names no job id" };
+  const v = await (await import("./market-mcp.mjs")).getJob(id);
+  if (!v || v.job_id !== id) return { refuse: `get_job did not return job ${id}` };
+  const same = [["job_id", v.job_id === id], ["created_at", Date.parse(v.created_at) === Date.parse(job.created_at)], ["title", v.title === job.title], ["budget_amount", Number(v.budget_amount) === Number(job.budget_amount)], ["token", v.token === job.budget_token]];
+  const off = same.filter(([, ok]) => !ok).map(([k]) => k);
+  if (off.length) return { refuse: `job ${id} exists but differs from the file on: ${off.join(", ")}` };
+  return { market_check: { status: "found", via: "MCP get_job (buyer token)", checked_at: new Date().toISOString(), job_status: v.status ?? null } };
+}
+
 const m = await read(MANIFEST), results = [];
 const targets = CHECK ? m.runs.map((r) => r.file) : argv.map((f) => path.relative(path.join(root, "data"), path.resolve(f)));
-if (!targets.length) { console.error("usage: admit-run.mjs <run file>... [--title T] [--meta M] [--unchecked] | --check"); process.exit(2); }
+if (!targets.length) { console.error("usage: admit-run.mjs <run file>... [--title T] [--meta M] [--unchecked | --market-mcp] | --check [--market-mcp]"); process.exit(2); }
 let refused = 0;
 for (const file of targets) {
   const run = await read(path.join(root, "data", file)), bundle_digest = await hashOf(run), entry = m.runs.find((r) => r.file === file);

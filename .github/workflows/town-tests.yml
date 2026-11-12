@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      # Offline: fake fetch for the market client, stored judge runs for Check Packs. No secrets, no install.
+      # Tests are offline (fake fetch, stored judge runs). check-analysis reads the recorded checks from NEAR testnet over public RPC:
+      # with no network it prints "0 of 2 recorded entries equal on chain" and exits 1. No secrets, no install.
       - run: for t in scripts/test-*.mjs; do echo "== $t"; node "$t" || exit 1; done
       - run: node scripts/check-analysis.mjs

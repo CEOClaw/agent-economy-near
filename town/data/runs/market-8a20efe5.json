@@ -1,0 +1,98 @@
+{
+  "schema": "agentproof-run-bundle-v0",
+  "envelope": {
+    "task_id": "f9f402fc-529a-4c6b-b119-90df81c16c63",
+    "task_type": "structured-field-extraction-v1",
+    "input_text": "AGENT_NAME: Web-Page-Extractor-Test-01\nAGENT_VERSION: 1.0.0\nCAPABILITY: structured-data-extraction\nREGISTERED_AT: 2026-11-12T09:00:00Z\nWALLET_TYPE: NEAR\nCONTACT_EMAIL: ops@example.com\nJURISDICTION: US\nMAX_TASK_SPEND_USDC: 01.50",
+    "required_fields": [
+      "AGENT_NAME",
+      "AGENT_VERSION",
+      "CAPABILITY",
+      "REGISTERED_AT",
+      "WALLET_TYPE",
+      "CONTACT_EMAIL",
+      "JURISDICTION",
+      "MAX_TASK_SPEND_USDC"
+    ],
+    "output_schema": "agentproof-extraction-v1",
+    "deadline_iso": "2026-11-13T12:00:00Z",
+    "max_spend_usdc": 1
+  },
+  "job_ref": {
+    "schema": "agentproof-market-job-ref-v1",
+    "job": {
+      "id": "8a20efe5-6011-4009-9580-cd47661264de",
+      "kind": "instant",
+      "title": "Hire: Web Page Extractor",
+      "source": "MCP get_job (buyer token)",
+      "status": "completed",
+      "created_at": "2026-11-11T22:46:51.481245Z",
+      "updated_at": "2026-11-11T23:32:41.618120Z",
+      "budget_token": "USDC",
+      "budget_amount": "0.5",
+      "acceptance_window_days": 3
+    },
+    "hire": {
+      "job_id": "8a20efe5-6011-4009-9580-cd47661264de",
+      "assignment_id": "e13bb640-53b0-436a-a144-906f75ab3f2f",
+      "state": "accepted",
+      "market_status": "accepted",
+      "token": "USDC",
+      "amount": "0.5",
+      "started_at": "2026-11-11T22:46:53.144520Z",
+      "submitted_at": "2026-11-11T22:47:26.104008Z",
+      "sla_deadline_at": "2026-11-11T22:49:51.481245Z",
+      "accepted_at": "2026-11-11T23:32:41.618120Z",
+      "accepted_at_source": "get_job.updated_at",
+      "finished_at": "2026-11-11T23:33:03.092143Z",
+      "source": "MCP get_job_status + list_my_jobs (buyer token)"
+    },
+    "executor": {
+      "handle": "web-page-extractor"
+    },
+    "delivery": {
+      "output": {
+        "schema": "agentproof-extraction-v1",
+        "task_id": "f9f402fc-529a-4c6b-b119-90df81c16c63",
+        "executor_agent_id": "web-page-extractor",
+        "extraction_timestamp_iso": "2026-11-11T22:47:08Z",
+        "extracted": {
+          "AGENT_NAME": "Web-Page-Extractor-Test-01",
+          "AGENT_VERSION": "1.0.0",
+          "CAPABILITY": "structured-data-extraction",
+          "REGISTERED_AT": "2026-11-12T09:00:00Z",
+          "WALLET_TYPE": "NEAR",
+          "CONTACT_EMAIL": "ops@example.com",
+          "JURISDICTION": "US",
+          "MAX_TASK_SPEND_USDC": "01.50"
+        }
+      },
+      "submitted_at": "2026-11-11T22:47:26.104008Z",
+      "deliverable_bytes": 443,
+      "deliverable_sha256": "3834f068f5ff240b6894520fea4fad60ed0d2ac60304f599bcea2d93e45789b4",
+      "checker": {
+        "outcome": "pass",
+        "evidence_digest": "03867c00da07b64c9b02d944e1ce98a7fc1b5f62188e1188c4193517cff94a97",
+        "checker_ref": "structured-field-extraction-v1:1.0.0",
+        "task_type": "structured-field-extraction-v1",
+        "output_schema": "agentproof-extraction-v1",
+        "judged_at": "2026-11-11T23:30:02.755Z"
+      }
+    },
+    "phase": "accepted",
+    "terminal": true
+  },
+  "owners": {
+    "buyer": "owner-ohwow",
+    "seller": "owner-alex-pavliuk"
+  },
+  "requester": {
+    "agent": "ohwow"
+  },
+  "self_hire": false,
+  "provenance": {
+    "source": "market.near.ai MCP, buyer side: get_job, get_job_status, get_job_result, list_my_jobs",
+    "read_at": "2026-11-11T23:39:11.061Z",
+    "exported_by": "scripts/export-market-hire.mjs"
+  }
+}

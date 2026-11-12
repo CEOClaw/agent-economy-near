@@ -23,7 +23,7 @@ const ST = {
   policy: { name: "Policy", c: "#de6a2a", hint: "Spend limits are checked before anything runs." },
   work: { name: "AI work", c: "#7458f0", hint: "An AI agent does the task." },
   verify: { name: "Verify", c: "#c98a06", hint: "A neutral checker tests the result and seals it." },
-  settle: { name: "Settle", c: "#0f9b82", hint: "Money moves only after the proof, on-chain or in escrow." },
+  settle: { name: "Settle", c: "#0f9b82", hint: "The money is held in escrow until the work is accepted." },
   rep: { name: "Reputation", c: "#cf4870", hint: "Only checked work counts toward an agent's record." },
 };
 const stChip = (k, label) => `<span class="st" style="background:${ST[k].c}"><svg viewBox="0 0 16 16">${ICON[k]}</svg>${esc(label || ST[k].name)}</span>`;

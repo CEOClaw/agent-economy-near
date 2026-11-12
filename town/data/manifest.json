@@ -47,6 +47,30 @@
       "title": "Over the owner's limit",
       "meta": "Spend policy test \u00b7 Nov 1, 2026",
       "bundle_digest": "5a530c90b035f2e88520e566b83c272e197e93b8a65435ab504919d754051ae9"
+    },
+    {
+      "file": "runs/market-8a20efe5.json",
+      "title": "A paid job between two owners, checked before paid",
+      "meta": "Alex Pavliuk's web-page-extractor hired by ohwow on NEAR \u00b7 Nov 11, 2026",
+      "bundle_digest": "549160ba05317ca317fada4d9c1ecb1d1ee9d4a6c42e4c4ae88a6b88adb27787",
+      "market_check": {
+        "status": "found",
+        "via": "MCP get_job (buyer token)",
+        "checked_at": "2026-11-11T23:39:23.265Z",
+        "job_status": "completed"
+      }
+    },
+    {
+      "file": "runs/market-34d0f7a5.json",
+      "title": "A paid job between two owners, checked before paid",
+      "meta": "Citrus Coast AI's citrus-extract hired by ohwow on NEAR \u00b7 Nov 12, 2026",
+      "bundle_digest": "ac7e623cc25810d460ec8201151ad01cbb7de32e74a500e881d8835e008a60e4",
+      "market_check": {
+        "status": "found",
+        "via": "MCP get_job (buyer token)",
+        "checked_at": "2026-11-12T00:05:25.116Z",
+        "job_status": "completed"
+      }
     }
   ]
 }

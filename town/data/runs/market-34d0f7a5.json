@@ -1,0 +1,98 @@
+{
+  "schema": "agentproof-run-bundle-v0",
+  "envelope": {
+    "task_id": "75b45f47-d75a-4889-9235-4f3552dcae77",
+    "task_type": "structured-field-extraction-v1",
+    "input_text": "AGENT_NAME: Citrus-Extract-Test-01\nAGENT_VERSION: 1.0.0\nCAPABILITY: structured-data-extraction\nREGISTERED_AT: 2026-11-12T09:00:00Z\nWALLET_TYPE: NEAR\nCONTACT_EMAIL: ops@example.com\nJURISDICTION: US\nMAX_TASK_SPEND_USDC: 01.50",
+    "required_fields": [
+      "AGENT_NAME",
+      "AGENT_VERSION",
+      "CAPABILITY",
+      "REGISTERED_AT",
+      "WALLET_TYPE",
+      "CONTACT_EMAIL",
+      "JURISDICTION",
+      "MAX_TASK_SPEND_USDC"
+    ],
+    "output_schema": "agentproof-extraction-v1",
+    "deadline_iso": "2026-11-13T12:00:00Z",
+    "max_spend_usdc": 1
+  },
+  "job_ref": {
+    "schema": "agentproof-market-job-ref-v1",
+    "job": {
+      "id": "34d0f7a5-83ba-46e9-9c64-9d14b8cb87c7",
+      "kind": "instant",
+      "title": "Hire: Web Page Extraction",
+      "source": "MCP get_job (buyer token)",
+      "status": "completed",
+      "created_at": "2026-11-11T22:45:22.941747Z",
+      "updated_at": "2026-11-12T00:04:46.010398Z",
+      "budget_token": "USDC",
+      "budget_amount": "0.5",
+      "acceptance_window_days": 3
+    },
+    "hire": {
+      "job_id": "34d0f7a5-83ba-46e9-9c64-9d14b8cb87c7",
+      "assignment_id": "e4858bf6-ccf3-4477-91da-38791c93cca4",
+      "state": "accepted",
+      "market_status": "accepted",
+      "token": "USDC",
+      "amount": "0.5",
+      "started_at": "2026-11-11T22:45:36.023013Z",
+      "submitted_at": "2026-11-11T23:52:34.496110Z",
+      "sla_deadline_at": "2026-11-12T00:03:28.867946Z",
+      "accepted_at": "2026-11-12T00:04:46.010398Z",
+      "accepted_at_source": "get_job.updated_at",
+      "finished_at": "2026-11-12T00:04:59.663216Z",
+      "source": "MCP get_job_status + list_my_jobs (buyer token)"
+    },
+    "executor": {
+      "handle": "citrus-extract"
+    },
+    "delivery": {
+      "output": {
+        "schema": "agentproof-extraction-v1",
+        "task_id": "75b45f47-d75a-4889-9235-4f3552dcae77",
+        "executor_agent_id": "citrus-extract",
+        "extraction_timestamp_iso": "2026-11-11T23:52:32Z",
+        "extracted": {
+          "AGENT_NAME": "Citrus-Extract-Test-01",
+          "AGENT_VERSION": "1.0.0",
+          "CAPABILITY": "structured-data-extraction",
+          "REGISTERED_AT": "2026-11-12T09:00:00Z",
+          "WALLET_TYPE": "NEAR",
+          "CONTACT_EMAIL": "ops@example.com",
+          "JURISDICTION": "US",
+          "MAX_TASK_SPEND_USDC": "01.50"
+        }
+      },
+      "submitted_at": "2026-11-11T23:52:34.496110Z",
+      "deliverable_bytes": 459,
+      "deliverable_sha256": "f9e499dce910e23aca3ab07d134a363fc6d1f57cc405ac3553c6de14d668f8b8",
+      "checker": {
+        "outcome": "pass",
+        "evidence_digest": "2e04f0fc037c8ac24f89a66755bd0bc942e6549f0213e27028bcceaea61cb7b5",
+        "checker_ref": "structured-field-extraction-v1:1.0.0",
+        "task_type": "structured-field-extraction-v1",
+        "output_schema": "agentproof-extraction-v1",
+        "judged_at": "2026-11-11T23:54:31.298Z"
+      }
+    },
+    "phase": "accepted",
+    "terminal": true
+  },
+  "owners": {
+    "buyer": "owner-ohwow",
+    "seller": "owner-citrus-coast-ai"
+  },
+  "requester": {
+    "agent": "ohwow"
+  },
+  "self_hire": false,
+  "provenance": {
+    "source": "market.near.ai MCP, buyer side: get_job, get_job_status, get_job_result, list_my_jobs",
+    "read_at": "2026-11-12T00:05:20.266Z",
+    "exported_by": "scripts/export-market-hire.mjs"
+  }
+}

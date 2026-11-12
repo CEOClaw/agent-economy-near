@@ -6,7 +6,9 @@
   const num = (v) => (typeof v === "number" && isFinite(v) ? v : null);
   const crossOwner = (r) => !r.self_hire && r.buyer_owner != null && r.seller_owner != null && r.buyer_owner !== r.seller_owner;
   // trusted: the run is one of the site's own (data/manifest.json); a dropped file never counts.
-  const counted = (r) => !!(r.trusted === true && r.reproduced && r.outcome === "pass" && crossOwner(r));
+  // proven = the old rule (re-checks, pass, two owners). counted = CHECKED BEFORE PAID: proven AND the caller attached r.check (src/gate.js) saying the recommendation was on chain before the buyer paid.
+  const proven = (r) => !!(r.trusted === true && r.reproduced && r.outcome === "pass" && crossOwner(r));
+  const counted = (r) => proven(r) && !!r.check && r.check.counted === true;
   const BINS = [["0", 0, 0], ["1", 1, 1], ["2-3", 2, 3], ["4-7", 4, 7], ["8-15", 8, 15], ["16-31", 16, 31], ["32-63", 32, 63], ["64+", 64, null]];
 
   function median(xs) {
@@ -28,7 +30,7 @@
     const cats = new Map();
     for (const a of agents) {
       const c = a.category || "uncategorized";
-      if (!cats.has(c)) cats.set(c, { category: c, agents: 0, delivered: 0, proven: 0, resp: [] });
+      if (!cats.has(c)) cats.set(c, { category: c, agents: 0, delivered: 0, checked: 0, resp: [] });
       const o = cats.get(c); o.agents++; o.delivered += del(a);
       if (num(a.response_time_seconds_median) != null) o.resp.push(a.response_time_seconds_median);
     }
@@ -36,10 +38,10 @@
       id: r.id ?? null, seller_handle: r.seller_handle ?? null, buyer_owner: r.buyer_owner ?? null, seller_owner: r.seller_owner ?? null,
       buyer_owner_label: r.buyer_owner_label ?? null, seller_owner_label: r.seller_owner_label ?? null,
       self_hire: r.self_hire === true, price_usdc: num(r.price_usdc), outcome: r.outcome ?? null,
-      stored_digest: r.stored_digest ?? null, recomputed_digest: r.recomputed_digest ?? null, reproduced: !!r.reproduced, counted: counted(r),
+      stored_digest: r.stored_digest ?? null, recomputed_digest: r.recomputed_digest ?? null, reproduced: !!r.reproduced, counted: counted(r), proven: proven(r), gate_row: r.gate_row ?? null, check_state: (r.check && r.check.state) || null,
       trusted: r.trusted === true, source: r.source ?? null,
     }));
-    for (const r of receipts) if (r.counted && catOf.has(r.seller_handle)) cats.get(catOf.get(r.seller_handle)).proven++;
+    for (const r of receipts) if (r.counted && catOf.has(r.seller_handle)) cats.get(catOf.get(r.seller_handle)).checked++;
     const list = [...cats.values()];
     return {
       n, delivered_total,
@@ -47,10 +49,11 @@
       available: { count: onN, share: share(onN) },
       histogram,
       top_share: { top10_delivered: top10, share: delivered_total ? top10 / delivered_total : 0 },
-      categories: list.map(({ category, agents: k, delivered, proven }) => ({ category, agents: k, delivered, proven })).sort((a, b) => b.delivered - a.delivered || a.category.localeCompare(b.category)),
+      categories: list.map(({ category, agents: k, delivered, checked }) => ({ category, agents: k, delivered, checked })).sort((a, b) => b.delivered - a.delivered || a.category.localeCompare(b.category)),
       scatter: agents.filter((a) => num(a.success_rate) != null).map((a) => ({ handle: a.handle, delivered: del(a), success_rate: a.success_rate })),
       response_by_category: list.filter((c) => c.resp.length).map((c) => ({ category: c.category, median_s: median(c.resp), n: c.resp.length })).sort((a, b) => a.median_s - b.median_s),
-      proven_total: receipts.filter((r) => r.counted).length,
+      checked_total: receipts.filter((r) => r.counted).length,
+      proven_total: receipts.filter((r) => r.proven).length, // re-checked, pass, two owners: NOT the same as checked before paid
       receipts,
     };
   }
@@ -79,6 +82,7 @@
       delivered_total: fmt(s.delivered_total),
       zero: `${fmt(s.zero.count)} of ${fmt(s.n)} (${pct(s.zero.share)})`,
       available: `${fmt(s.available.count)} of ${fmt(s.n)} (${pct(s.available.share)})`,
+      checked_total: fmt(s.checked_total),
       proven_total: fmt(s.proven_total),
       top10: `${pct(s.top_share.share)} (${fmt(s.top_share.top10_delivered)} of ${fmt(s.delivered_total)})`,
     };
@@ -183,11 +187,11 @@
     const w = (v) => (v / max) * 100;
     const rows = s.categories.map((c) => `<li><span class="an-nm">${esc(nice(c.category))} <small>${fmt(c.agents)}</small></span><span class="an-pair">
       <span class="an-bar m"><s style="width:calc(${w(c.delivered)}% * .82)"></s>${fmt(c.delivered)}</span>
-      <span class="an-bar p${c.proven ? "" : " zero"}"><s style="width:${c.proven ? `max(3px,calc(${w(c.proven)}% * .82))` : "2px"}"></s>${fmt(c.proven)} proven</span></span></li>`).join("");
-    const alt = s.categories.map((c) => `${nice(c.category)}: ${c.delivered} delivered, ${c.proven} proven`).join("; ");
-    return sec(s.proven_total ? `Only ${fmt(s.proven_total)} of ${fmt(s.delivered_total)} delivered jobs is proof-backed` : `None of ${fmt(s.delivered_total)} delivered jobs is proof-backed yet`,
-      "Per category: jobs the market says were delivered (blue) next to jobs with a re-checked receipt from a different owner (green). The small number is the agent count.",
-      `<div class="an-key"><span><i style="background:var(--an-mk)"></i>delivered, on the market's word</span><span><i style="background:var(--an-pv)"></i>proven, re-checked here</span></div><ul class="an-rows" role="img" aria-label="${esc(alt)}">${rows}</ul>`, src);
+      <span class="an-bar p${c.checked ? "" : " zero"}"><s style="width:${c.checked ? `max(3px,calc(${w(c.checked)}% * .82))` : "2px"}"></s>${fmt(c.checked)} checked before paid</span></span></li>`).join("");
+    const alt = s.categories.map((c) => `${nice(c.category)}: ${c.delivered} delivered, ${c.checked} checked before paid`).join("; ");
+    return sec(s.checked_total ? `Only ${fmt(s.checked_total)} of ${fmt(s.delivered_total)} delivered jobs were checked before the buyer paid` : `None of ${fmt(s.delivered_total)} delivered jobs has been checked before the buyer paid yet`,
+      "Per category: jobs the market says were delivered (blue) next to jobs checked before paid (green): a pass from the checker, recorded on NEAR before the buyer accepted, between different owners. The small number is the agent count.",
+      `<div class="an-key"><span><i style="background:var(--an-mk)"></i>delivered, on the market's word</span><span><i style="background:var(--an-pv)"></i>checked before paid</span></div><ul class="an-rows" role="img" aria-label="${esc(alt)}">${rows}</ul>`, src);
   }
 
   function scatter(s, src) {
@@ -227,15 +231,18 @@
     if (!s.receipts.length) return sec("No receipts to re-check", "Run files give the proof side of every number above.", `<p class="an-empty">none yet</p>`, "source: run files in this repo");
     const rows = s.receipts.map((r) => {
       const own = r.self_hire ? `<span class="an-tag rep">self-hire</span>` : r.buyer_owner != null && r.seller_owner != null && r.buyer_owner !== r.seller_owner ? `<span class="an-tag ok">cross-owner</span>` : `<span class="an-tag nil">owner unknown</span>`;
-      const v = r.counted ? `<span class="an-tag ok">counted</span>` : !r.trusted ? `<span class="an-tag fail">unverified</span><br><span style="color:var(--dim)">from ${esc(r.source || "unknown source")}</span>` : !r.reproduced ? `<span class="an-tag fail">digest differs</span>` : r.outcome !== "pass" ? `<span class="an-tag fail">${esc(r.outcome || "no outcome")}</span>` : `<span class="an-tag rep">not counted</span>`;
+      const v = r.counted ? `<span class="an-tag ok">checked before paid</span>` : !r.trusted ? `<span class="an-tag fail">unverified</span><br><span style="color:var(--dim)">from ${esc(r.source || "unknown source")}</span>` : !r.reproduced ? `<span class="an-tag fail">digest differs</span>` : r.outcome !== "pass" ? `<span class="an-tag fail">${esc(r.outcome || "no outcome")}</span>` : r.proven ? `<span class="an-tag rep">proven, not checked before paid</span>` : `<span class="an-tag rep">not counted</span>`;
+      // What the check did: what it recommended, what the buyer did, and where the check lives (a tx link when it is on chain; an anchor link for the evidence digest).
+      const g = r.gate_row, link = (p) => (p && p.href ? ` <a href="${esc(p.href)}" target="_blank" rel="noopener">${esc(p.link)}</a>` : "");
+      const gcell = !r.trusted ? `<span style="color:var(--dim)">not looked at: unverified</span>` : g ? `recommended: ${esc(g.recommended)}<br>buyer: ${esc(g.buyer)}<br><span style="color:var(--dim)">check: ${esc(g.state)}${link(g.parts[3])}</span>${g.anchor ? `<br><span style="color:var(--dim)">${esc(g.anchor.label)}${link(g.parts[4])}</span>` : ""}` : `<span style="color:var(--dim)">not read</span>`;
       const same = r.stored_digest && r.recomputed_digest && r.stored_digest === r.recomputed_digest;
             // An unverified row's owners and price are only what its file claims: greyed and labelled, not stated as fact.
       const cl = (x) => (r.trusted ? x : `<span style="color:var(--faint)">claims ${x}</span>`);
-      return `<tr><td class="mono">${esc(String(r.id || "").slice(0, 8) || "none")}</td><td>${cl(esc(r.buyer_owner_label ?? "not observed"))}</td><td>${esc(r.seller_handle ?? "not observed")}<br><span class="mono" style="color:var(--dim)">${cl(esc(r.seller_owner_label ?? "not observed"))}</span></td><td>${r.trusted ? own : cl(own.replace("an-tag ok", "an-tag nil"))}</td><td class="mono">${cl(r.price_usdc == null ? "not observed" : "$" + r.price_usdc)}</td><td>${v}<br><span style="color:var(--dim)">checker: ${esc(r.outcome ?? "none")}</span></td><td class="mono">${esc(short(r.stored_digest))}<br>${esc(short(r.recomputed_digest))}<br><span style="color:${same ? "var(--ok)" : "var(--fail)"}">${same ? "match" : "no match"}</span></td></tr>`;
+      return `<tr><td class="mono">${esc(String(r.id || "").slice(0, 8) || "none")}</td><td>${cl(esc(r.buyer_owner_label ?? "not observed"))}</td><td>${esc(r.seller_handle ?? "not observed")}<br><span class="mono" style="color:var(--dim)">${cl(esc(r.seller_owner_label ?? "not observed"))}</span></td><td>${r.trusted ? own : cl(own.replace("an-tag ok", "an-tag nil"))}</td><td class="mono">${cl(r.price_usdc == null ? "not observed" : "$" + r.price_usdc)}</td><td>${v}<br><span style="color:var(--dim)">checker: ${esc(r.outcome ?? "none")}</span></td><td>${gcell}</td><td class="mono">${esc(short(r.stored_digest))}<br>${esc(short(r.recomputed_digest))}<br><span style="color:${same ? "var(--ok)" : "var(--fail)"}">${same ? "match" : "no match"}</span></td></tr>`;
     }).join("");
-    return sec(s.proven_total ? `${fmt(s.proven_total)} receipt${s.proven_total === 1 ? "" : "s"} survive${s.proven_total === 1 ? "s" : ""} the checker and the owner test` : "No receipt survives the checker and the owner test",
-      "A receipt counts only if it is one of this site's runs, the checker re-run here gives the stored digest, the outcome is pass, and the buyer's owner differs from the seller's. A dropped file is unverified: its owners are only what it says.",
-      `<div class="an-twrap"><table><thead><tr><th>Job</th><th>Buyer owner</th><th>Seller</th><th>Owners</th><th>Price</th><th>Verdict</th><th title="first 8 hex">Digest: stored, recomputed</th></tr></thead><tbody>${rows}</tbody></table></div>`,
+    return sec(s.checked_total ? `${fmt(s.checked_total)} receipt${s.checked_total === 1 ? " was" : "s were"} checked before the buyer paid` : s.proven_total ? `No receipt was checked before the buyer paid. ${fmt(s.proven_total)} re-check${s.proven_total === 1 ? "" : "s"} and ${s.proven_total === 1 ? "has" : "have"} two owners (proven), but ${s.proven_total === 1 ? "was" : "were"} not checked before paid` : "No receipt survives the checker and the owner test",
+      "A receipt is checked before paid only if it is one of this site's runs, the checker re-run here gives the stored digest, the outcome is pass, the buyer's owner differs from the seller's, AND the checker's pass was recorded on NEAR before the buyer accepted, with the buyer accepting by hand. A receipt that meets all but the last is proven, not checked before paid. A buyer who accepts although the check failed, or sends back although it passed, is shown and never counted. A dropped file is unverified: its owners are only what it says.",
+      `<div class="an-twrap"><table><thead><tr><th>Job</th><th>Buyer owner</th><th>Seller</th><th>Owners</th><th>Price</th><th>Verdict</th><th>Check and what the buyer did</th><th title="first 8 hex">Digest: stored, recomputed</th></tr></thead><tbody>${rows}</tbody></table></div>`,
       "source: run files in this repo, re-checked in your browser when the page loaded");
   }
 
@@ -246,7 +253,7 @@
     container.setAttribute("aria-label", "Analysis: the market's numbers next to the proof");
     const kpi = (k, v, sub, cls) => `<div class="an-kpi ${cls || ""}"><dt>${k}</dt><dd>${esc(v)}${sub ? `<small>${esc(sub)}</small>` : ""}</dd></div>`;
     container.innerHTML = `<div class="an-head"><div><h2 id="an-title">What the numbers say</h2><p>${esc(src)}</p></div><button type="button" class="an-x" aria-label="Close analysis">&times;</button></div>
-    <div class="an-body" role="region" aria-labelledby="an-title"><section><dl class="an-kpis">${kpi("agents listed", h.n)}${kpi("delivered, market's word", h.delivered_total)}${kpi("never delivered", pct(s.zero.share), `${fmt(s.zero.count)} of ${fmt(s.n)}`)}${kpi("available now", pct(s.available.share), `${fmt(s.available.count)} of ${fmt(s.n)}`)}${kpi("proven, re-checked", h.proven_total, "from different owners", "ok")}</dl><p class="an-src">${esc(src)}</p></section>
+    <div class="an-body" role="region" aria-labelledby="an-title"><section><dl class="an-kpis">${kpi("agents listed", h.n)}${kpi("delivered, market's word", h.delivered_total)}${kpi("never delivered", pct(s.zero.share), `${fmt(s.zero.count)} of ${fmt(s.n)}`)}${kpi("available now", pct(s.available.share), `${fmt(s.available.count)} of ${fmt(s.n)}`)}${kpi("checked before paid", h.checked_total, "pass on chain before the buyer accepted", "ok")}${kpi("proven receipts", h.proven_total, "re-check, pass, two owners")}${kpi("proven, not checked before paid", String(s.proven_total - s.checked_total), "re-check, two owners, no earlier check")}</dl><p class="an-src">${esc(src)}</p></section>
     ${histogram(s, src)}${categories(s, src)}${scatter(s, src)}${response(s, src)}${availability(s, src)}${receiptsTable(s)}</div>`;
     // Hiding is the host's job; this only tells it the viewer asked to close.
     container.querySelector(".an-x").addEventListener("click", () => { container.hidden = true; container.dispatchEvent(new CustomEvent("analysis:close", { bubbles: true })); });

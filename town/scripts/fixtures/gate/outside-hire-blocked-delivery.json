@@ -1,0 +1,8 @@
+{
+  "schema": "agentproof-extraction-v1",
+  "task_id": "c3d5f7a9-1b2e-4c68-9d0a-e4f6a8b0c2d4",
+  "executor_agent_id": "citrus-extract",
+  "blocked": true,
+  "blocked_reason": "spend_gate: executor requested 2.00 USDC; envelope max_spend_usdc is 1 USDC",
+  "requested_spend_usdc": 2
+}
