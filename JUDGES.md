@@ -8,6 +8,8 @@ Patent pending: a US provisional application covering this work has been filed. 
 
 **The idea in one line.** Check the work against the brief before you pay. A separate checker runs the delivery against the brief and writes a checklist (one line per field) and a recommendation. Both are recorded on a NEAR contract before the buyer decides. The buyer then accepts or sends the work back by hand on market.near.ai. The checker recommends, it never decides, and no code here moves money. `--execute` never touches the market and `--confirm` only reads what the buyer did.
 
+**What this adds.** Each check recorded on chain here is on a real NEAR Agent Market job: a real seller with a different owner, paid in USDC, accepted by the buyer by hand on market.near.ai. For each job, the check of that exact delivery sits on NEAR testnet with a block time before the buyer's accept, and anyone can re-read it over public RPC and re-run the checker in a browser to get the same verdict. It has also caught a real delivery that did not meet the brief: citrus-extract's first delivery was a refusal, the check failed it, the buyer sent it back, and only the passing redelivery was accepted.
+
 **Where it stands, said plainly.** The checklist logic, the contract code and a dry run are built and tested offline. The contract that records checks is deployed on NEAR testnet (deploy tx [4qXpVK9Q...](https://testnet.nearblocks.io/txns/4qXpVK9QKPJzPUkUQB6g9QhjPPJzFdegNd8QGaLTgJbi)) and holds 2 checks, so **2 jobs are checked before paid**, both ohwow hiring a seller with a different owner for 0.50 USDC. `8a20efe5`, Alex Pavliuk's `web-page-extractor`: the check passed and was recorded at block 277282896 (2026-11-11 23:30:02.755 UTC, tx [SjL5D7nm...](https://testnet.nearblocks.io/txns/SjL5D7nmgphzPrzrJFKF47nidjZmCYJyVxVfn5VUFGe)), and the buyer accepted by hand on market.near.ai 158.9 s later (23:32:41.618 UTC). `34d0f7a5`, Citrus Coast AI's `citrus-extract`: the first delivery was a refusal ("No URL was found in the hire brief"), the checker failed it (not JSON, so there was nothing to record on chain) and the buyer sent it back by hand. The redelivery passed all 9 lines, the check was recorded at block 277285351 (2026-11-11 23:54:31.298 UTC, tx [9EBhyxkb...](https://testnet.nearblocks.io/txns/9EBhyxkbRFKsmJFEM2mEM1Wox8drkogyUUf9VsZUjh9p)), and the buyer accepted by hand 614.7 s later (2026-11-12 00:04:46.010 UTC). On the 2026-11-06 snapshot: 631 agents and 532 delivered jobs (both hires came after it). Three receipts re-check across two different owners: `8a20efe5`, `34d0f7a5`, and `2d17e4c8`, which was paid on 2026-11-04, before any check, so it is a proven receipt and not a checked-before-paid one.
 
 Hosted (live after Nov 11): https://ceoclaw.github.io/agent-economy-near/town/ runs the browser rows below with no setup. The local path works now and always.
@@ -20,6 +22,18 @@ cd agent-economy-near/town
 ```
 
 ## 2. Do X, see Y
+
+### The two checked jobs, one row each
+
+Both rows come from one command, `node scripts/verify-decisions.mjs` (public RPC, no key), which reads each check from `agentproof-town.testnet` and prints its block time next to the market's accept time.
+
+| Job | Seller (owner differs from buyer) | Check on NEAR testnet | Buyer accepted on market.near.ai | Check first by | You should see |
+|---|---|---|---|---|---|
+| `8a20efe5` | `web-page-extractor` (Alex Pavliuk) | block 277282896, 2026-11-11 23:30:02.755 UTC, [tx SjL5D7nm...](https://testnet.nearblocks.io/txns/SjL5D7nmgphzPrzrJFKF47nidjZmCYJyVxVfn5VUFGe) | 2026-11-11 23:32:41.618 UTC | 158.9 s | `OK    8a20efe5 (runs/market-8a20efe5.json): on chain n=0, pass -> accept, block 277282896, ...` then `checked_before_paid: The check passed and was recorded on chain before the buyer paid. (block 2026-11-11T23:30:02.755Z, accepted 2026-11-11T23:32:41.618120Z, 158.9 s later)` |
+| `34d0f7a5` | `citrus-extract` (Citrus Coast AI) | block 277285351, 2026-11-11 23:54:31.298 UTC, [tx 9EBhyxkb...](https://testnet.nearblocks.io/txns/9EBhyxkbRFKsmJFEM2mEM1Wox8drkogyUUf9VsZUjh9p) | 2026-11-12 00:04:46.010 UTC | 614.7 s | `OK    34d0f7a5 (runs/market-34d0f7a5.json): on chain n=0, pass -> accept, block 277285351, ...` then `checked_before_paid: The check passed and was recorded on chain before the buyer paid. (block 2026-11-11T23:54:31.298Z, accepted 2026-11-12T00:04:46.010398Z, 614.7 s later)` |
+
+To see the same verdict without the chain: `node scripts/gate.mjs 8a20efe5` and `node scripts/gate.mjs 34d0f7a5` re-run the checker on the stored delivery and print `verdict          PASS` (rows in the table below). The citrus-extract first delivery, a refusal, failed the check and was sent back; it was not JSON, so there was nothing to record on chain.
+
 
 | Do | See |
 |---|---|
