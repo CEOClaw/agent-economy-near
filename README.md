@@ -3,7 +3,7 @@
 **Verified Work. Governed Execution. Portable Reputation.**  
 *Rent the rails, own the trust.*
 
-**NEAR AI Hackathon | November 1–14, 2026 | Agent Economy (proposed primary track)**
+**NEAR AI Hackathon | November 1–14, 2026 | Agent Economy**
 
 [Command Center](https://ceoclaw.ai/nearteam/) · [Execution graph](graph.md) · [Acceptance checks](checks.md) · [Progress](progress.md) · [Architecture](ARCHITECTURE.md) · [Hackathon requirements](HACKATHON.md)
 
@@ -15,11 +15,13 @@ Patent pending: a US provisional application covering this work has been filed. 
 
 ## Start here (no account, no key, no install)
 
-**Hosted (live after Nov 11):** https://ceoclaw.github.io/agent-economy-near/town/ (GitHub Pages, static, same files as `town/`). Until then, and always, the local steps below.
+**Hosted:** https://ceoclaw.github.io/agent-economy-near/town/ (GitHub Pages, static, same files as `town/`). The local steps below run the same thing.
 
-**The idea.** Check the work against the brief before you pay. On NEAR Agent Market a buyer accepts a delivery and the money moves, and nothing checks the delivery against the brief first. AgentProof runs a separate checker on the delivery, writes a per-field checklist and a recommendation (accept, or send it back) to a NEAR testnet contract, and only then does the buyer decide, by hand, on market.near.ai. The checker is a helper, not a gate: no code here accepts, sends back, cancels or pays.
+**The idea.** Check the work against the brief before you pay. On NEAR Agent Market a buyer accepts a delivery and the money moves. AgentProof adds a step before that: it runs a separate checker on the delivery, writes a per-field checklist and a recommendation (accept, or send it back) to a NEAR testnet contract, and only then does the buyer decide, by hand, on market.near.ai. The checker is a helper, not a gate: no code here accepts, sends back, cancels or pays.
 
-**Where it stands.** On the 2026-11-06 snapshot, 631 agents say they delivered 532 jobs. 2 were checked before the buyer paid, both hires placed by ohwow on 2026-11-11 with sellers of a different owner: `8a20efe5` (Alex Pavliuk's `web-page-extractor`, check on chain [tx SjL5D7nm...](https://testnet.nearblocks.io/txns/SjL5D7nmgphzPrzrJFKF47nidjZmCYJyVxVfn5VUFGe), buyer accepted 158.9 s later) and `34d0f7a5` (Citrus Coast AI's `citrus-extract`: the first delivery was a refusal and was sent back, the redelivery passed, check on chain [tx 9EBhyxkb...](https://testnet.nearblocks.io/txns/9EBhyxkbRFKsmJFEM2mEM1Wox8drkogyUUf9VsZUjh9p), buyer accepted 614.7 s later). The contract is `agentproof-town.testnet` (deploy tx [4qXpVK9Q...](https://testnet.nearblocks.io/txns/4qXpVK9QKPJzPUkUQB6g9QhjPPJzFdegNd8QGaLTgJbi)).
+**What this adds.** Each check recorded on chain here is on a real NEAR Agent Market job: a real seller with a different owner, paid in USDC, accepted by the buyer by hand on market.near.ai. For each job, the check of that exact delivery sits on NEAR testnet with a block time before the buyer's accept, and anyone can re-read it over public RPC and re-run the checker in a browser to get the same verdict. It has also caught a real delivery that did not meet the brief: citrus-extract's first delivery was a refusal, the check failed it, the buyer sent it back, and only the passing redelivery was accepted.
+
+**Where it stands.** On the 2026-11-06 snapshot, the market reports 532 delivered jobs across 631 agents. AgentProof has checked 2 real jobs before the buyer paid, both hires placed by ohwow on 2026-11-11 (after the snapshot, so not among the 532) with sellers of a different owner: `8a20efe5` (Alex Pavliuk's `web-page-extractor`, check on chain [tx SjL5D7nm...](https://testnet.nearblocks.io/txns/SjL5D7nmgphzPrzrJFKF47nidjZmCYJyVxVfn5VUFGe), buyer accepted 158.9 s later) and `34d0f7a5` (Citrus Coast AI's `citrus-extract`: the first delivery was a refusal and was sent back, the redelivery passed, check on chain [tx 9EBhyxkb...](https://testnet.nearblocks.io/txns/9EBhyxkbRFKsmJFEM2mEM1Wox8drkogyUUf9VsZUjh9p), buyer accepted 614.7 s later). The contract is `agentproof-town.testnet` (deploy tx [4qXpVK9Q...](https://testnet.nearblocks.io/txns/4qXpVK9QKPJzPUkUQB6g9QhjPPJzFdegNd8QGaLTgJbi)). A third hire (kordaix-research, job 11ff0a91, Nov 12) was never started by the seller before its deadline, so there was no delivery to check; it is not counted.
 
 **Tracks:** `agents`, `security`, `swarms`.
 
@@ -46,7 +48,7 @@ Needs Node 18 or newer and Python 3 (only for the static file server). Run every
 3. Do `node scripts/verify-runs.mjs`. See one `OK` line per shipped record, then the portfolio lines: `web-page-extractor` and `citrus-extract` each `proof checked_before_paid 1, proven_receipts 1, distinct_owners 1`, and `ohwow-agent` `proof checked_before_paid 0, proven_receipts 1` (its CEOClaw job `2d17e4c8` re-checks between two owners but was paid on 2026-11-04, before any check). The `market:` line says `live` when market.near.ai answers and `snapshot from <time>` when it does not; the market numbers move with the live market, the check numbers do not.
 4. Do `node scripts/check-analysis.mjs`. See it end with `OK    proven_total (2d17e4c8, 8a20efe5, 34d0f7a5): 3` and `OK    checked_total (8a20efe5 and 34d0f7a5 checked before paid; 2d17e4c8 was paid before any check): 2` and exit 0. These are the Data panel's numbers, recomputed from `data/market-snapshot.json` and the checks read from NEAR testnet.
 5. Do `for t in scripts/test-*.mjs; do node $t || break; done`. The checker, check rule, contract client, signer and market-client tests, all offline (this is what CI runs).
-6. Do `python3 -m http.server 8787` (same as `npm run dev`) and open `http://127.0.0.1:8787/`. Under the header: `Check the work against the brief before you pay. On the 2026-11-06 snapshot, 631 agents say they delivered 532 jobs. 2 were checked before the buyer paid.` Click **Proof view**, then the citrus-extract building: its card lists `34d0f7a5` with `verdict: pass`, `recommended: accept`, `buyer: accepted on Nov 12, after the check was on chain` and `check: on NEAR testnet, read live` linked to its transaction. Open `http://127.0.0.1:8787/?attack=forge` for the smaller check: an edited copy of receipt `2d17e4c8` is refused in red with `It was edited, so nothing was added.`
+6. Do `python3 -m http.server 8787` (same as `npm run dev`) and open `http://127.0.0.1:8787/`. Under the header: `Check the work against the brief before you pay. On the 2026-11-06 snapshot, the market reports 532 delivered jobs across 631 agents. AgentProof has checked 2 real jobs before the buyer paid.` Click **Proof view**, then the citrus-extract building: its card lists `34d0f7a5` with `verdict: pass`, `recommended: accept`, `buyer: accepted on Nov 12, after the check was on chain` and `check: on NEAR testnet, read live` linked to its transaction. Open `http://127.0.0.1:8787/?attack=forge` for the smaller check: an edited copy of receipt `2d17e4c8` is refused in red with `It was edited, so nothing was added.`
 7. Open `http://127.0.0.1:8787/portfolio.html#citrus-extract`. See the shareable card with `1` checked before paid next to the market's numbers. Change the hash to any market handle (for example `#web-research`) and see 0 plus what it would take to get a job checked before paid.
 8. Check Packs (acceptance standards with typed criteria and a judge panel): do `node scripts/test-packs-unit.mjs` (see `28 passed, 0 failed`) and `node scripts/test-packs.mjs` (see `all 6 tests passed`, with `hand agreement: 3 of 4` printed under test 1). Both run offline from stored judge runs in `data/backtest/`; every receipt there is labelled mock and is not market evidence. Open `http://127.0.0.1:8787/?packs=1` to see the receipts in the page. The format is in `town/docs/check-pack-spec.md`.
 
@@ -65,7 +67,7 @@ Stop the server with Ctrl-C when done. `town/README.md` has the full feature lis
 - The market does not consult the contract, and the buyer decides. A buyer can accept by hand with no check, or let the 3-day window auto-accept. Such jobs never count as checked before paid.
 - 2 jobs are checked before paid, both bought by ohwow (one buyer, two sellers). That is a sample, not a track record.
 - A failed check does not block or refund a payment. It recommends a send-back; the buyer decides.
-- The hosted copy goes live after Nov 11; until then every step runs on 127.0.0.1. Hosted, the town draws from the stored snapshot: the live relay is local only.
+- Hosted, the town draws from the stored snapshot: the live relay is local only.
 - Check Packs results are a mock backtest (23 receipts, all `mock: true`), not market evidence. Hand agreement is 3 of 4: site v3 reads `contested` (judges 3/5/4 on brief fit) where the hand review said pass; the threshold was not tuned to change that.
 - On-chain settlement is not verified: payouts are shown as recorded by the market or the seller's wallet.
 
@@ -81,22 +83,9 @@ Stop the server with Ctrl-C when done. `town/README.md` has the full feature lis
 - Tag `pre-hackathon` marks `26d2a2f`, the initial scaffold (one README, no code). Tag `hackathon-submission` marks the submitted state. `git diff --stat pre-hackathon hackathon-submission` is the judged work; `git diff --stat pre-hackathon hackathon-submission -- town/` is the town alone. On GitHub: `compare/pre-hackathon...hackathon-submission`.
 - The product the town reads from (NEAR Agent Market) and the agents in the records (ohwow, CEOClaw) existed before the window and are not judged here; only the code in this repository is.
 
-## What AgentProof is
+## The November 1 plan
 
-AgentProof is a proposed interoperability and evidence layer for agent-to-agent work. Its goal is to let an independent buyer or agent check **what was authorized, what was delivered, whether it passed agreed acceptance tests, and what evidence another system can inspect**. It is *not* another blockchain, a replacement for NEAR Agent Market, or proof that an agent is trustworthy merely because it has an identity NFT.
-
-**The demonstration we are building:** a requester such as Patriot initiates a narrowly defined job using supported NEAR Agent Market rails. An independent executor, such as Ohwow or CEOClaw, delivers a result. A deterministic checker evaluates the actual output against precommitted criteria. The workflow records authorization, job and output references, pass/fail results, and a blocked-overspend scenario. Optional extensions include downstream paid delegation, Peregrines governed execution, dPlaza service discovery, and ERC-8004 identity/feedback on Base.
-
-## Four functional layers
-
-| Layer | Component | Responsibility | Status |
-|---|---|---|---|
-| 1. Discovery and commerce | NEAR Agent Market; dPlaza integration surface | Real job marketplace and supported payment/settlement; optional dPlaza agent-service listing | Existing third-party platforms; new adapter/listing proposed |
-| 2. Independent execution | Patriot, Ohwow, CEOClaw, optional Peregrines HERO/Nero | Request, deliver, possibly subcontract bounded work | Agents exist or are team-reported; specific hackathon flows not yet verified here |
-| 3. AgentProof trust services | Deterministic checker, spend authorization, evidence receipts | Evaluate correctness, distinguish policy decisions from output validation, create reproducible receipts | Defined in specifications; implementation evidence tracked separately |
-| 4. Portable identity | ERC-8004 registries on Base | Identify agents and link appropriately authorized reputation/validation evidence | Existing standard; specific AgentProof integration proposed |
-
-**Trust boundaries:** A signed executor statement or hash does not alone prove local-only execution or task correctness. A deterministic checker can prove the specified synthetic result matches its committed reference, not general truth. ERC-8004 registration or feedback is not a substitute for such evaluation.
+The pre-event plan (what AgentProof is, its four layers, what judges should be able to do, the build window) is kept as written in [docs/planning/2026-11-01-plan.md](docs/planning/2026-11-01-plan.md).
 
 ## The team
 
@@ -109,28 +98,6 @@ Three human collaborators in the joint hackathon effort:
 Supporting agents: **CEOClaw** (operations and engineering), **Chief** (separate Grok-based strategy agent), **Patriot** (research and requesting-agent candidate), and **Chat** (documentation and architecture support). Roles are working assignments and remain subject to contributor review.
 
 **Ownership boundary:** dPlaza is an existing, non-owning integration/product platform for this collaboration; participation does not give dPlaza or Main & Meta an AgentProof ownership interest. Existing platform IP remains with its respective owner. Prize-sharing and any later commercialization are separate from this technical README and are handled privately.
-
-## What judges should be able to do
-
-**Primary success criterion (planned, not claimed complete):**
-1. Open an actual job reference from the supported marketplace and see the authorized amount and task specification.
-2. Retrieve a deliverable and run the published checker against committed synthetic ground truth.
-3. Inspect a pass, a deliberate wrong-output failure, and a blocked authorization attempt with clear reason and evidence.
-4. Reproduce the result from documented inputs, versioned checker code, and receipts.
-
-**Optional, only if implemented:** See a real second agent hire, inspect a Peregrines authorized/rejected policy decision with accurately described evidence assurance, view a dPlaza service listing, and verify an ERC-8004 Base transaction referring to job evidence.
-
-Do not treat mock jobs as paid hires, format validation as correctness, a feedback transaction as truth, or a failed checker as automatic escrow refund. Exact NEAR Market account/payment mechanics require confirmation and authorized funding.
-
-## Build window and status
-
-- **October 21–31:** background research, planning, architecture, source inventory, project graph, Command Center preparation. Preserve as provenance; do not pass off existing platform code as newly developed.
-- **November 1–3 (target):** confirm rules and market/API requirements; implement initial checker, evidence schema and integration harness.
-- **November 4–7 (target):** genuine authorized market transaction, independent verification, and spend-limit evidence. **November 7 is a scope gate.**
-- **November 8–11 (conditional):** dPlaza listing, Peregrines adapter, downstream hire, ERC-8004 feedback as feasible.
-- **November 12–14:** independent replay, security review, demo, submission documentation and human-approved submission.
-
-Dates above are **plans**, not completed milestones. Check [progress.md](progress.md), GitHub issues/PRs and evidence links for the latest recorded state. Actual work should have timestamps, contributors, commits, acceptance tests and reproducible artifacts.
 
 ## Repo navigation
 
@@ -158,5 +125,3 @@ Dates above are **plans**, not completed milestones. Check [progress.md](progres
 - Contributors maintain their underlying IP. Public submission licensing and use of third-party background code require contributor approval.
 - Official rules and submission requirements: [nearhackathon.com](https://nearhackathon.com/). A public repo is not evidence of eligibility by itself; identify which work is qualifying and which existed before the event.
 - **Do not submit early:** the application is treated as a one-shot submission in our captured rules; confirm the latest instructions.
-
-*This README is the public landing page as of November 1, 2026. Earlier concepts remain traceable in Git history and dated planning notes, not as current implementation claims.*

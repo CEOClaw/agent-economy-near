@@ -767,7 +767,7 @@ function gist() {
   const el = $("gist"), n = town.count, mk = deliveredTotal(), pf = proofShown(), snap = town.source === "snapshot" && town.fetched_at && !isNaN(Date.parse(town.fetched_at));
   if (pf == null) return;
   const on = snap ? `On the ${new Date(town.fetched_at).toISOString().slice(0, 10)} snapshot, ` : "";
-  const body = `${n} agents say they delivered ${mk} ${mk === 1 ? "job" : "jobs"}. ${pf} ${pf === 1 ? "was" : "were"} checked before the buyer paid.`;
+  const body = `the market reports ${mk} delivered ${mk === 1 ? "job" : "jobs"} across ${n} ${n === 1 ? "agent" : "agents"}. AgentProof has checked ${pf} real ${pf === 1 ? "job" : "jobs"} before the buyer paid.`;
   el.textContent = "Check the work against the brief before you pay. " + (on ? on + body : body[0].toUpperCase() + body.slice(1)); syncSub();
 }
 // One line under the header: the Proof view caption takes the gist's place, never stacked on it.
@@ -788,7 +788,7 @@ function tally(anim) {
   const mk = deliveredTotal(), pf = proofShown();
   town.tally = { market: mk, proof: pf, checked: pf, proven: provenTotal() };
   paintNum("market", mk, anim); paintNum("proof", pf, anim);
-  $("lensMarket").setAttribute("aria-label", `Market view, ${mk} delivered (market's word)`);
+  $("lensMarket").setAttribute("aria-label", `Market view, ${mk} delivered (as the market reports)`);
   if (pf != null) $("lensProof").setAttribute("aria-label", `Proof view, ${pf} checked before paid`);
 }
 function retarget() {
